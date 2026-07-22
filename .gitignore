@@ -141,3 +141,23 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+# ParishHub — hemligheter och lokala inställningar
+
+# Miljövariabler — får ALDRIG committas
+.env
+.env.*
+!.env.example
+
+# Claude — personliga inställningar
+.claude/settings.local.json
+
+# System-filer
+.DS_Store
+Thumbs.db
+
+# VS Code — lokala inställningar
+.vscode/settings.json
+
+# Byggda filer
+dist/
+build/
