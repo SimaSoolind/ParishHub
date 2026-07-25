@@ -34,6 +34,9 @@ AI-tolkning live på svenska + arabiska.
 - Backend + Databas: Railway
 
 ## 📐 Kodregler
+- **Variabler, funktioner, filer, klasser: ENGELSKA** (inga svenska tecken å/ä/ö)
+- **Kommentarer: SVENSKA** (objektivt språk, studentspråk)
+- **UI-text som visas för användaren: SVENSKA**
 - Skriv ALL kod i TypeScript — inga .js eller .jsx
 - Använd `import`/`export` — inte `require`
 - Funktionella komponenter i React — aldrig class components
@@ -158,3 +161,6 @@ function getMemberById(id: string) {
 - Lägg alltid till kommentarer på svenska i koden
 - Följ kommentarsreglerna ovan (objektivt språk)
 - Kom ihåg: Sima har ADHD och dyslexi — korta stycken, tydlig struktur
+- Påminn alltid Sima att skriva dags-logg i DAGBOK.md innan hon avslutar
+- Fråga om något ska loggas som milstolpe i DAGBOK.md
+- Följ mallen i docs/MALL-SETUP.md för nya projekt-tillägg
