@@ -1,5 +1,5 @@
-// Contact — beskriver en person som prasten bor kontakta
-// Anvands av PriorityList och senare av backend
+// Contact — beskriver en person som prästen bör kontakta
+// Används av PriorityList och senare av backend
 
 export type ContactStatus = "not-contacted" | "attempted" | "answered"
 

@@ -1,6 +1,9 @@
 // PriorityList visar personer som prästen bör kontakta
 // Varje rad har namn, anledning, statusetikett och en ring-knapp
 // Ring-knappen öppnar telefonens uppringningsapp
+//
+// Används av: Dashboard.tsx
+// Bygger på: Badge (visar status med färg)
 
 import { PhoneCall } from "lucide-react"
 import { Badge } from "./Badge"
@@ -18,6 +21,9 @@ const statusInfo: Record<ContactStatus, { color: "red" | "amber" | "green"; labe
   answered: { color: "green", label: "Svarat" }
 }
 
+// Ritar en lista med kontakter, en rad per person
+// Tar emot en lista med Contact-objekt som prop
+// Returnerar listan som JSX
 export function PriorityList({ contacts }: Props) {
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200 mt-6">

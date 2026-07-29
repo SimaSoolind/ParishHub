@@ -1,7 +1,12 @@
 // useDateTime — custom hook som räknar ut aktuellt datum och hälsning
 // Returnerar formaterat svenskt datum och rätt hälsning beroende på tid
 // Används på Dashboard för att slippa hårdkoda datum och tid
+//
+// Används av: Dashboard.tsx
 
+// Räknar ut aktuellt datum och hälsning från datorns klocka
+// Tar inga argument
+// Returnerar ett objekt med date (formaterat datum) och greeting (hälsning)
 export function useDateTime() {
   // Skapar ett Date-objekt med aktuell tid från datorn
   const now = new Date()

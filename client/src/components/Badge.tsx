@@ -1,6 +1,8 @@
-// Badge visar en liten fargad etikett
-// Anvands overallt i appen for att visa status
-// Farg valjs via color-prop
+// Badge visar en liten färgad etikett
+// Används överallt i appen för att visa status
+// Färg väljs via color-prop
+//
+// Används av: PriorityList.tsx (fler delar kan använda den senare)
 
 import type { ReactNode } from "react"
 
@@ -9,7 +11,7 @@ interface Props {
   children: ReactNode
 }
 
-// Farg-mappning kopplar namn till Tailwind-klasser
+// Färg-mappning kopplar namn till Tailwind-klasser
 const colorClasses = {
   red: "bg-red-100 text-red-800 border-red-200",
   blue: "bg-blue-100 text-blue-800 border-blue-200",
@@ -17,6 +19,9 @@ const colorClasses = {
   amber: "bg-amber-100 text-amber-800 border-amber-200",
 }
 
+// Ritar en färgad etikett runt valfritt innehåll
+// Tar emot color (färg) och children (innehållet som visas)
+// Returnerar etiketten som JSX
 export function Badge({ color, children }: Props) {
   const classes = colorClasses[color]
 

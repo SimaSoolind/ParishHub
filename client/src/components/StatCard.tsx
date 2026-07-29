@@ -2,6 +2,8 @@
 // Används på Dashboard för att visa statistik som medlemsantal, närvaro etc.
 // Tar emot label, value, color och Icon som props
 // Icon är en React-komponent från lucide-react (t.ex. Users, Check)
+//
+// Används av: Dashboard.tsx
 
 import type { LucideIcon } from "lucide-react"
 
@@ -22,6 +24,9 @@ const colorClasses = {
   red: "bg-red-50 border-red-200 text-red-800",
 }
 
+// Ritar ett statistik-kort med ikon, siffra och etikett
+// Tar emot label, value, color och Icon (se StatCardProps)
+// Returnerar kortet som JSX
 export function StatCard({ label, value, color, Icon }: StatCardProps) {
   // Plockar rätt CSS-klasser baserat på färg-prop
   const classes = colorClasses[color]

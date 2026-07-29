@@ -1,9 +1,14 @@
 // Layout — gemensam ram runt alla sidor
 // Innehåller header som visas på varje sida
 // Outlet-elementet är där aktuell sida sätts in
+//
+// Används av: App.tsx (ramar in Dashboard, Members och Calendar)
 
 import { Outlet, Link } from "react-router-dom"
 
+// Ritar gemensam header med navigering och en <Outlet>
+// Outlet fylls med den sida som matchar aktuell URL
+// Tar inga props och returnerar sidramen som JSX
 export function Layout() {
   return (
     <div className="min-h-screen bg-stone-100">
