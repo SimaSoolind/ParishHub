@@ -1,44 +1,45 @@
-// AddEventModal — formulär för att skapa ELLER ändra ett event
-// Prästen fyller i titel, datum, kategori och anteckningar
+// AddServiceModal — formulär för att skapa en ny gudstjänst
+// Prästen fyller i titel, datum, starttid och anteckningar
 // Skickar värdena till föräldern via onSave-prop
-// Om initialData skickas in öppnas formuläret förifyllt (redigeringsläge)
 //
-// Används av: Calendar.tsx
+// Används av: Services.tsx
 
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
-import { lifeEventCategoryOptions } from "../data/eventCategories"
-import { newEventSchema } from "../schemas/eventSchema"
-
-// Beskriver formen för ett nytt event som skickas till föräldern
-export interface NewEventData {
-  title: string
-  date: string
-  category: string
-  notes?: string
-}
+import type { NewServiceData } from "../types/service"
+import { newServiceSchema } from "../schemas/serviceSchema"
 
 interface Props {
-  onSave: (event: NewEventData) => void
+  onSave: (service: NewServiceData) => void
   onClose: () => void
-  // Förifyllda värden — vid redigering, eller bara datum vid klick på en dag
-  initialData?: NewEventData
-  // Sant vid redigering — styr rubrik och knapptext
-  isEdit?: boolean
 }
 
+// Dagens datum i ISO-format (YYYY-MM-DD) — används som standardvärde
+// Sätts dynamiskt istället för ett låst datum
+const today = new Date().toISOString().split("T")[0]
+
+// Förslag på titlar prästen kan välja snabbt
+// Fritext-fältet under används för egna namn (t.ex. Fasta eller Jul)
+const presetTitles = [
+  "Huvudgudstjänst",
+  "Gudstjänst",
+  "Söndagsgudstjänst",
+  "Den heliga liturgin",
+]
+
 // Ritar formuläret och håller fältens värden i state
-// Tar emot onSave (spara-funktion) och onClose (stäng-funktion) som props
+// Tar emot onSave (spara) och onClose (stäng)
 // Returnerar modalen som JSX
-export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: Props) {
-  // State för varje formulär-fält — förifylls vid redigering, annars tomt
-  const [title, setTitle] = useState(initialData?.title ?? "")
-  const [date, setDate] = useState(initialData?.date ?? "")
-  const [category, setCategory] = useState(initialData?.category ?? "baptism")
-  const [notes, setNotes] = useState(initialData?.notes ?? "")
+export function AddServiceModal({ onSave, onClose }: Props) {
+  // State för varje fält — titel tom, datum = idag, starttid som förslag
+  const [title, setTitle] = useState("")
+  const [date, setDate] = useState(today)
+  const [startTime, setStartTime] = useState("10:00")
+  const [endTime, setEndTime] = useState("")
+  const [notes, setNotes] = useState("")
 
   // Håller felmeddelanden per fält från valideringen
-  const [errors, setErrors] = useState<{ title?: string; date?: string }>({})
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   // Stänger modalen när Escape trycks (tillgänglighet)
   useEffect(() => {
@@ -54,25 +55,25 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    const result = newEventSchema.safeParse({
+    const result = newServiceSchema.safeParse({
       title,
       date,
-      category,
+      startTime,
+      endTime: endTime || undefined,
       notes: notes || undefined,
     })
 
-    // Om valideringen misslyckas — visa felmeddelanden och avbryt
+    // Om valideringen misslyckas — samla felmeddelanden per fält och avbryt
     if (!result.success) {
-      const fieldErrors: { title?: string; date?: string } = {}
+      const fieldErrors: Record<string, string> = {}
       for (const issue of result.error.issues) {
-        if (issue.path[0] === "title") fieldErrors.title = issue.message
-        if (issue.path[0] === "date") fieldErrors.date = issue.message
+        const field = String(issue.path[0])
+        if (!fieldErrors[field]) fieldErrors[field] = issue.message
       }
       setErrors(fieldErrors)
       return
     }
 
-    // Skickar det validerade eventet till föräldern
     setErrors({})
     onSave(result.data)
   }
@@ -90,9 +91,7 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
       >
         {/* Rubrik-rad med stäng-knapp */}
         <div className="flex items-start justify-between mb-4">
-          <h2 className="text-xl font-bold text-stone-800">
-            {isEdit ? "Redigera händelse" : "Ny händelse"}
-          </h2>
+          <h2 className="text-xl font-bold text-stone-800">Ny gudstjänst</h2>
           <button
             onClick={onClose}
             className="p-1 rounded-full hover:bg-stone-100"
@@ -102,18 +101,35 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
           </button>
         </div>
 
-        {/* Själva formuläret — onSubmit triggas vid Spara-klick */}
         <form onSubmit={handleSubmit}>
-          {/* Titel-fält */}
+          {/* Titel — snabbval-knappar + fritext för eget namn (maxLength 100) */}
           <div className="mb-4">
             <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
               Titel
             </label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {presetTitles.map((preset) => (
+                <button
+                  type="button"
+                  key={preset}
+                  onClick={() => setTitle(preset)}
+                  className={
+                    "px-3 py-1 rounded-full text-xs font-semibold border " +
+                    (title === preset
+                      ? "bg-amber-800 text-white border-amber-800"
+                      : "bg-white text-stone-600 border-stone-200 hover:border-amber-800")
+                  }
+                >
+                  {preset}
+                </button>
+              ))}
+            </div>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="T.ex. Dop — Familjen Svensson"
+              maxLength={100}
+              placeholder="Eller skriv eget, t.ex. Fasta eller Jul"
               className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none"
             />
             {errors.title && (
@@ -121,7 +137,7 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
             )}
           </div>
 
-          {/* Datum-fält */}
+          {/* Datum */}
           <div className="mb-4">
             <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
               Datum
@@ -137,25 +153,36 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
             )}
           </div>
 
-          {/* Kategori-dropdown */}
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
-              Kategori
-            </label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none"
-            >
-              {lifeEventCategoryOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+          {/* Starttid och sluttid bredvid varandra */}
+          <div className="flex gap-3 mb-4">
+            <div className="flex-1">
+              <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
+                Starttid
+              </label>
+              <input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none"
+              />
+              {errors.startTime && (
+                <p className="text-xs text-red-600 mt-1">{errors.startTime}</p>
+              )}
+            </div>
+            <div className="flex-1">
+              <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
+                Sluttid (frivilligt)
+              </label>
+              <input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none"
+              />
+            </div>
           </div>
 
-          {/* Anteckningar — valfritt fält */}
+          {/* Anteckningar — valfritt fält (maxLength 500) */}
           <div className="mb-6">
             <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
               Anteckningar (frivilligt)
@@ -163,8 +190,9 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="T.ex. Ta med bibel och bön"
-              rows={3}
+              maxLength={500}
+              rows={2}
+              placeholder="T.ex. Predikan om barmhärtighet"
               className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none resize-none"
             />
           </div>
@@ -182,7 +210,7 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
               type="submit"
               className="flex-1 px-4 py-2 bg-amber-800 text-white rounded-xl font-semibold hover:bg-amber-900"
             >
-              {isEdit ? "Spara ändring" : "Spara"}
+              Spara
             </button>
           </div>
         </form>

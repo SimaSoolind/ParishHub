@@ -4,6 +4,7 @@
 //
 // Används av: Calendar.tsx
 
+import { useEffect, useState } from "react"
 import { X, Trash2, Pencil } from "lucide-react"
 import { categoryLabels } from "../data/eventCategories"
 
@@ -43,6 +44,18 @@ function formatDate(date: Date): string {
 // Returnerar modalen som JSX
 export function EventModal({ event, onClose, onEdit, onDelete }: Props) {
   const categoryLabel = categoryLabels[event.category] || event.category
+
+  // Sant när prästen klickat Radera och ska bekräfta borttagningen
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+
+  // Stänger modalen när Escape trycks (tillgänglighet)
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose()
+    }
+    window.addEventListener("keydown", handleKey)
+    return () => window.removeEventListener("keydown", handleKey)
+  }, [onClose])
 
   return (
     // Backdrop — mörkt lager över hela skärmen
@@ -93,10 +106,30 @@ export function EventModal({ event, onClose, onEdit, onDelete }: Props) {
           <p className="text-xs text-stone-400 italic mt-5">
             Från den koptiska kyrkokalendern
           </p>
+        ) : confirmingDelete ? (
+          <div className="mt-5">
+            <p className="text-sm text-stone-700 mb-3">
+              Radera <span className="font-semibold">{event.title}</span>? Detta går inte att ångra.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirmingDelete(false)}
+                className="flex-1 px-4 py-2 border border-stone-200 rounded-xl font-semibold text-stone-600 hover:bg-stone-50"
+              >
+                Avbryt
+              </button>
+              <button
+                onClick={onDelete}
+                className="flex-1 px-4 py-2 bg-red-700 text-white rounded-xl font-semibold hover:bg-red-800"
+              >
+                Ja, radera
+              </button>
+            </div>
+          </div>
         ) : (
           <div className="flex gap-2 mt-5">
             <button
-              onClick={onDelete}
+              onClick={() => setConfirmingDelete(true)}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-red-200 rounded-xl font-semibold text-red-700 hover:bg-red-50"
             >
               <Trash2 size={16} />

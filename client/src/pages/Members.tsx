@@ -3,12 +3,16 @@
 //
 // Används av: App.tsx (sidan för URL "/medlemmar")
 // Bygger på: useMemberSearch (logik) och MemberCard (visning)
-// Data: mockMembers (byts mot backend senare)
+// Data: startar från mockMembers, ligger sedan i state så nya kan läggas till
 
-import { Search } from "lucide-react"
+import { useState } from "react"
+import { Search, Plus } from "lucide-react"
 import { MemberCard } from "../components/MemberCard"
+import { AddMemberModal } from "../components/AddMemberModal"
+import { MemberProfileModal } from "../components/MemberProfileModal"
 import { useMemberSearch } from "../hooks/useMemberSearch"
 import type { FilterCategory } from "../hooks/useMemberSearch"
+import type { Member, NewMemberData } from "../types/member"
 import { mockMembers } from "../data/members.mock"
 
 // TODO: göra dynamiskt när backend finns
@@ -24,14 +28,63 @@ const filterOptions: { value: FilterCategory; label: string }[] = [
 // Sök- och filter-logik ligger i useMemberSearch — här bara visning
 // Tar inga props och returnerar sidan som JSX
 export function Members() {
+  // Hela medlemslistan — ligger i state så nya kan läggas till
+  const [members, setMembers] = useState<Member[]>(mockMembers)
+
+  // Styr om Ny-medlem-modalen är öppen
+  const [addModalOpen, setAddModalOpen] = useState(false)
+
+  // Håller medlemmen som redigeras — null när ingen redigeras
+  const [editingMember, setEditingMember] = useState<Member | null>(null)
+
+  // Håller medlemmen vars profil visas — null när ingen är vald
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null)
+
   const { searchText, setSearchText, filter, setFilter, filteredMembers } =
-    useMemberSearch(mockMembers)
+    useMemberSearch(members)
 
   const total = filteredMembers.length
 
+  // Körs när prästen sparar en ny medlem från formuläret
+  // Skapar ett Member med nytt id och lägger till det i listan
+  const handleAddMember = (newMember: NewMemberData) => {
+    const memberToAdd: Member = {
+      id: "m" + Date.now(),
+      ...newMember,
+    }
+    setMembers((prev) => [...prev, memberToAdd])
+    setAddModalOpen(false)
+  }
+
+  // Körs när prästen sparar en ändring
+  // Ersätter medlemmen med samma id med de nya värdena (id behålls)
+  const handleUpdateMember = (updated: NewMemberData) => {
+    if (!editingMember) return
+    setMembers((prev) =>
+      prev.map((member) =>
+        member.id === editingMember.id ? { ...member, ...updated } : member
+      )
+    )
+    setEditingMember(null)
+  }
+
+  // Tar bort medlemmen med angivet id ur listan
+  const handleDeleteMember = (id: string) => {
+    setMembers((prev) => prev.filter((member) => member.id !== id))
+  }
+
   return (
     <div>
-      <h1 className="text-3xl font-bold text-stone-800 mb-2">Medlemmar</h1>
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="text-3xl font-bold text-stone-800">Medlemmar</h1>
+        <button
+          onClick={() => setAddModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-800 text-white text-sm font-semibold hover:bg-amber-900"
+        >
+          <Plus size={16} />
+          Ny medlem
+        </button>
+      </div>
       <p className="text-stone-600 mb-6">Totalt {total} medlemmar</p>
 
       <div className="relative mb-4">
@@ -72,11 +125,60 @@ export function Members() {
             Inga medlemmar hittades.
           </p>
         ) : (
-          filteredMembers.map((member) => (
-            <MemberCard key={member.id} member={member} />
-          ))
+          <ul>
+            {filteredMembers.map((member) => (
+              <MemberCard
+                key={member.id}
+                member={member}
+                onSelect={() => setSelectedMember(member)}
+              />
+            ))}
+          </ul>
         )}
       </div>
+
+      {/* Profil-modal visas när en medlem klickats */}
+      {selectedMember && (
+        <MemberProfileModal
+          member={selectedMember}
+          onClose={() => setSelectedMember(null)}
+          onEdit={() => {
+            setEditingMember(selectedMember)
+            setSelectedMember(null)
+          }}
+          onDelete={() => {
+            handleDeleteMember(selectedMember.id)
+            setSelectedMember(null)
+          }}
+        />
+      )}
+
+      {/* Ny-medlem-modal visas när Ny-knappen klickats */}
+      {addModalOpen && (
+        <AddMemberModal
+          onSave={handleAddMember}
+          onClose={() => setAddModalOpen(false)}
+        />
+      )}
+
+      {/* Redigera-modal visas när en medlem redigeras — förifylld med värdena */}
+      {editingMember && (
+        <AddMemberModal
+          isEdit
+          initialData={{
+            name: editingMember.name,
+            phone: editingMember.phone,
+            email: editingMember.email,
+            address: editingMember.address,
+            familySize: editingMember.familySize,
+            birthday: editingMember.birthday,
+            category: editingMember.category,
+            notes: editingMember.notes,
+          }}
+          onSave={handleUpdateMember}
+          onClose={() => setEditingMember(null)}
+        />
+      )}
     </div>
   )
 }

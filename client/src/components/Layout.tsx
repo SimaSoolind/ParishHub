@@ -5,6 +5,7 @@
 // Används av: App.tsx (ramar in Dashboard, Members och Calendar)
 
 import { Outlet, Link } from "react-router-dom"
+import { ErrorBoundary } from "./ErrorBoundary"
 
 // Ritar gemensam header med navigering och en <Outlet>
 // Outlet fylls med den sida som matchar aktuell URL
@@ -29,13 +30,19 @@ export function Layout() {
             <Link to="/kalender" className="hover:text-amber-800">
               Kalender
             </Link>
+            <Link to="/gudstjanster" className="hover:text-amber-800">
+              Gudstjänster
+            </Link>
           </nav>
         </div>
       </header>
 
       {/* Här sätts den aktuella sidan in */}
       <main className="max-w-4xl mx-auto p-6">
-        <Outlet />
+        {/* ErrorBoundary fångar fel i sidan så menyn lever kvar */}
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </main>
     </div>
   )
