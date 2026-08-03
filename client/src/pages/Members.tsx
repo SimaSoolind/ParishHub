@@ -7,27 +7,25 @@
 
 import { useState } from "react"
 import { Search, Plus } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { MemberCard } from "../components/MemberCard"
 import { AddMemberModal } from "../components/AddMemberModal"
 import { MemberProfileModal } from "../components/MemberProfileModal"
+import { GroupMessageModal } from "../components/GroupMessageModal"
 import { useMemberSearch } from "../hooks/useMemberSearch"
 import type { FilterCategory } from "../hooks/useMemberSearch"
 import type { Member, NewMemberData } from "../types/member"
 import { mockMembers } from "../data/members.mock"
 
-// TODO: göra dynamiskt när backend finns
-const filterOptions: { value: FilterCategory; label: string }[] = [
-  { value: "all", label: "Alla" },
-  { value: "adult", label: "Vuxen" },
-  { value: "youth", label: "Ungdom" },
-  { value: "leader", label: "Ledare" },
-  { value: "other", label: "Övrig" }
-]
+// Filter-knapparnas värden — texten översätts via t("members.filter." + value)
+const filterOptions: FilterCategory[] = ["all", "adult", "youth", "leader", "other"]
 
 // Ritar medlemssidan: sökfält, filter-knappar och lista med MemberCard
 // Sök- och filter-logik ligger i useMemberSearch — här bara visning
 // Tar inga props och returnerar sidan som JSX
 export function Members() {
+  const { t } = useTranslation()
+
   // Hela medlemslistan — ligger i state så nya kan läggas till
   const [members, setMembers] = useState<Member[]>(mockMembers)
 
@@ -39,6 +37,11 @@ export function Members() {
 
   // Håller medlemmen vars profil visas — null när ingen är vald
   const [selectedMember, setSelectedMember] = useState<Member | null>(null)
+
+  // Grupputskick: läge på/av, valda medlemmars id och om utskicks-modalen är öppen
+  const [selectionMode, setSelectionMode] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [groupModalOpen, setGroupModalOpen] = useState(false)
 
   const { searchText, setSearchText, filter, setFilter, filteredMembers } =
     useMemberSearch(members)
@@ -73,56 +76,118 @@ export function Members() {
     setMembers((prev) => prev.filter((member) => member.id !== id))
   }
 
+  // Kopplar den valda medlemmen och en annan medlem till samma familj
+  // Använder befintlig familyId om någon finns, annars skapas en ny kod
+  const handleLinkFamily = (otherId: string) => {
+    if (!selectedMember) return
+    const other = members.find((m) => m.id === otherId)
+    const familyId = selectedMember.familyId ?? other?.familyId ?? crypto.randomUUID()
+
+    setMembers((prev) =>
+      prev.map((m) =>
+        m.id === selectedMember.id || m.id === otherId ? { ...m, familyId } : m
+      )
+    )
+    // Uppdaterar profilen så familjen syns direkt
+    setSelectedMember({ ...selectedMember, familyId })
+  }
+
+  // Lossar den valda medlemmen ur sin familj (nollställer familyId)
+  const handleUnlinkFamily = () => {
+    if (!selectedMember) return
+    setMembers((prev) =>
+      prev.map((m) =>
+        m.id === selectedMember.id ? { ...m, familyId: undefined } : m
+      )
+    )
+    setSelectedMember({ ...selectedMember, familyId: undefined })
+  }
+
+  // Slår på/av grupputskick-läge och nollställer valen
+  const toggleSelectionMode = () => {
+    setSelectionMode((prev) => !prev)
+    setSelectedIds([])
+  }
+
+  // Bockar av eller på en medlem i grupputskicket
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    )
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <h1 className="text-3xl font-bold text-stone-800">Medlemmar</h1>
-        <button
-          onClick={() => setAddModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-800 text-white text-sm font-semibold hover:bg-amber-900"
-        >
-          <Plus size={16} />
-          Ny medlem
-        </button>
+        <h1 className="text-3xl font-bold text-strong">{t("members.title")}</h1>
+        <div className="flex gap-2">
+          <button
+            onClick={toggleSelectionMode}
+            className="px-4 py-2 rounded-full border border-stone-200 text-stone-600 text-sm font-semibold hover:border-amber-800 dark:border-stone-600 dark:text-stone-300 dark:hover:border-amber-500"
+          >
+            {selectionMode ? t("members.cancel") : t("members.groupSend")}
+          </button>
+          <button
+            onClick={() => setAddModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-800 text-white text-sm font-semibold hover:bg-amber-900"
+          >
+            <Plus size={16} />
+            {t("members.add")}
+          </button>
+        </div>
       </div>
-      <p className="text-stone-600 mb-6">Totalt {total} medlemmar</p>
+      <p className="text-soft mb-6">{t("members.total", { total })}</p>
 
       <div className="relative mb-4">
         <Search
           size={18}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 dark:text-stone-500"
         />
         <input
           type="text"
-          placeholder="Sök på namn..."
+          placeholder={t("members.search")}
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none"
+          className="field pl-10 pr-4"
         />
       </div>
 
       <div className="flex gap-2 flex-wrap mb-6">
-        {filterOptions.map((option) => {
-          const isActive = filter === option.value
+        {filterOptions.map((value) => {
+          const isActive = filter === value
           const activeClasses = "bg-amber-800 text-white border-amber-800"
-          const inactiveClasses = "bg-white text-stone-600 border-stone-200 hover:border-amber-800"
+          const inactiveClasses = "bg-white text-stone-600 border-stone-200 hover:border-amber-800 dark:bg-stone-800 dark:text-stone-300 dark:border-stone-600"
 
           return (
             <button
-              key={option.value}
-              onClick={() => setFilter(option.value)}
+              key={value}
+              onClick={() => setFilter(value)}
               className={"px-4 py-2 rounded-full border text-sm font-semibold " + (isActive ? activeClasses : inactiveClasses)}
             >
-              {option.label}
+              {t("members.filter." + value)}
             </button>
           )
         })}
       </div>
 
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
+      {/* Urvalsrad i grupputskick-läge */}
+      {selectionMode && (
+        <div className="flex items-center justify-between mb-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 dark:bg-amber-950 dark:border-amber-900">
+          <span className="text-sm text-soft">{t("members.selected", { n: selectedIds.length })}</span>
+          <button
+            onClick={() => setGroupModalOpen(true)}
+            disabled={selectedIds.length === 0}
+            className="px-4 py-1.5 rounded-full bg-amber-800 text-white text-sm font-semibold hover:bg-amber-900 disabled:opacity-50"
+          >
+            {t("members.sendToSelected")}
+          </button>
+        </div>
+      )}
+
+      <div className="surface border p-6 rounded-2xl shadow-sm">
         {filteredMembers.length === 0 ? (
-          <p className="text-sm text-stone-500 italic text-center py-4">
-            Inga medlemmar hittades.
+          <p className="text-sm text-faint italic text-center py-4">
+            {t("members.empty")}
           </p>
         ) : (
           <ul>
@@ -131,6 +196,9 @@ export function Members() {
                 key={member.id}
                 member={member}
                 onSelect={() => setSelectedMember(member)}
+                selectionMode={selectionMode}
+                selected={selectedIds.includes(member.id)}
+                onToggleSelect={() => handleToggleSelect(member.id)}
               />
             ))}
           </ul>
@@ -138,9 +206,12 @@ export function Members() {
       </div>
 
       {/* Profil-modal visas när en medlem klickats */}
+      {/* key gör att modalen nollställs när man byter till en annan medlem */}
       {selectedMember && (
         <MemberProfileModal
+          key={selectedMember.id}
           member={selectedMember}
+          allMembers={members}
           onClose={() => setSelectedMember(null)}
           onEdit={() => {
             setEditingMember(selectedMember)
@@ -150,6 +221,9 @@ export function Members() {
             handleDeleteMember(selectedMember.id)
             setSelectedMember(null)
           }}
+          onOpenMember={(m) => setSelectedMember(m)}
+          onLinkFamily={handleLinkFamily}
+          onUnlinkFamily={handleUnlinkFamily}
         />
       )}
 
@@ -174,9 +248,18 @@ export function Members() {
             birthday: editingMember.birthday,
             category: editingMember.category,
             notes: editingMember.notes,
+            photoUrl: editingMember.photoUrl,
           }}
           onSave={handleUpdateMember}
           onClose={() => setEditingMember(null)}
+        />
+      )}
+
+      {/* Grupputskick-modal — WhatsApp till varje vald medlem */}
+      {groupModalOpen && (
+        <GroupMessageModal
+          members={members.filter((m) => selectedIds.includes(m.id))}
+          onClose={() => setGroupModalOpen(false)}
         />
       )}
     </div>

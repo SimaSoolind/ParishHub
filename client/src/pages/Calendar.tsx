@@ -12,6 +12,7 @@ import type { View, SlotInfo } from "react-big-calendar"
 import { format, parse, startOfWeek, getDay } from "date-fns"
 import { sv } from "date-fns/locale"
 import { RefreshCw, Plus } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { churchEvents, lifeEvents } from "../data/events.mock"
 import { EventModal } from "../components/EventModal"
 import type { ModalEvent } from "../components/EventModal"
@@ -68,25 +69,27 @@ function buildInitialEvents(): CalendarEvent[] {
   return [...church, ...life]
 }
 
-// Kalender-knappar översatta till svenska
-const messages = {
-  today: "Idag",
-  previous: "Föregående",
-  next: "Nästa",
-  month: "Månad",
-  week: "Vecka",
-  day: "Dag",
-  agenda: "Agenda",
-  date: "Datum",
-  time: "Tid",
-  event: "Händelse",
-  noEventsInRange: "Inga händelser under denna period.",
-}
-
 // Ritar kalendern och sköter events, vald vy, datum och modaler
 // Tar inga props
 // Returnerar sidan som JSX
 export function Calendar() {
+  const { t } = useTranslation()
+
+  // Kalender-knappar i valt språk (react-big-calendar messages)
+  const messages = {
+    today: t("calendar.today"),
+    previous: t("calendar.previous"),
+    next: t("calendar.next"),
+    month: t("calendar.month"),
+    week: t("calendar.week"),
+    day: t("calendar.day"),
+    agenda: t("calendar.agenda"),
+    date: t("calendar.date"),
+    time: t("calendar.time"),
+    event: t("calendar.event"),
+    noEventsInRange: t("calendar.noEventsInRange"),
+  }
+
   // Hela listan med events — ligger i state så nya kan läggas till
   const [events, setEvents] = useState<CalendarEvent[]>(buildInitialEvents)
 
@@ -173,30 +176,30 @@ export function Calendar() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-stone-800 mb-2">
-        Kyrklig kalender
+      <h1 className="text-3xl font-bold text-strong mb-2">
+        {t("calendar.title")}
       </h1>
-      <p className="text-stone-600 mb-6">
-        Koptisk-ortodox + församlings-händelser
+      <p className="text-soft mb-6">
+        {t("calendar.subtitle")}
       </p>
 
       {/* Knappar för framtida synk + skapa nytt event */}
       <div className="flex gap-2 mb-6 flex-wrap">
-        <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-stone-200 text-stone-600 text-sm font-semibold hover:border-amber-800">
+        <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-stone-200 text-stone-600 text-sm font-semibold hover:border-amber-800 dark:bg-stone-800 dark:border-stone-600 dark:text-stone-300 dark:hover:border-amber-500">
           <RefreshCw size={16} />
-          Synka Google Calendar
+          {t("calendar.syncGoogle")}
         </button>
         <button
           onClick={() => setAddModalOpen(true)}
           className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-800 text-white text-sm font-semibold hover:bg-amber-900"
         >
           <Plus size={16} />
-          Ny händelse
+          {t("calendar.newEvent")}
         </button>
       </div>
 
       {/* Själva kalendern */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-stone-200" style={{ height: 600 }}>
+      <div className="surface border p-4 rounded-2xl shadow-sm" style={{ height: 600 }}>
         <BigCalendar
           localizer={localizer}
           events={shownEvents}

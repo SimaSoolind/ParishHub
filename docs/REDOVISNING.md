@@ -1,4 +1,4 @@
-# 📘 Redovisning — Dashboard i ParishHub
+# 📘 Redovisning — Frontend i ParishHub
 
 **Projekt:** ParishHub (Kyrko-appen)
 **Byggd av:** Sima Soolind
@@ -41,24 +41,27 @@ Inkluderar AI-tolkning live på svenska och arabiska under gudstjänsten.
 ## 2. Teknisk stack
 
 ### Frontend
-- **React** — populäraste UI-biblioteket, deklarativ komponent-baserad
-- **Vite** — snabbaste utvecklingsserver, direkt HMR (Hot Module Reload)
-- **TypeScript** — säkrare kod med typkontroll innan appen körs
-- **Tailwind CSS v4** — snabb styling med utility-klasser direkt i JSX
-- **React Router v7** — navigation mellan sidor utan sidladdning
-- **Lucide React** — professionella SVG-ikoner (ersätter emojis)
 
-### Varför denna stack?
-- **React + Vite + TypeScript** = branschstandard 2026 
-- **Tailwind** = snabbare än att skriva egen CSS, konsekvent design
-- **TypeScript** = fångar fel innan användaren ser dem
+| Teknik | Varför |
+|--------|--------|
+| **React** | Valdes framför Angular (för tungt för detta projekt) och Vue (mindre efterfrågan på arbetsmarknaden). Deklarativt och komponent-baserat. |
+| **Vite** | Snabbaste utvecklingsservern med direkt HMR (Hot Module Reload). Valdes framför CRA (nedlagd) och Next.js (för tungt för en enkel SPA till en början). |
+| **TypeScript** | Valdes framför JavaScript för att fånga typfel vid byggtid istället för vid körning. Färre runtime-fel i produktion. |
+| **Tailwind CSS v4** | Utility-klasser direkt i JSX. Snabbare än egen CSS, konsekvent design. |
+| **React Router v7** | Standard för routing i React. Hanterar navigation utan sidladdning. |
+| **Lucide React** | Professionella SVG-ikoner. Valdes framför Font Awesome (tyngre) och emojis (inkonsekvent utseende). |
 
-### Backend (kommande vecka 3-4)
-- Node.js + Express + TypeScript
-- PostgreSQL via Prisma ORM
-- JWT + bcrypt för säker inloggning
-- Deepgram Nova-2 för live speech-to-text
-- DeepL för arabisk→svensk översättning
+### Backend (kommande)
+- **Node.js + Express + TypeScript** — REST API
+- **PostgreSQL via Prisma ORM** — relationsdatabas
+- **JWT + bcrypt** — säker inloggning
+- **Deepgram Nova-2** — live speech-to-text
+- **DeepL** — arabisk→svensk översättning
+
+### Varför Deepgram + DeepL?
+Deepgram är specialiserat på taligenkänning (speech-to-text). DeepL används för
+själva översättningen från arabiska till svenska. Båda tjänsterna har hög precision
+och stödjer de språk som behövs.
 
 ### Hosting
 - Frontend: Vercel
@@ -175,6 +178,71 @@ Sidan använder tre återanvändbara komponenter (StatCard, BirthdayList, Priori
 
 ---
 
+### Kalender (/kalender)
+
+**Fil:** `src/pages/Calendar.tsx`
+
+**Vad:** En kalender där prästen ser och planerar kyrkliga händelser (gudstjänster, dop, bröllop) och koptiska högtider.
+
+**Varför:** Prästen behöver en överblick över kommande händelser och kunna lägga till, ändra och ta bort dem. Koptiska högtider visas automatiskt så inget missas.
+
+**Hur:** Bygger på biblioteket react-big-calendar. Kalendern är en *controlled component* — vy (månad/vecka/dag) och datum styrs av `useState`. Egna händelser ligger i state; koptiska högtider hämtas från ett externt API och blandas in vid visning.
+
+**Innehåll och funktioner:**
+1. **Full CRUD** — skapa, läsa, ändra och radera händelser
+   - Skapa: knappen "Ny händelse" öppnar ett formulär (AddEventModal)
+   - Läsa: klick på en händelse visar detaljer (EventModal)
+   - Ändra/Radera: knappar i detalj-modalen
+2. **Egen verktygsrad** (CalendarToolbar) med pil-knappar och vy-växlare
+3. **Klick på en dag** byter till dag-vyn för det datumet
+4. **Koptiska högtider** hämtas live från coptic.io och visas i kopparfärg — skrivskyddade (kan inte ändras eller raderas)
+
+**Teknik värd att lyfta fram:**
+- **Zod-validering** i formuläret (titel och datum krävs innan sparning)
+- **react-query** cachar API-anropet (hooken useCopticCelebrations)
+- **Immutable state-uppdatering:** `setEvents(prev => [...prev, nytt])`
+- **API-anrop samlade** i `src/api/copticApi.ts` med `try/catch`
+
+---
+
+### Medlemmar (/medlemmar)
+
+**Fil:** `src/pages/Members.tsx`
+
+**Vad:** Ett sökbart medlemsregister med filter per kategori.
+
+**Varför:** Prästen behöver snabbt hitta en medlem och kunna ringa eller mejla direkt.
+
+**Hur:** All sök- och filter-logik ligger i hooken `useMemberSearch` — sidan visar bara resultatet. Varje medlem ritas med komponenten MemberCard.
+
+**Innehåll:**
+1. **Sökfält** — filtrerar på namn medan man skriver
+2. **Filter-knappar** — Alla / Vuxen / Ungdom / Ledare / Övrig
+3. **Lista** med MemberCard (namn, adress, familjestorlek, födelsedag, ring/mejla) — hela raden är klickbar
+4. **Full CRUD** — skapa (AddMemberModal med Zod-validering), läsa (profil-modal), redigera och radera (med bekräftelse)
+5. **Tom-läge** — "Inga medlemmar hittades" om inget matchar
+
+---
+
+### Gudstjänster (/gudstjanster)
+
+**Fil:** `src/pages/Services.tsx`
+
+**Vad:** Lista över gudstjänster, grupperad i Kommande och Tidigare, med närvaro-avprickning.
+
+**Varför:** Prästen planerar gudstjänster och bockar av vilka medlemmar som var med.
+
+**Hur:** Gudstjänster ligger i state (skapas via AddServiceModal med Zod-validering). Klick på en rad öppnar AttendanceModal där närvaron prickas av. Status-badgen räknar närvarande direkt från state.
+
+**Innehåll:**
+1. **Namn-förslag** vid ny gudstjänst (Huvudgudstjänst, Gudstjänst m.fl.) + eget namn (Fasta, Jul)
+2. **Start- och sluttid** (sluttid valfri), datum-box för snabb skanning
+3. **Gruppering** Kommande / Tidigare
+4. **Status-badge** — grön "Avprickad (X närvarande)" eller gul "Ej avprickad"
+5. **Närvaro** (AttendanceModal) med spårbarhet (`markedAt`)
+
+---
+
 ## 6. Komponenter
 
 ### 6.1 Layout
@@ -279,9 +347,57 @@ Ett kort som visar personer prästen bör kontakta, med statusetikett och ring-k
 Prästen kan inte komma ihåg alla som saknats i gudstjänsten. Listan hjälper honom prioritera vem han ska ringa först och se om han redan försökt.
 
 #### Hur
-Använder en `statusMap`-tabell utanför komponenten som mappar `ContactStatus` (not-contacted, attempted, answered) till badge-text och färg. Detta håller JSX rent (bara visning, ingen logik).
+Använder en `statusInfo`-tabell utanför komponenten som mappar `ContactStatus` (not-contacted, attempted, answered) till badge-text och färg. Detta håller JSX rent (bara visning, ingen logik).
 
 Återanvänder Badge-komponenten för färgade etiketter (DRY).
+
+---
+
+### 6.6 MemberCard
+
+**Fil:** `src/components/MemberCard.tsx`
+
+**Vad:** En rad för en medlem med ring- och mejla-knappar.
+
+**Varför:** Återanvändbar rad som Medlemmar-sidan renderar en gång per medlem.
+
+**Hur:** Tar emot ett `Member`-objekt. Ring-knapp (`tel:`) och mejla-knapp (`mailto:`), båda med `aria-label` för skärmläsare.
+
+---
+
+### 6.7 EventModal
+
+**Fil:** `src/components/EventModal.tsx`
+
+**Vad:** Detalj-popup för en kalenderhändelse (titel, datum, kategori, anteckningar).
+
+**Varför:** Prästen klickar på en händelse för att se detaljer och kunna redigera eller radera.
+
+**Hur:** Skrivskyddade händelser (koptiska högtider) döljer Redigera/Radera och visar istället "Från den koptiska kyrkokalendern".
+
+---
+
+### 6.8 AddEventModal
+
+**Fil:** `src/components/AddEventModal.tsx`
+
+**Vad:** Formulär för att skapa eller ändra en händelse.
+
+**Varför:** Samma formulär används för både nytt och redigering (förifylls via `initialData`) — DRY.
+
+**Hur:** Validerar med **Zod** innan sparning. Visar felmeddelanden under fälten om titel eller datum saknas.
+
+---
+
+### 6.9 CalendarToolbar
+
+**Fil:** `src/components/CalendarToolbar.tsx`
+
+**Vad:** Egen verktygsrad för kalendern med pil-knappar och vy-växlare.
+
+**Varför:** react-big-calendars standard är otydliga text-knappar. En egen verktygsrad ger tydliga pilar (‹ ›) och en aktiv-markerad vy.
+
+**Hur:** Kopplas in via kalenderns `components`-prop och anropar `onNavigate` / `onView`.
 
 ---
 
@@ -314,6 +430,30 @@ Formaterar datum på svenska med `toLocaleDateString("sv-SE", ...)`.
   greeting: string  // "God morgon" / "God dag" / "God kväll"
 }
 ```
+
+---
+
+### useMemberSearch
+
+**Fil:** `src/hooks/useMemberSearch.ts`
+
+**Vad:** Håller sök-text och kategori-filter i state och returnerar den filtrerade medlemslistan.
+
+**Varför:** Håller Medlemmar-sidan ren — logik skild från JSX (kodregeln "logik i hooks").
+
+**Hur:** Använder `useMemo` så listan bara räknas om när sök-text, filter eller data ändras.
+
+---
+
+### useCopticCelebrations
+
+**Fil:** `src/hooks/useCopticCelebrations.ts`
+
+**Vad:** Hämtar koptiska högtider från coptic.io och gör om dem till kalender-händelser.
+
+**Varför:** Visar en riktig kyrkokalender utan att prästen matar in högtiderna manuellt.
+
+**Hur:** Använder **react-query** (`useQuery`) för hämtning och cachning. Filtrerar bort fastor. Själva API-anropet ligger i `src/api/copticApi.ts` med `try/catch`.
 
 ---
 
@@ -422,7 +562,7 @@ Komponenten `BirthdayList` **ändras inte alls** — den bryr sig inte om varifr
 
 - ✅ **Logik separerad från JSX**
   - `useDateTime` sköter datum-logik
-  - `statusMap` räknar ut badge-info utanför JSX
+  - `statusInfo` räknar ut badge-info utanför JSX
 
 - ✅ **Objektiva kommentarer**
   - "Hämtar en medlem från databasen" (RÄTT)
@@ -437,18 +577,40 @@ Komponenten `BirthdayList` **ändras inte alls** — den bryr sig inte om varifr
   - Kommentarer bara där de tillför värde
 
 ### Från säkerhetsutbildningen
-- ✅ **Tillgänglighet (a11y)** — aria-label på interaktiva element
-- ✅ **Semantisk HTML** — `<ul>`, `<li>`, `<h2>` istället för bara `<div>`
-- ✅ **Ingen inline data** — telefonnummer i data-fil, inte i komponent
+- ✅ **Tillgänglighet (a11y)** — `aria-label` på ikon-knappar. Klickbara rader
+  (Medlemmar, Gudstjänster) är tangentbords-nåbara (`role="button"`, `tabIndex`,
+  Enter/Space) med synlig fokus-markering.
+- ✅ **Semantisk HTML** — listor byggs med `<ul>`/`<li>`, rubriker med `<h1>`/`<h2>`
+  och knappar med `<button>`.
+- ✅ **Ingen inline data** — riktiga telefonnummer ligger i data-filer
+  (`data/*.mock.ts`), inte hårdkodade i komponenterna
+
+### Säkerhet, felhantering och tester
+
+Appen följer projektets säkerhetsregler (se CLAUDE.md och docs/SECURITY.md):
+
+- **Runtime-validering** — all data utifrån valideras med Zod (formulär + API-svar), inte bara TypeScript-typer
+- **safeFetch** (`lib/api.ts`) — samlar nätverksanrop + felhantering + validering på ett ställe
+- **Central felhantering** (`lib/errorHandler.ts`) — loggar internt, visar aldrig stack traces för användaren
+- **ErrorBoundary** runt hela appen — ett kraschat kort sänker inte resten
+- **Tillgänglighet** — klickbara rader är tangentbords-nåbara, listor är semantiska (`<ul>`/`<li>`)
+- **Enhetstest** (Vitest) — verifierar att fel inte läcker interna detaljer
+- **CI** (`.github/workflows/ci.yml`) — kör typkontroll, lint (inkl. eslint-plugin-security), tester och npm audit vid varje push
 
 ---
 
 ## 11. Nästa steg
 
-### Kort sikt (denna vecka)
-- Bygga Medlemmar-sidan (`/medlemmar`)
-- Bygga Kalender-sidan (`/kalender`)
-- Sätta upp i18next för arabiska-stöd
+### Klart
+- ✅ Medlemmar (`/medlemmar`) — full CRUD, profil-modal, adress, Zod-validering
+- ✅ Kalender (`/kalender`) — CRUD + koptiska högtider (runtime-validerade)
+- ✅ Gudstjänster (`/gudstjanster`) — skapa, gruppering, närvaro-avprickning
+- ✅ Tillgänglighet (tangentbord + semantik), ErrorBoundary, enhetstest, CI
+
+### Kort sikt
+- Synka kalendern med Google Calendar
+- Sätta upp i18next för svenska/arabiska (med RTL)
+- Bryta ut formulär-logiken till en hook (useEventForm)
 
 ### Medium sikt (v.3-4)
 - Backend med Express + REST API
@@ -458,6 +620,7 @@ Komponenten `BirthdayList` **ändras inte alls** — den bryr sig inte om varifr
 - PostgreSQL + Prisma
 - JWT-inloggning för prästen
 - Deepgram + WebSocket för AI-tolkning live
+- WhatsApp Business API via backend — äkta grupputskick (skicka till alla valda på en gång, automatiskt)
 
 ### Publiceringsfas
 - Deploya frontend till Vercel
@@ -469,15 +632,17 @@ Komponenten `BirthdayList` **ändras inte alls** — den bryr sig inte om varifr
 
 ## 📊 Sammanfattning
 
-Denna Dashboard är ett komplett **frontend-fundament** för Kyrko-appen. Den följer alla moderna React-standarder:
+Dashboarden är ett frontend-fundament för ParishHub som följer moderna React-standarder:
 
-- Komponent-baserad arkitektur
-- TypeScript för säkerhet
-- Custom hooks för logik-separation
-- Återanvändbara komponenter för DRY
-- Mockdata som enkelt byts mot API-anrop
-- Tillgänglighet inbyggd från start
-- Kommentarer och regler som gör koden läsbar om 6 månader
+| Princip | Hur det syns i koden |
+|---------|---------------------|
+| Komponentbaserad arkitektur | StatCard, Badge, BirthdayList, PriorityList |
+| TypeScript-säkerhet | Union types (ContactStatus), strikta typer |
+| Logikseparation | useDateTime-hook, statusInfo utanför JSX |
+| DRY | Återanvändbara komponenter, ingen kodduplicering |
+| Mockdata → API | Data i separata filer, komponenter oberoende av källa |
+| Tillgänglighet | aria-label, semantisk HTML inbyggt från start |
+| Läsbar kod | Kommentarer på svenska, korta variabelnamn, DRY |
 
 **Detta är arbetsklar kod som följer branschstandard 2026.**
 

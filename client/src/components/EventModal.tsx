@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from "react"
 import { X, Trash2, Pencil } from "lucide-react"
-import { categoryLabels } from "../data/eventCategories"
+import { useTranslation } from "react-i18next"
 
 // Definierar vad ett event ska innehålla för att visas i modalen
 // Union type — antingen ChurchEvent eller LifeEvent i react-big-calendar-format
@@ -43,7 +43,10 @@ function formatDate(date: Date): string {
 // Tar emot event, onClose (stäng), onEdit (öppna redigering) och onDelete (ta bort)
 // Returnerar modalen som JSX
 export function EventModal({ event, onClose, onEdit, onDelete }: Props) {
-  const categoryLabel = categoryLabels[event.category] || event.category
+  const { t } = useTranslation()
+
+  // Kategori-texten i valt språk — faller tillbaka till råvärdet om nyckeln saknas
+  const categoryLabel = t("eventCategory." + event.category, { defaultValue: event.category })
 
   // Sant när prästen klickat Radera och ska bekräfta borttagningen
   const [confirmingDelete, setConfirmingDelete] = useState(false)
@@ -60,69 +63,66 @@ export function EventModal({ event, onClose, onEdit, onDelete }: Props) {
   return (
     // Backdrop — mörkt lager över hela skärmen
     // Klick på backdrop stänger modalen
-    <div
-      onClick={onClose}
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-    >
+    <div onClick={onClose} className="modal-backdrop">
       {/* Själva modalen — stopPropagation stoppar klick från att nå backdrop */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6"
+        className="modal-panel max-w-md w-full p-6"
       >
         {/* Rubrik-rad med stäng-knapp */}
         <div className="flex items-start justify-between mb-4">
-          <h2 className="text-xl font-bold text-stone-800">{event.title}</h2>
+          <h2 className="text-xl font-bold text-strong">{event.title}</h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-stone-100"
-            aria-label="Stäng"
+            className="p-1 rounded-full row-hover"
+            aria-label={t("form.close")}
           >
-            <X size={20} className="text-stone-500" />
+            <X size={20} className="text-faint" />
           </button>
         </div>
 
         {/* Datum */}
         <div className="mb-3">
-          <div className="text-xs font-semibold text-stone-400 uppercase">Datum</div>
-          <div className="text-stone-800">{formatDate(event.start)}</div>
+          <div className="text-xs font-semibold text-faint uppercase">{t("form.date")}</div>
+          <div className="text-strong">{formatDate(event.start)}</div>
         </div>
 
         {/* Kategori */}
         <div className="mb-3">
-          <div className="text-xs font-semibold text-stone-400 uppercase">Kategori</div>
-          <div className="text-stone-800">{categoryLabel}</div>
+          <div className="text-xs font-semibold text-faint uppercase">{t("form.category")}</div>
+          <div className="text-strong">{categoryLabel}</div>
         </div>
 
         {/* Anteckningar visas endast om de finns */}
         {event.notes && (
           <div className="mb-3">
-            <div className="text-xs font-semibold text-stone-400 uppercase">Anteckningar</div>
-            <div className="text-stone-800">{event.notes}</div>
+            <div className="text-xs font-semibold text-faint uppercase">{t("profile.notes")}</div>
+            <div className="text-strong">{event.notes}</div>
           </div>
         )}
 
         {/* Skrivskyddade event (koptiska högtider) kan inte ändras */}
         {event.isReadOnly ? (
-          <p className="text-xs text-stone-400 italic mt-5">
-            Från den koptiska kyrkokalendern
+          <p className="text-xs text-faint italic mt-5">
+            {t("calendar.fromCopticCalendar")}
           </p>
         ) : confirmingDelete ? (
           <div className="mt-5">
-            <p className="text-sm text-stone-700 mb-3">
-              Radera <span className="font-semibold">{event.title}</span>? Detta går inte att ångra.
+            <p className="text-sm text-soft mb-3">
+              {t("profile.deleteQ", { name: event.title })}
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => setConfirmingDelete(false)}
-                className="flex-1 px-4 py-2 border border-stone-200 rounded-xl font-semibold text-stone-600 hover:bg-stone-50"
+                className="flex-1 px-4 py-2 btn-secondary text-soft"
               >
-                Avbryt
+                {t("form.cancel")}
               </button>
               <button
                 onClick={onDelete}
                 className="flex-1 px-4 py-2 bg-red-700 text-white rounded-xl font-semibold hover:bg-red-800"
               >
-                Ja, radera
+                {t("profile.confirmDelete")}
               </button>
             </div>
           </div>
@@ -130,17 +130,17 @@ export function EventModal({ event, onClose, onEdit, onDelete }: Props) {
           <div className="flex gap-2 mt-5">
             <button
               onClick={() => setConfirmingDelete(true)}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-red-200 rounded-xl font-semibold text-red-700 hover:bg-red-50"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-red-200 rounded-xl font-semibold text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
             >
               <Trash2 size={16} />
-              Radera
+              {t("profile.delete")}
             </button>
             <button
               onClick={onEdit}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-amber-800 text-white rounded-xl font-semibold hover:bg-amber-900"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 btn-primary"
             >
               <Pencil size={16} />
-              Redigera
+              {t("profile.edit")}
             </button>
           </div>
         )}

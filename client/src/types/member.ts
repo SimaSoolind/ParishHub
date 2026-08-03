@@ -23,6 +23,8 @@ export type Member = {
   birthday: string         // Födelsedag som text, t.ex. "5 aug"
   category: MemberCategory  // Kategori (vuxen, ungdom, ledare eller övrig)
   notes?: string           // Frivilligt fält för prästens egna anteckningar
+  familyId?: string        // Kod som kopplar ihop familjemedlemmar (samma kod = samma familj)
+  photoUrl?: string        // Länk till profilbild (valfritt) — annars visas initialer
 }
 
 // NewMemberData — formen på datan NÄR formuläret skickas in

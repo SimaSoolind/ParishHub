@@ -5,15 +5,8 @@
 // Används av: Calendar.tsx
 
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import type { NavigateAction, View } from "react-big-calendar"
-
-// Kopplar vy-namn till svensk knapptext
-const viewLabels: Record<string, string> = {
-  month: "Månad",
-  week: "Vecka",
-  day: "Dag",
-  agenda: "Agenda",
-}
 
 // Props som react-big-calendar skickar till verktygsraden
 // Egen typ istället för ToolbarProps så den inte krockar med event-typen
@@ -31,6 +24,8 @@ interface Props {
 // Tar emot label, onNavigate, onView, view och views från react-big-calendar
 // Returnerar raden som JSX
 export function CalendarToolbar({ label, onNavigate, onView, view, views }: Props) {
+  const { t } = useTranslation()
+
   // Listan med tillgängliga vyer (month, week, day, agenda)
   const viewNames: View[] = Array.isArray(views) ? views : []
 
@@ -40,28 +35,28 @@ export function CalendarToolbar({ label, onNavigate, onView, view, views }: Prop
       <div className="flex items-center gap-1">
         <button
           onClick={() => onNavigate("PREV")}
-          aria-label="Föregående"
-          className="p-2 rounded-full hover:bg-stone-100 text-stone-600"
+          aria-label={t("calendar.previous")}
+          className="p-2 rounded-full row-hover text-soft"
         >
           <ChevronLeft size={18} />
         </button>
         <button
           onClick={() => onNavigate("TODAY")}
-          className="px-3 py-1 rounded-full text-sm font-semibold text-stone-600 hover:bg-stone-100"
+          className="px-3 py-1 rounded-full text-sm font-semibold text-soft row-hover"
         >
-          Idag
+          {t("calendar.today")}
         </button>
         <button
           onClick={() => onNavigate("NEXT")}
-          aria-label="Nästa"
-          className="p-2 rounded-full hover:bg-stone-100 text-stone-600"
+          aria-label={t("calendar.next")}
+          className="p-2 rounded-full row-hover text-soft"
         >
           <ChevronRight size={18} />
         </button>
       </div>
 
       {/* Aktuell period, t.ex. "juli 2026" */}
-      <span className="font-semibold text-stone-800">{label}</span>
+      <span className="font-semibold text-strong">{label}</span>
 
       {/* Vy-växlare: Månad / Vecka / Dag / Agenda */}
       <div className="flex items-center gap-1">
@@ -73,10 +68,10 @@ export function CalendarToolbar({ label, onNavigate, onView, view, views }: Prop
               "px-3 py-1 rounded-full text-sm font-semibold " +
               (view === name
                 ? "bg-amber-800 text-white"
-                : "text-stone-600 hover:bg-stone-100")
+                : "text-soft row-hover")
             }
           >
-            {viewLabels[name] ?? name}
+            {t("calendar." + name)}
           </button>
         ))}
       </div>

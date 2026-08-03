@@ -6,21 +6,22 @@
 
 // Räknar ut aktuellt datum och hälsning från datorns klocka
 // Tar inga argument
-// Returnerar ett objekt med date (formaterat datum) och greeting (hälsning)
+// Returnerar date (formaterat datum) och greetingKey (nyckel som översätts via i18n)
 export function useDateTime() {
   // Skapar ett Date-objekt med aktuell tid från datorn
   const now = new Date()
 
-  // Räknar ut hälsning baserat på timme (0-23)
+  // Räknar ut hälsnings-nyckel baserat på timme (0-23)
+  // Själva texten översätts i komponenten (God morgon / صباح الخير osv.)
   const hour = now.getHours()
-  let greeting: string
+  let greetingKey: string
 
   if (hour >= 5 && hour < 11) {
-    greeting = "God morgon"
+    greetingKey = "morning"
   } else if (hour >= 11 && hour < 17) {
-    greeting = "God dag"
+    greetingKey = "day"
   } else {
-    greeting = "God kväll"
+    greetingKey = "evening"
   }
 
   // Formaterar datum på svenska
@@ -38,6 +39,6 @@ export function useDateTime() {
   // Returnerar båda värden så komponenten kan använda dem
   return {
     date: formattedDate,
-    greeting
+    greetingKey
   }
 }

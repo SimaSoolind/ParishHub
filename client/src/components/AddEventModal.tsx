@@ -7,8 +7,10 @@
 
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
-import { lifeEventCategoryOptions } from "../data/eventCategories"
+import { useTranslation } from "react-i18next"
+import { lifeEventCategoryValues } from "../data/eventCategories"
 import { newEventSchema } from "../schemas/eventSchema"
+import { Dropdown } from "./Dropdown"
 
 // Beskriver formen för ett nytt event som skickas till föräldern
 export interface NewEventData {
@@ -31,6 +33,8 @@ interface Props {
 // Tar emot onSave (spara-funktion) och onClose (stäng-funktion) som props
 // Returnerar modalen som JSX
 export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: Props) {
+  const { t } = useTranslation()
+
   // State för varje formulär-fält — förifylls vid redigering, annars tomt
   const [title, setTitle] = useState(initialData?.title ?? "")
   const [date, setDate] = useState(initialData?.date ?? "")
@@ -79,26 +83,23 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
 
   return (
     // Backdrop — klick utanför stänger modalen
-    <div
-      onClick={onClose}
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-    >
+    <div onClick={onClose} className="modal-backdrop">
       {/* Själva modalen — stopPropagation förhindrar att klick stänger */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6"
+        className="modal-panel max-w-md w-full p-6"
       >
         {/* Rubrik-rad med stäng-knapp */}
         <div className="flex items-start justify-between mb-4">
-          <h2 className="text-xl font-bold text-stone-800">
-            {isEdit ? "Redigera händelse" : "Ny händelse"}
+          <h2 className="text-xl font-bold text-strong">
+            {isEdit ? t("eventForm.editTitle") : t("eventForm.addTitle")}
           </h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-stone-100"
-            aria-label="Stäng"
+            className="p-1 rounded-full row-hover"
+            aria-label={t("form.close")}
           >
-            <X size={20} className="text-stone-500" />
+            <X size={20} className="text-faint" />
           </button>
         </div>
 
@@ -106,66 +107,64 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
         <form onSubmit={handleSubmit}>
           {/* Titel-fält */}
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
-              Titel
+            <label className="field-label">
+              {t("form.title")}
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="T.ex. Dop — Familjen Svensson"
-              className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none"
+              placeholder={t("eventForm.phTitle")}
+              className="field"
             />
             {errors.title && (
-              <p className="text-xs text-red-600 mt-1">{errors.title}</p>
+              <p className="field-error">{errors.title}</p>
             )}
           </div>
 
           {/* Datum-fält */}
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
-              Datum
+            <label className="field-label">
+              {t("form.date")}
             </label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none"
+              className="field"
             />
             {errors.date && (
-              <p className="text-xs text-red-600 mt-1">{errors.date}</p>
+              <p className="field-error">{errors.date}</p>
             )}
           </div>
 
           {/* Kategori-dropdown */}
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
-              Kategori
+            <label className="field-label">
+              {t("form.category")}
             </label>
-            <select
+            <Dropdown
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none"
-            >
-              {lifeEventCategoryOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              onChange={setCategory}
+              ariaLabel={t("form.category")}
+              options={lifeEventCategoryValues.map((value) => ({
+                value,
+                label: t("eventCategory." + value),
+              }))}
+            />
           </div>
 
           {/* Anteckningar — valfritt fält */}
           <div className="mb-6">
-            <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
-              Anteckningar (frivilligt)
+            <label className="field-label">
+              {t("form.notesOptional")}
             </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="T.ex. Ta med bibel och bön"
+              placeholder={t("eventForm.phNotes")}
               rows={3}
-              className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none resize-none"
+              className="field resize-none"
             />
           </div>
 
@@ -174,15 +173,15 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-stone-200 rounded-xl font-semibold text-stone-600 hover:bg-stone-50"
+              className="flex-1 px-4 py-2 btn-secondary text-soft"
             >
-              Avbryt
+              {t("form.cancel")}
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-amber-800 text-white rounded-xl font-semibold hover:bg-amber-900"
+              className="flex-1 px-4 py-2 btn-primary"
             >
-              {isEdit ? "Spara ändring" : "Spara"}
+              {isEdit ? t("form.saveEdit") : t("form.save")}
             </button>
           </div>
         </form>

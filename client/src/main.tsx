@@ -7,6 +7,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 // CSS för react-big-calendar (kalender-utseende)
 import 'react-big-calendar/lib/css/react-big-calendar.css'
+// Startar flerspråkigheten (svenska + arabiska)
+import './i18n'
 import App from './App.tsx'
 
 // En QueryClient håller cachen för alla API-anrop i appen

@@ -19,9 +19,9 @@ interface StatCardProps {
 // Färg-mappning — kopplar färgnamn till Tailwind CSS-klasser
 // Ligger utanför komponenten för att slippa återskapa vid varje rendering
 const colorClasses = {
-  blue: "bg-blue-50 border-blue-200 text-blue-800",
-  green: "bg-green-50 border-green-200 text-green-800",
-  red: "bg-red-50 border-red-200 text-red-800",
+  blue: "bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-900 dark:text-blue-300",
+  green: "bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-900 dark:text-green-300",
+  red: "bg-red-50 border-red-200 text-red-800 dark:bg-red-950 dark:border-red-900 dark:text-red-300",
 }
 
 // Ritar ett statistik-kort med ikon, siffra och etikett

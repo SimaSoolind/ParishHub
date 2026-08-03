@@ -1,6 +1,6 @@
 Läs filen jag pekar på och lägg till svenska kommentarer:
 1. En JSDoc-kommentar över varje funktion
-2. En kort kommentar över varje viktig rad
+2. En kort kommentar över varje funktion vad den gör hur är kopplingen.
 3. Beskriv vad koden gör — inte vem som gör den
 
 Följ kommentarsreglerna i CLAUDE.md:

@@ -4,7 +4,8 @@
 // Används av: App.tsx (sidan för URL "/gudstjanster")
 
 import { useState } from "react"
-import { Plus, Calendar } from "lucide-react"
+import { Plus, Calendar, FileText } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { AddServiceModal } from "../components/AddServiceModal"
 import { AttendanceModal } from "../components/AttendanceModal"
 import { Badge } from "../components/Badge"
@@ -56,6 +57,7 @@ function ServiceRow({
   isMarked: boolean
   onClick: () => void
 }) {
+  const { t } = useTranslation()
   const box = getDateBox(service.date)
   const weekday = getWeekday(service.date)
 
@@ -70,29 +72,36 @@ function ServiceRow({
       }}
       role="button"
       tabIndex={0}
-      className="flex items-center justify-between py-3 border-b border-stone-200 last:border-b-0 cursor-pointer hover:bg-stone-50 rounded-lg px-2 -mx-2 focus:outline-none focus:ring-2 focus:ring-amber-700"
+      className="flex items-center justify-between py-3 border-b border-stone-200 dark:border-stone-700 last:border-b-0 cursor-pointer row-hover rounded-lg px-2 -mx-2 focus:outline-none focus:ring-2 focus:ring-amber-700"
     >
       <div className="flex items-center gap-3">
         {/* Datum-box för snabb visuell skanning */}
-        <div className="flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex-shrink-0">
+        <div className="flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex-shrink-0 dark:bg-amber-950 dark:border-amber-900 dark:text-amber-300">
           <span className="text-lg font-bold leading-none">{box.day}</span>
           <span className="text-xs font-semibold">{box.month}</span>
         </div>
         <div>
-          <div className="font-semibold text-stone-800">{service.title}</div>
-          <div className="text-sm text-stone-500 flex items-center gap-2 mt-1">
+          <div className="font-semibold text-strong">{service.title}</div>
+          <div className="text-sm text-faint flex items-center gap-2 mt-1">
             <Calendar size={14} />
             {weekday} · {service.startTime}
             {service.endTime ? "–" + service.endTime : ""}
           </div>
+          {/* Kort anteckning visas bara om den finns */}
+          {service.notes && (
+            <div className="text-xs text-faint flex items-center gap-1 mt-1">
+              <FileText size={12} className="flex-shrink-0" />
+              {service.notes}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Status-badge: grön om avprickad, annars gul */}
       {isMarked ? (
-        <Badge color="green">Avprickad ({presentCount} närvarande)</Badge>
+        <Badge color="green">{t("services.marked", { n: presentCount })}</Badge>
       ) : (
-        <Badge color="amber">Ej avprickad</Badge>
+        <Badge color="amber">{t("services.notMarked")}</Badge>
       )}
     </li>
   )
@@ -101,6 +110,8 @@ function ServiceRow({
 // Ritar gudstjänst-sidan: grupperad lista, Ny-gudstjänst-modal och närvaro-modal
 // Tar inga props och returnerar sidan som JSX
 export function Services() {
+  const { t } = useTranslation()
+
   const [services, setServices] = useState<Service[]>(mockServices)
   const [attendance, setAttendance] = useState<Attendance[]>(mockAttendance)
   const [addModalOpen, setAddModalOpen] = useState(false)
@@ -151,26 +162,37 @@ export function Services() {
     setSelectedService(null)
   }
 
+  // Sparar gudstjänstens anteckning (kortnotering) i listan
+  // Tom text nollställer fältet
+  const handleSaveNote = (note: string) => {
+    if (!selectedService) return
+    setServices((prev) =>
+      prev.map((s) =>
+        s.id === selectedService.id ? { ...s, notes: note.trim() || undefined } : s
+      )
+    )
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <h1 className="text-3xl font-bold text-stone-800">Gudstjänster</h1>
+        <h1 className="text-3xl font-bold text-strong">{t("services.title")}</h1>
         <button
           onClick={() => setAddModalOpen(true)}
           className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-800 text-white text-sm font-semibold hover:bg-amber-900"
         >
           <Plus size={16} />
-          Ny gudstjänst
+          {t("services.add")}
         </button>
       </div>
-      <p className="text-stone-600 mb-6">
-        Totalt {services.length} gudstjänster
+      <p className="text-soft mb-6">
+        {t("services.total", { total: services.length })}
       </p>
 
       {services.length === 0 ? (
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
-          <p className="text-sm text-stone-500 italic text-center py-4">
-            Inga gudstjänster har skapats än.
+        <div className="surface border p-6 rounded-2xl shadow-sm">
+          <p className="text-sm text-faint italic text-center py-4">
+            {t("services.empty")}
           </p>
         </div>
       ) : (
@@ -178,10 +200,10 @@ export function Services() {
           {/* Kommande gudstjänster */}
           {upcoming.length > 0 && (
             <section className="mb-6">
-              <h2 className="text-sm font-bold text-stone-500 uppercase mb-2">
-                Kommande gudstjänster
+              <h2 className="text-sm font-bold text-faint uppercase mb-2">
+                {t("services.upcoming")}
               </h2>
-              <div className="bg-white p-4 rounded-2xl shadow-sm border border-stone-200">
+              <div className="surface border p-4 rounded-2xl shadow-sm">
                 <ul>
                   {upcoming.map((service) => (
                     <ServiceRow
@@ -200,10 +222,10 @@ export function Services() {
           {/* Tidigare gudstjänster */}
           {past.length > 0 && (
             <section>
-              <h2 className="text-sm font-bold text-stone-500 uppercase mb-2">
-                Tidigare gudstjänster
+              <h2 className="text-sm font-bold text-faint uppercase mb-2">
+                {t("services.past")}
               </h2>
-              <div className="bg-white p-4 rounded-2xl shadow-sm border border-stone-200">
+              <div className="surface border p-4 rounded-2xl shadow-sm">
                 <ul>
                   {past.map((service) => (
                     <ServiceRow
@@ -237,6 +259,7 @@ export function Services() {
             (a) => a.serviceId === selectedService.id
           )}
           onSave={handleSaveAttendance}
+          onSaveNote={handleSaveNote}
           onClose={() => setSelectedService(null)}
         />
       )}

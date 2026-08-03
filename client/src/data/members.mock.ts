@@ -12,7 +12,8 @@ export const mockMembers: Member[] = [
     address: "Storgatan 12, Stockholm",
     familySize: 3,
     birthday: "5 aug",
-    category: "adult"
+    category: "adult",
+    familyId: "fam-1"
   },
   {
     id: "2",
@@ -26,13 +27,14 @@ export const mockMembers: Member[] = [
   },
   {
     id: "3",
-    name: "Johan Berg",
+    name: "Johan Lindgren",
     phone: "0705555555",
     email: "johan@example.com",
-    address: "Björkgatan 8, Göteborg",
-    familySize: 4,
+    address: "Storgatan 12, Stockholm",
+    familySize: 3,
     birthday: "12 sep",
-    category: "leader"
+    category: "leader",
+    familyId: "fam-1"
   },
   {
     id: "4",

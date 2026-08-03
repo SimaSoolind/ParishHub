@@ -6,6 +6,7 @@
 
 import { useState, useEffect } from "react"
 import { X, Check, UserX } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import type { Member } from "../types/member"
 import type { Service, Attendance, AttendanceStatus } from "../types/service"
 
@@ -14,13 +15,19 @@ interface Props {
   members: Member[]
   attendance: Attendance[] // befintlig närvaro för denna gudstjänst
   onSave: (records: Attendance[]) => void
+  onSaveNote: (note: string) => void // sparar gudstjänstens anteckning
   onClose: () => void
 }
 
 // Ritar närvaro-modalen med en rad per medlem
 // Tar emot service, members, befintlig attendance samt onSave och onClose
 // Returnerar modalen som JSX
-export function AttendanceModal({ service, members, attendance, onSave, onClose }: Props) {
+export function AttendanceModal({ service, members, attendance, onSave, onSaveNote, onClose }: Props) {
+  const { t } = useTranslation()
+
+  // Anteckning för gudstjänsten — förifylls med befintlig text
+  const [note, setNote] = useState(service.notes ?? "")
+
   // Bygger start-status per medlem från befintlig närvaro (annars "not-marked")
   const buildInitial = (): Record<string, AttendanceStatus> => {
     const map: Record<string, AttendanceStatus> = {}
@@ -67,37 +74,48 @@ export function AttendanceModal({ service, members, attendance, onSave, onClose 
         status: marks[m.id],
         markedAt: now,
       }))
+    // Sparar både anteckningen och närvaron
+    onSaveNote(note)
     onSave(records)
   }
 
   return (
     // Backdrop — klick utanför stänger modalen
-    <div
-      onClick={onClose}
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-    >
+    <div onClick={onClose} className="modal-backdrop">
       {/* Själva modalen — stopPropagation förhindrar att klick stänger */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 max-h-[90vh] flex flex-col"
+        className="modal-panel max-w-md w-full p-6 max-h-[90vh] flex flex-col"
       >
         {/* Rubrik-rad med stäng-knapp */}
         <div className="flex items-start justify-between mb-1">
-          <h2 className="text-xl font-bold text-stone-800">{service.title}</h2>
+          <h2 className="text-xl font-bold text-strong">{service.title}</h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-stone-100"
-            aria-label="Stäng"
+            className="p-1 rounded-full row-hover"
+            aria-label={t("form.close")}
           >
-            <X size={20} className="text-stone-500" />
+            <X size={20} className="text-faint" />
           </button>
         </div>
-        <p className="text-sm text-stone-500 mb-4">
-          {presentCount} närvarande · {absentCount} frånvarande
+        <p className="text-sm text-faint mb-3">
+          {t("attendance.summary", { present: presentCount, absent: absentCount })}
         </p>
 
+        {/* Anteckning för gudstjänsten — ligger kvar medan listan scrollar */}
+        <div className="mb-3">
+          <label className="field-label">{t("attendance.note")}</label>
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            rows={2}
+            placeholder={t("attendance.notePlaceholder")}
+            className="field resize-none"
+          />
+        </div>
+
         {/* Medlemslista med närvaro-knappar (scrollar om många) */}
-        <ul className="overflow-y-auto divide-y divide-stone-200">
+        <ul className="overflow-y-auto divide-y divide-rows">
           {members.map((member) => {
             const status = marks[member.id]
             return (
@@ -105,7 +123,7 @@ export function AttendanceModal({ service, members, attendance, onSave, onClose 
                 key={member.id}
                 className="flex items-center justify-between py-2"
               >
-                <span className="text-sm font-medium text-stone-800">
+                <span className="text-sm font-medium text-strong">
                   {member.name}
                 </span>
                 <div className="flex gap-2">
@@ -115,11 +133,11 @@ export function AttendanceModal({ service, members, attendance, onSave, onClose 
                       "flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border " +
                       (status === "present"
                         ? "bg-green-600 text-white border-green-600"
-                        : "bg-white text-stone-500 border-stone-200 hover:border-green-600")
+                        : "bg-white text-stone-500 border-stone-200 hover:border-green-600 dark:bg-stone-800 dark:text-stone-400 dark:border-stone-600")
                     }
                   >
                     <Check size={14} />
-                    Närv.
+                    {t("attendance.present")}
                   </button>
                   <button
                     onClick={() => setStatus(member.id, "absent")}
@@ -127,11 +145,11 @@ export function AttendanceModal({ service, members, attendance, onSave, onClose 
                       "flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border " +
                       (status === "absent"
                         ? "bg-red-600 text-white border-red-600"
-                        : "bg-white text-stone-500 border-stone-200 hover:border-red-600")
+                        : "bg-white text-stone-500 border-stone-200 hover:border-red-600 dark:bg-stone-800 dark:text-stone-400 dark:border-stone-600")
                     }
                   >
                     <UserX size={14} />
-                    Från.
+                    {t("attendance.absent")}
                   </button>
                 </div>
               </li>
@@ -140,18 +158,18 @@ export function AttendanceModal({ service, members, attendance, onSave, onClose 
         </ul>
 
         {/* Knappar */}
-        <div className="flex gap-2 mt-4 pt-4 border-t border-stone-200">
+        <div className="flex gap-2 mt-4 pt-4 border-t border-stone-200 dark:border-stone-700">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 border border-stone-200 rounded-xl font-semibold text-stone-600 hover:bg-stone-50"
+            className="flex-1 px-4 py-2 btn-secondary text-soft"
           >
-            Avbryt
+            {t("form.cancel")}
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 px-4 py-2 bg-amber-800 text-white rounded-xl font-semibold hover:bg-amber-900"
+            className="flex-1 px-4 py-2 btn-primary"
           >
-            Spara närvaro
+            {t("attendance.save")}
           </button>
         </div>
       </div>

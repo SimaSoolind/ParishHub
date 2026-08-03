@@ -5,10 +5,13 @@
 //
 // Används av: Members.tsx
 
-import { useState, useEffect } from "react"
-import { X } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { X, Upload, Camera } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import type { MemberCategory, NewMemberData } from "../types/member"
 import { newMemberSchema } from "../schemas/memberSchema"
+import { Dropdown } from "./Dropdown"
+import { Avatar } from "./Avatar"
 
 interface Props {
   onSave: (member: NewMemberData) => void
@@ -19,19 +22,15 @@ interface Props {
   isEdit?: boolean
 }
 
-// Alternativ i kategori-dropdown
-// Kopplar internt värde till svensk visning
-const categoryOptions: { value: MemberCategory; label: string }[] = [
-  { value: "adult", label: "Vuxen" },
-  { value: "youth", label: "Ungdom" },
-  { value: "leader", label: "Ledare" },
-  { value: "other", label: "Övrig" },
-]
+// Värden i kategori-dropdown — texten översätts via members.filter.<value>
+const categoryOptions: MemberCategory[] = ["adult", "youth", "leader", "other"]
 
 // Ritar formuläret och håller fältens värden i state
 // Tar emot onSave (spara), onClose (stäng) och eventuell initialData
 // Returnerar modalen som JSX
 export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }: Props) {
+  const { t } = useTranslation()
+
   // State för varje fält — förifylls vid redigering, annars tomt
   // familySize hålls som text eftersom input-fält alltid ger text
   const [name, setName] = useState(initialData?.name ?? "")
@@ -42,9 +41,16 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
   const [birthday, setBirthday] = useState(initialData?.birthday ?? "")
   const [category, setCategory] = useState<MemberCategory>(initialData?.category ?? "adult")
   const [notes, setNotes] = useState(initialData?.notes ?? "")
+  const [photoUrl, setPhotoUrl] = useState(initialData?.photoUrl ?? "")
 
   // Håller felmeddelanden per fält från valideringen
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Referens till det dolda fil-fältet (öppnas via Välj bild-knappen)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Referens till det dolda kamera-fältet (öppnas via Ta foto-knappen)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
 
   // Stänger modalen när Escape trycks (tillgänglighet)
   useEffect(() => {
@@ -69,6 +75,7 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
       birthday,
       category,
       notes: notes || undefined,
+      photoUrl: photoUrl.trim() || undefined,
     })
 
     // Om valideringen misslyckas — samla felmeddelanden per fält och avbryt
@@ -87,163 +94,239 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
     onSave(result.data)
   }
 
+  // Läser en vald bildfil och sparar den som data-URL (base64) i state
+  // Begränsar storleken eftersom bilden hålls i minnet tills backend finns
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const maxBytes = 1024 * 1024 // 1 MB
+    if (file.size > maxBytes) {
+      setErrors((prev) => ({ ...prev, photoUrl: t("form.photoTooLarge") }))
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setPhotoUrl(reader.result)
+        setErrors((prev) => ({ ...prev, photoUrl: "" }))
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
   return (
     // Backdrop — klick utanför stänger modalen
-    <div
-      onClick={onClose}
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-    >
+    <div onClick={onClose} className="modal-backdrop">
       {/* Själva modalen — stopPropagation förhindrar att klick stänger */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto"
+        className="modal-panel max-w-md w-full p-6 max-h-[90vh] overflow-y-auto"
       >
         {/* Rubrik-rad med stäng-knapp */}
         <div className="flex items-start justify-between mb-4">
-          <h2 className="text-xl font-bold text-stone-800">
-            {isEdit ? "Redigera medlem" : "Ny medlem"}
+          <h2 className="text-xl font-bold text-strong">
+            {isEdit ? t("form.editTitle") : t("form.addTitle")}
           </h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-stone-100"
-            aria-label="Stäng"
+            className="p-1 rounded-full row-hover"
+            aria-label={t("form.close")}
           >
-            <X size={20} className="text-stone-500" />
+            <X size={20} className="text-faint" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit}>
           {/* Namn-fält */}
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
-              Namn
+            <label className="field-label">
+              {t("form.name")}
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="T.ex. Anna Lindgren"
-              className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none"
+              placeholder={t("form.phName")}
+              className="field"
             />
             {errors.name && (
-              <p className="text-xs text-red-600 mt-1">{errors.name}</p>
+              <p className="field-error">{errors.name}</p>
             )}
           </div>
 
           {/* Telefon-fält */}
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
-              Telefon
+            <label className="field-label">
+              {t("form.phone")}
             </label>
             <input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="T.ex. 0701234567"
-              className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none"
+              placeholder={t("form.phPhone")}
+              className="field"
             />
             {errors.phone && (
-              <p className="text-xs text-red-600 mt-1">{errors.phone}</p>
+              <p className="field-error">{errors.phone}</p>
             )}
           </div>
 
           {/* E-post-fält */}
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
-              E-post
+            <label className="field-label">
+              {t("form.email")}
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="T.ex. anna@example.com"
-              className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none"
+              placeholder={t("form.phEmail")}
+              className="field"
             />
             {errors.email && (
-              <p className="text-xs text-red-600 mt-1">{errors.email}</p>
+              <p className="field-error">{errors.email}</p>
             )}
           </div>
 
           {/* Adress-fält */}
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
-              Adress
+            <label className="field-label">
+              {t("form.address")}
             </label>
             <input
               type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="T.ex. Storgatan 12, Stockholm"
-              className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none"
+              placeholder={t("form.phAddress")}
+              className="field"
             />
             {errors.address && (
-              <p className="text-xs text-red-600 mt-1">{errors.address}</p>
+              <p className="field-error">{errors.address}</p>
             )}
           </div>
 
           {/* Familjestorlek och födelsedag bredvid varandra */}
           <div className="flex gap-3 mb-4">
             <div className="flex-1">
-              <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
-                Familjestorlek
+              <label className="field-label">
+                {t("form.familySize")}
               </label>
               <input
                 type="number"
                 min={1}
                 value={familySize}
                 onChange={(e) => setFamilySize(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none"
+                className="field"
               />
               {errors.familySize && (
-                <p className="text-xs text-red-600 mt-1">{errors.familySize}</p>
+                <p className="field-error">{errors.familySize}</p>
               )}
             </div>
             <div className="flex-1">
-              <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
-                Födelsedag
+              <label className="field-label">
+                {t("form.birthday")}
               </label>
               <input
                 type="text"
                 value={birthday}
                 onChange={(e) => setBirthday(e.target.value)}
-                placeholder="T.ex. 5 aug"
-                className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none"
+                placeholder={t("form.phBirthday")}
+                className="field"
               />
               {errors.birthday && (
-                <p className="text-xs text-red-600 mt-1">{errors.birthday}</p>
+                <p className="field-error">{errors.birthday}</p>
               )}
             </div>
           </div>
 
           {/* Kategori-dropdown */}
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
-              Kategori
+            <label className="field-label">
+              {t("form.category")}
             </label>
-            <select
+            <Dropdown
               value={category}
-              onChange={(e) => setCategory(e.target.value as MemberCategory)}
-              className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none"
-            >
-              {categoryOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setCategory(value as MemberCategory)}
+              ariaLabel={t("form.category")}
+              options={categoryOptions.map((value) => ({
+                value,
+                label: t("members.filter." + value),
+              }))}
+            />
+          </div>
+
+          {/* Profilbild — välj fil eller klistra in en länk (annars visas initialer) */}
+          <div className="mb-4">
+            <label className="field-label">
+              {t("form.photoUrl")}
+            </label>
+            <div className="flex items-center gap-3 mb-2">
+              {/* Förhandsvisning: bilden om den finns, annars initialer */}
+              <Avatar name={name} photoUrl={photoUrl.trim() || undefined} size="lg" />
+              <div className="flex flex-col items-start gap-1">
+                {/* Ta foto — öppnar kameran på mobil/surfplatta */}
+                <button
+                  type="button"
+                  onClick={() => cameraInputRef.current?.click()}
+                  className="flex items-center gap-2 px-3 py-1.5 btn-secondary text-soft text-sm"
+                >
+                  <Camera size={14} />
+                  {t("form.takePhoto")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-2 px-3 py-1.5 btn-secondary text-soft text-sm"
+                >
+                  <Upload size={14} />
+                  {t("form.choosePhoto")}
+                </button>
+                {photoUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setPhotoUrl("")}
+                    className="text-xs text-red-600 hover:underline dark:text-red-400"
+                  >
+                    {t("form.removePhoto")}
+                  </button>
+                )}
+              </div>
+            </div>
+            {/* Dolt fil-fält — öppnas av Välj bild-knappen */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFile}
+              className="hidden"
+            />
+            {/* Dolt kamera-fält — capture öppnar kameran på mobil/surfplatta */}
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFile}
+              className="hidden"
+            />
+            {errors.photoUrl && (
+              <p className="field-error">{errors.photoUrl}</p>
+            )}
           </div>
 
           {/* Anteckningar — valfritt fält */}
           <div className="mb-6">
-            <label className="block text-xs font-semibold text-stone-500 uppercase mb-1">
-              Anteckningar (frivilligt)
+            <label className="field-label">
+              {t("form.notesOptional")}
             </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="T.ex. Sjungit i kören sedan 2020"
+              placeholder={t("form.phNotes")}
               rows={2}
-              className="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-amber-800 focus:outline-none resize-none"
+              className="field resize-none"
             />
           </div>
 
@@ -252,15 +335,15 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-stone-200 rounded-xl font-semibold text-stone-600 hover:bg-stone-50"
+              className="flex-1 px-4 py-2 btn-secondary text-soft"
             >
-              Avbryt
+              {t("form.cancel")}
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-amber-800 text-white rounded-xl font-semibold hover:bg-amber-900"
+              className="flex-1 px-4 py-2 btn-primary"
             >
-              {isEdit ? "Spara ändring" : "Spara"}
+              {isEdit ? t("form.saveEdit") : t("form.save")}
             </button>
           </div>
         </form>

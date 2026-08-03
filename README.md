@@ -77,10 +77,35 @@ npm run dev
 ```
 Frontenden körs på http://localhost:5173
 
+## ⚠️ Felhantering
+
+- Anpassade felklasser för olika feltyper (valideringsfel, autentiseringsfel, not-found)
+- Centraliserad felhantering i backend med en global error-handler
+- React Error Boundaries för att fånga UI-fel
+- Strukturerad loggning (se dokumentation i `docs/`)
+- Användbara felmeddelanden till användaren — aldrig stack traces
+
+## 🧩 TypeScript-konfiguration
+
+- `strict: true` i tsconfig.json för full typsäkerhet
+- `noUnusedLocals` och `noUnusedParameters` aktiverade
+- `exactOptionalPropertyTypes` för noggrannare objekttyper
+- Använd `unknown` istället för `any` när typen är okänd
+- Egen typ-fil per feature-modul
+
+## 🧪 Testning (planerat)
+
+- Enhetstester med Vitest (frontend) och Jest (backend)
+- Integrationstester för API-endpoints
+- Testa hooks med @testing-library/react
+
 ## 📖 Vidare läsning
 
 - [CLAUDE.md](./CLAUDE.md) — Projektregler och kodstandard
+- [docs/DESIGN.md](./docs/DESIGN.md) — Designsystem (färger, typografi, komponenter, skärmar)
+- [docs/SECURITY.md](./docs/SECURITY.md) — Säkerhetschecklista (backend + frontend)
 - [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) — Systemarkitektur
+- [docs/AI-TOLKNING-RAPPORT.md](./docs/AI-TOLKNING-RAPPORT.md) — Rapport & handlingsplan för realtids-AI-tolkning (WebSocket, STT, DeepL)
 - [docs/API.md](./docs/API.md) — API-dokumentation
 - [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) — Vanliga fel och lösningar
 - [CHANGELOG.md](./CHANGELOG.md) — Ändringslogg

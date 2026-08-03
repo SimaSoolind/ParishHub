@@ -27,7 +27,7 @@ AI-tolkning live på svenska + arabiska.
 - PostgreSQL via Prisma ORM
 - JWT + bcrypt — säker inloggning
 - Deepgram — live speech-to-text
-- OpenAI GPT-4o-mini — arabisk→svensk översättning
+- DeepL — arabisk→svensk översättning (AI-tolkning live)
 
 ### Hosting
 - Frontend: Vercel
@@ -35,11 +35,12 @@ AI-tolkning live på svenska + arabiska.
 
 ## 📐 Kodregler
 - **Variabler, funktioner, filer, klasser: ENGELSKA** (inga svenska tecken å/ä/ö)
-- **Kommentarer: SVENSKA** (objektivt språk, studentspråk)
+- **Kommentarer: SVENSKA** (objektivt språk, studentspråk inklusive svenska tecken å/ä/ö)
 - **UI-text som visas för användaren: SVENSKA**
 - Skriv ALL kod i TypeScript — inga .js eller .jsx
 - Använd `import`/`export` — inte `require`
 - Funktionella komponenter i React — aldrig class components
+  (enda undantaget: ErrorBoundary, som React kräver som class)
 - PascalCase för komponenter och typer (MemberList.tsx, Member)
 - camelCase för filer, funktioner och variabler (memberService.ts, getMembers)
 ## 🧼 Ren kod — läsbarhet
@@ -48,7 +49,7 @@ AI-tolkning live på svenska + arabiska.
 - Om samma kod skrivs 2 gånger → bryt ut till en funktion
 - Om samma UI upprepas → bryt ut till en komponent
 - Korta funktioner (max ~30 rader) — om längre, dela upp
-- Meningsfulla variabelnamn på svenska ELLER engelska — inte "data", "temp", "x"
+- Meningsfulla variabelnamn på engelska — inte "data", "temp", "x"
 
 ## ⚛️ React — separera logik från JSX
 - **Logik** (state, useEffect, API-anrop) hör hemma i **custom hooks**
@@ -96,7 +97,6 @@ function MemberList() {
 // ──────────────────────────
 
 ## 🤖 Ingen AI-syntax
-- Inga överdrivna kommentarer som förklarar det uppenbara
 - Inga onödigt långa variabelnamn ("theMemberThatIsCurrentlyBeingViewed")
 - Ingen dubbel-kommentering (samma sak sagd två gånger)
 - Kod ska se ut som att en **människa** skrev den
@@ -125,6 +125,8 @@ function getMemberById(id: string) {
   1. Vad funktionen gör (i en mening)
   2. Vilka argument den tar
   3. Vad den returnerar
+  4. När den kan användas igen (återanvändning)
+  5. Varför den är bra (fördelen)
 
 ### RÄTT och FEL
 
@@ -145,19 +147,84 @@ function getMemberById(id: string) {
 - Stöd för ljust + mörkt läge
 - RTL-stöd för arabiska
 
+## ♿ Tillgänglighet (a11y) och semantisk HTML
+- Använd riktiga HTML-element: `<button>` för knappar, `<a>` för länkar,
+  `<ul>`/`<li>` för listor, `<h1>`/`<h2>` för rubriker
+- Klickbara element ska vara `<button>` — INTE `<div onClick>`
+  (en `<div>` går inte att nå med tangentbord)
+- Om en rad ändå måste vara en `<div>`: lägg `role="button"`, `tabIndex={0}`
+  och hantera Enter/Space
+- `aria-label` på ikon-knappar utan synlig text (t.ex. Ring, Radera, Stäng)
+- Listor byggs med `<ul>`/`<li>` — inte staplade `<div>`
+- Ingen hårdkodad data (telefonnummer, namn) i komponenter — den ligger i data-filer
+- Kontrast och fokus-markering ska fungera i både ljust och mörkt läge
+
+### RÄTT
+<button onClick={onSelect}>Öppna</button>
+<ul>{items.map((i) => <li key={i.id}>{i.name}</li>)}</ul>
+
+### FEL
+<div onClick={onSelect}>Öppna</div>            // ej tangentbords-nåbar
+{items.map((i) => <div>{i.name}</div>)}        // inte en semantisk lista
+
 ## 🔒 Säkerhet
+Full checklista med exempel finns i docs/SECURITY.md — följ den för backend.
+Kärnregler:
+
+### Hemligheter och nycklar
 - API-nycklar ALDRIG i koden — bara i .env på servern
-- .env får ALDRIG committas
-- Frontend får ALDRIG se Deepgram- eller OpenAI-nycklar
+- .env får ALDRIG committas (ligger i .gitignore)
+- Frontend får ALDRIG se Deepgram- eller DeepL-nycklar — anropas via egen backend
 - Ingen `dangerouslyAllowBrowser: true`
-- Validera all input från requests med Zod
-- Använd helmet, cors och express-rate-limit i produktion
+- Separata nycklar per miljö (dev/prod), rotera vid läcka
+
+### Inloggning (JWT + bcrypt)
+- Lösenord hashas med bcrypt (minst 10 salt rounds) — aldrig i klartext
+- Kort livslängd på access-token; refresh-token i httpOnly + Secure + SameSite-cookie (inte localStorage)
+- Rate-limit och brute-force-skydd på /login
+- Auktorisering är inte samma sak som autentisering: kontrollera att inloggad användare FÅR göra åtgärden och äger resursen
+
+### Input och databas
+- Validera ALL input (body, params, query) med Zod på varje endpoint
+- Prisma parametriserar queries — undvik $queryRawUnsafe (SQL-injection)
+- Principen om minsta privilegium för databas-användaren
+
+### Nätverk och headers
+- helmet, cors (allowlist — inte '*') och express-rate-limit i produktion
+- HTTPS överallt
+
+### Felhantering och loggning
+- Central felhanterare; läck aldrig stack trace eller interna detaljer till klient
+- Visa generiskt meddelande + referens-id, logga fullt internt
+- Logga ALDRIG lösenord, tokens eller personuppgifter
+
+### Personuppgifter (GDPR)
+- Medlemsregistret är personuppgifter — GDPR gäller
+- Dataminimering, samtycke, rätt att bli glömd
+- Skydda känsliga fält, logga inte personuppgifter i klartext
+
+### Beroenden och drift
+- Kör npm audit regelbundet, håll beroenden uppdaterade
+- Inga source maps i produktion
+- CI kör tsc + lint + tester före merge
+
+### Frontend och TypeScript-säkerhet
+- Använd `unknown` istället för `any` — typkontrollera (`typeof`, type guards) innan värdet används
+- Förbjud `eval()` och `new Function()` — kör aldrig strängar som kod
+- Skydda mot null-krascher: optional chaining (`user?.name`) och null-kontroller före åtkomst
+- Validera all data i runtime — API-svar, WebSocket-meddelanden, localStorage, `JSON.parse` — med Zod (typer finns bara vid bygge)
+- React Error Boundaries runt sidor och kort så ett kraschat kort inte sänker hela appen
+- Content Security Policy (CSP): helmet på servern, begränsa externa resurser
+- `strict: true` i tsconfig (redan på) — behåll strikta null-kontroller
+- Automatisk säkerhets-skanning (SAST) i CI: lint + npm audit före publicering
 
 ## 🤝 Så hjälps mig, Claude
 - Svara alltid på svenska
 - Förklara VAD, VARFÖR och HUR
 - En sak i taget
+- Förklara planen INNAN du kör ändringar — Sima ska hinna med
 - Fråga innan stora ändringar
+- Påstå aldrig att något är uppfyllt eller klart utan att verifiera mot koden
 - Lägg alltid till kommentarer på svenska i koden
 - Följ kommentarsreglerna ovan (objektivt språk)
 - Kom ihåg: Sima har ADHD och dyslexi — korta stycken, tydlig struktur

@@ -1,0 +1,35 @@
+# CI — körs vid push till main och vid pull requests
+# Kontrollerar typer, lint (inkl. säkerhet), tester och kända sårbarheter
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+
+      - name: Typkontroll
+        run: npx tsc -p tsconfig.app.json --noEmit
+
+      - name: Lint (inkl. säkerhet)
+        run: npm run lint
+
+      - name: Enhetstester
+        run: npm run test
+
+      # Rapporterar kända sårbarheter men stoppar inte bygget (informativt)
+      - name: Säkerhets-audit
+        run: npm audit --audit-level=high
+        continue-on-error: true

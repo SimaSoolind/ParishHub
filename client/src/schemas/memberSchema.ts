@@ -19,4 +19,12 @@ export const newMemberSchema = z.object({
   birthday: z.string().trim().min(1, "Födelsedag krävs").max(20, "För lång text"),
   category: z.enum(["adult", "youth", "leader", "other"]),
   notes: z.string().max(500, "Anteckningen är för lång").optional(),
+  // Valfri profilbild — uppladdad fil sparad som data-URL (base64)
+  // Stor max eftersom base64-bilder är långa
+  photoUrl: z
+    .string()
+    .trim()
+    .max(2_000_000, "Bilden är för stor")
+    .refine((value) => value.startsWith("data:image/"), "Ogiltig bild")
+    .optional(),
 })
