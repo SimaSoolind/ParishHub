@@ -8,10 +8,12 @@
 import { useState } from "react"
 import { Search, Plus } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 import { MemberCard } from "../components/MemberCard"
 import { AddMemberModal } from "../components/AddMemberModal"
 import { MemberProfileModal } from "../components/MemberProfileModal"
 import { GroupMessageModal } from "../components/GroupMessageModal"
+import { Skeleton } from "../components/Skeleton"
 import { useMembers } from "../hooks/useMembers"
 import { useMemberSearch } from "../hooks/useMemberSearch"
 import type { FilterCategory } from "../hooks/useMemberSearch"
@@ -52,6 +54,7 @@ export function Members() {
   const handleAddMember = (newMember: NewMemberData) => {
     addMember(newMember)
     setAddModalOpen(false)
+    toast.success(t("common.added"))
   }
 
   // Körs när prästen sparar en ändring — uppdaterar medlemmen med samma id
@@ -59,11 +62,13 @@ export function Members() {
     if (!editingMember) return
     updateMember(editingMember.id, updated)
     setEditingMember(null)
+    toast.success(t("common.updated"))
   }
 
   // Tar bort medlemmen med angivet id
   const handleDeleteMember = (id: string) => {
     removeMember(id)
+    toast.success(t("common.removed"))
   }
 
   // Kopplar den valda medlemmen och en annan medlem till samma familj
@@ -99,62 +104,71 @@ export function Members() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-2">
-        <h1 className="text-3xl font-bold text-strong">{t("members.title")}</h1>
-        <div className="flex gap-2">
-          <button
-            onClick={toggleSelectionMode}
-            className="px-4 py-2 rounded-full border border-stone-200 text-stone-600 text-sm font-semibold hover:border-amber-800 dark:border-stone-600 dark:text-stone-300 dark:hover:border-amber-500"
-          >
-            {selectionMode ? t("members.cancel") : t("members.groupSend")}
-          </button>
-          <button
-            onClick={() => setAddModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-800 text-white text-sm font-semibold hover:bg-amber-900"
-          >
-            <Plus size={16} />
-            {t("members.add")}
-          </button>
-        </div>
-      </div>
-      <p className="text-soft mb-6">{t("members.total", { total })}</p>
-
-      <div className="relative mb-4">
-        <Search
-          size={18}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 dark:text-stone-500"
-        />
-        <input
-          type="text"
-          placeholder={t("members.search")}
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          className="field pl-10 pr-4"
-        />
-      </div>
-
-      <div className="flex gap-2 flex-wrap mb-6">
-        {filterOptions.map((value) => {
-          const isActive = filter === value
-          const activeClasses = "bg-amber-800 text-white border-amber-800"
-          const inactiveClasses =
-            "bg-white text-stone-600 border-stone-200 hover:border-amber-800 dark:bg-stone-800 dark:text-stone-300 dark:border-stone-600"
-
-          return (
+    <main>
+      <header>
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-3xl font-bold text-strong">{t("members.title")}</h1>
+          <div className="flex gap-2">
             <button
-              key={value}
-              onClick={() => setFilter(value)}
-              className={
-                "px-4 py-2 rounded-full border text-sm font-semibold " +
-                (isActive ? activeClasses : inactiveClasses)
-              }
+              onClick={toggleSelectionMode}
+              className="px-4 py-2 rounded-full border border-stone-200 text-stone-600 text-sm font-semibold hover:border-amber-800 dark:border-stone-600 dark:text-stone-300 dark:hover:border-amber-500"
             >
-              {t("members.filter." + value)}
+              {selectionMode ? t("members.cancel") : t("members.groupSend")}
             </button>
-          )
-        })}
-      </div>
+            <button
+              onClick={() => setAddModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-800 text-white text-sm font-semibold hover:bg-amber-900"
+            >
+              <Plus size={16} />
+              {t("members.add")}
+            </button>
+          </div>
+        </div>
+        <p className="text-soft mb-6">{t("members.total", { total })}</p>
+      </header>
+
+      <section aria-label={t("a11y.searchFilter")}>
+        <div className="relative mb-4">
+          <Search
+            size={18}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 dark:text-stone-500"
+          />
+          <input
+            type="text"
+            placeholder={t("members.search")}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="field pl-10 pr-4"
+          />
+        </div>
+
+        <div
+          className="flex gap-2 flex-wrap mb-6"
+          role="group"
+          aria-label={t("a11y.filterCategory")}
+        >
+          {filterOptions.map((value) => {
+            const isActive = filter === value
+            const activeClasses = "bg-amber-800 text-white border-amber-800"
+            const inactiveClasses =
+              "bg-white text-stone-600 border-stone-200 hover:border-amber-800 dark:bg-stone-800 dark:text-stone-300 dark:border-stone-600"
+
+            return (
+              <button
+                key={value}
+                onClick={() => setFilter(value)}
+                aria-pressed={isActive}
+                className={
+                  "px-4 py-2 rounded-full border text-sm font-semibold " +
+                  (isActive ? activeClasses : inactiveClasses)
+                }
+              >
+                {t("members.filter." + value)}
+              </button>
+            )
+          })}
+        </div>
+      </section>
 
       {/* Urvalsrad i grupputskick-läge */}
       {selectionMode && (
@@ -174,11 +188,15 @@ export function Members() {
 
       <div className="surface border p-6 rounded-2xl shadow-sm">
         {loading ? (
-          <p className="text-sm text-faint italic text-center py-4">{t("common.loading")}</p>
+          <div className="space-y-3" aria-label={t("common.loading")}>
+            <Skeleton className="h-14 w-full" />
+            <Skeleton className="h-14 w-full" />
+            <Skeleton className="h-14 w-full" />
+          </div>
         ) : filteredMembers.length === 0 ? (
           <p className="text-sm text-faint italic text-center py-4">{t("members.empty")}</p>
         ) : (
-          <ul>
+          <ul aria-label={t("a11y.memberList")}>
             {filteredMembers.map((member) => (
               <MemberCard
                 key={member.id}
@@ -247,6 +265,6 @@ export function Members() {
           onClose={() => setGroupModalOpen(false)}
         />
       )}
-    </div>
+    </main>
   )
 }

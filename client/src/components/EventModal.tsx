@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react"
 import { X, Trash2, Pencil } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { FocusTrap } from "focus-trap-react"
 import { formatLongDate } from "../utils/dateUtils"
 
 // Definierar vad ett event ska innehålla för att visas i modalen
@@ -52,81 +53,93 @@ export function EventModal({ event, onClose, onEdit, onDelete }: Props) {
   return (
     // Backdrop — mörkt lager över hela skärmen
     // Klick på backdrop stänger modalen
-    <div onClick={onClose} className="modal-backdrop">
-      {/* Själva modalen — stopPropagation stoppar klick från att nå backdrop */}
-      <div onClick={(e) => e.stopPropagation()} className="modal-panel max-w-md w-full p-6">
-        {/* Rubrik-rad med stäng-knapp */}
-        <div className="flex items-start justify-between mb-4">
-          <h2 className="text-xl font-bold text-strong">{event.title}</h2>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-full row-hover"
-            aria-label={t("form.close")}
-          >
-            <X size={20} className="text-faint" />
-          </button>
-        </div>
-
-        {/* Datum */}
-        <div className="mb-3">
-          <div className="text-xs font-semibold text-faint uppercase">{t("form.date")}</div>
-          <div className="text-strong">{formatLongDate(event.start)}</div>
-        </div>
-
-        {/* Kategori */}
-        <div className="mb-3">
-          <div className="text-xs font-semibold text-faint uppercase">{t("form.category")}</div>
-          <div className="text-strong">{categoryLabel}</div>
-        </div>
-
-        {/* Anteckningar visas endast om de finns */}
-        {event.notes && (
-          <div className="mb-3">
-            <div className="text-xs font-semibold text-faint uppercase">{t("profile.notes")}</div>
-            <div className="text-strong">{event.notes}</div>
+    <FocusTrap focusTrapOptions={{ returnFocusOnDeactivate: true, escapeDeactivates: false }}>
+      <div onClick={onClose} className="modal-backdrop">
+        {/* Själva modalen — stopPropagation stoppar klick från att nå backdrop */}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
+          className="modal-panel max-w-md w-full p-6"
+        >
+          {/* Rubrik-rad med stäng-knapp */}
+          <div className="flex items-start justify-between mb-4">
+            <h2 id="modal-title" className="text-xl font-bold text-strong">
+              {event.title}
+            </h2>
+            <button
+              onClick={onClose}
+              className="p-1 rounded-full row-hover"
+              aria-label={t("form.close")}
+            >
+              <X size={20} className="text-faint" />
+            </button>
           </div>
-        )}
 
-        {/* Skrivskyddade event (koptiska högtider) kan inte ändras */}
-        {event.isReadOnly ? (
-          <p className="text-xs text-faint italic mt-5">{t("calendar.fromCopticCalendar")}</p>
-        ) : confirmingDelete ? (
-          <div className="mt-5">
-            <p className="text-sm text-soft mb-3">{t("profile.deleteQ", { name: event.title })}</p>
-            <div className="flex gap-2">
+          {/* Datum */}
+          <div className="mb-3">
+            <div className="text-xs font-semibold text-faint uppercase">{t("form.date")}</div>
+            <div className="text-strong">{formatLongDate(event.start)}</div>
+          </div>
+
+          {/* Kategori */}
+          <div className="mb-3">
+            <div className="text-xs font-semibold text-faint uppercase">{t("form.category")}</div>
+            <div className="text-strong">{categoryLabel}</div>
+          </div>
+
+          {/* Anteckningar visas endast om de finns */}
+          {event.notes && (
+            <div className="mb-3">
+              <div className="text-xs font-semibold text-faint uppercase">{t("profile.notes")}</div>
+              <div className="text-strong">{event.notes}</div>
+            </div>
+          )}
+
+          {/* Skrivskyddade event (koptiska högtider) kan inte ändras */}
+          {event.isReadOnly ? (
+            <p className="text-xs text-faint italic mt-5">{t("calendar.fromCopticCalendar")}</p>
+          ) : confirmingDelete ? (
+            <div className="mt-5">
+              <p className="text-sm text-soft mb-3">
+                {t("profile.deleteQ", { name: event.title })}
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setConfirmingDelete(false)}
+                  className="flex-1 px-4 py-2 btn-secondary text-soft"
+                >
+                  {t("form.cancel")}
+                </button>
+                <button
+                  onClick={onDelete}
+                  className="flex-1 px-4 py-2 bg-red-700 text-white rounded-xl font-semibold hover:bg-red-800"
+                >
+                  {t("profile.confirmDelete")}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex gap-2 mt-5">
               <button
-                onClick={() => setConfirmingDelete(false)}
-                className="flex-1 px-4 py-2 btn-secondary text-soft"
+                onClick={() => setConfirmingDelete(true)}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-red-200 rounded-xl font-semibold text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
               >
-                {t("form.cancel")}
+                <Trash2 size={16} />
+                {t("profile.delete")}
               </button>
               <button
-                onClick={onDelete}
-                className="flex-1 px-4 py-2 bg-red-700 text-white rounded-xl font-semibold hover:bg-red-800"
+                onClick={onEdit}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 btn-primary"
               >
-                {t("profile.confirmDelete")}
+                <Pencil size={16} />
+                {t("profile.edit")}
               </button>
             </div>
-          </div>
-        ) : (
-          <div className="flex gap-2 mt-5">
-            <button
-              onClick={() => setConfirmingDelete(true)}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-red-200 rounded-xl font-semibold text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
-            >
-              <Trash2 size={16} />
-              {t("profile.delete")}
-            </button>
-            <button
-              onClick={onEdit}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 btn-primary"
-            >
-              <Pencil size={16} />
-              {t("profile.edit")}
-            </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </FocusTrap>
   )
 }

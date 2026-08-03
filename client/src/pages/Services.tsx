@@ -8,9 +8,11 @@
 import { useState } from "react"
 import { Plus, Calendar, FileText } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 import { AddServiceModal } from "../components/AddServiceModal"
 import { AttendanceModal } from "../components/AttendanceModal"
 import { Badge } from "../components/Badge"
+import { Skeleton } from "../components/Skeleton"
 import { useServices } from "../hooks/useServices"
 import { useMembers } from "../hooks/useMembers"
 import type { Service, NewServiceData, Attendance } from "../domain/service"
@@ -117,6 +119,7 @@ export function Services() {
   const handleAddService = (newService: NewServiceData) => {
     addService(newService)
     setAddModalOpen(false)
+    toast.success(t("common.added"))
   }
 
   // Sparar närvaron för den valda gudstjänsten
@@ -124,6 +127,7 @@ export function Services() {
     if (!selectedService) return
     saveAttendance(selectedService.id, records)
     setSelectedService(null)
+    toast.success(t("common.saved"))
   }
 
   // Sparar gudstjänstens anteckning (kortnotering)
@@ -133,8 +137,8 @@ export function Services() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-2">
+    <main>
+      <header className="flex items-center justify-between mb-2">
         <h1 className="text-3xl font-bold text-strong">{t("services.title")}</h1>
         <button
           onClick={() => setAddModalOpen(true)}
@@ -143,12 +147,17 @@ export function Services() {
           <Plus size={16} />
           {t("services.add")}
         </button>
-      </div>
+      </header>
       <p className="text-soft mb-6">{t("services.total", { total: services.length })}</p>
 
       {loading ? (
-        <div className="surface border p-6 rounded-2xl shadow-sm">
-          <p className="text-sm text-faint italic text-center py-4">{t("common.loading")}</p>
+        <div
+          className="surface border p-6 rounded-2xl shadow-sm space-y-3"
+          aria-label={t("common.loading")}
+        >
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
         </div>
       ) : services.length === 0 ? (
         <div className="surface border p-6 rounded-2xl shadow-sm">
@@ -215,6 +224,6 @@ export function Services() {
           onClose={() => setSelectedService(null)}
         />
       )}
-    </div>
+    </main>
   )
 }

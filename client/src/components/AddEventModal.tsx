@@ -8,6 +8,7 @@
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { FocusTrap } from "focus-trap-react"
 import { lifeEventCategoryValues } from "../data/eventCategories"
 import { newEventSchema } from "../schemas/eventSchema"
 import { Dropdown } from "./Dropdown"
@@ -76,91 +77,99 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
 
   return (
     // Backdrop — klick utanför stänger modalen
-    <div onClick={onClose} className="modal-backdrop">
-      {/* Själva modalen — stopPropagation förhindrar att klick stänger */}
-      <div onClick={(e) => e.stopPropagation()} className="modal-panel max-w-md w-full p-6">
-        {/* Rubrik-rad med stäng-knapp */}
-        <div className="flex items-start justify-between mb-4">
-          <h2 className="text-xl font-bold text-strong">
-            {isEdit ? t("eventForm.editTitle") : t("eventForm.addTitle")}
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-full row-hover"
-            aria-label={t("form.close")}
-          >
-            <X size={20} className="text-faint" />
-          </button>
-        </div>
-
-        {/* Själva formuläret — onSubmit triggas vid Spara-klick */}
-        <form onSubmit={handleSubmit}>
-          {/* Titel-fält */}
-          <div className="mb-4">
-            <label className="field-label">{t("form.title")}</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder={t("eventForm.phTitle")}
-              className="field"
-            />
-            {errors.title && <p className="field-error">{errors.title}</p>}
-          </div>
-
-          {/* Datum-fält */}
-          <div className="mb-4">
-            <label className="field-label">{t("form.date")}</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="field"
-            />
-            {errors.date && <p className="field-error">{errors.date}</p>}
-          </div>
-
-          {/* Kategori-dropdown */}
-          <div className="mb-4">
-            <label className="field-label">{t("form.category")}</label>
-            <Dropdown
-              value={category}
-              onChange={setCategory}
-              ariaLabel={t("form.category")}
-              options={lifeEventCategoryValues.map((value) => ({
-                value,
-                label: t("eventCategory." + value),
-              }))}
-            />
-          </div>
-
-          {/* Anteckningar — valfritt fält */}
-          <div className="mb-6">
-            <label className="field-label">{t("form.notesOptional")}</label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder={t("eventForm.phNotes")}
-              rows={3}
-              className="field resize-none"
-            />
-          </div>
-
-          {/* Knappar */}
-          <div className="flex gap-2">
+    <FocusTrap focusTrapOptions={{ returnFocusOnDeactivate: true, escapeDeactivates: false }}>
+      <div onClick={onClose} className="modal-backdrop">
+        {/* Själva modalen — stopPropagation förhindrar att klick stänger */}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
+          className="modal-panel max-w-md w-full p-6"
+        >
+          {/* Rubrik-rad med stäng-knapp */}
+          <div className="flex items-start justify-between mb-4">
+            <h2 id="modal-title" className="text-xl font-bold text-strong">
+              {isEdit ? t("eventForm.editTitle") : t("eventForm.addTitle")}
+            </h2>
             <button
-              type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 btn-secondary text-soft"
+              className="p-1 rounded-full row-hover"
+              aria-label={t("form.close")}
             >
-              {t("form.cancel")}
-            </button>
-            <button type="submit" className="flex-1 px-4 py-2 btn-primary">
-              {isEdit ? t("form.saveEdit") : t("form.save")}
+              <X size={20} className="text-faint" />
             </button>
           </div>
-        </form>
+
+          {/* Själva formuläret — onSubmit triggas vid Spara-klick */}
+          <form onSubmit={handleSubmit}>
+            {/* Titel-fält */}
+            <div className="mb-4">
+              <label className="field-label">{t("form.title")}</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder={t("eventForm.phTitle")}
+                className="field"
+              />
+              {errors.title && <p className="field-error">{errors.title}</p>}
+            </div>
+
+            {/* Datum-fält */}
+            <div className="mb-4">
+              <label className="field-label">{t("form.date")}</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="field"
+              />
+              {errors.date && <p className="field-error">{errors.date}</p>}
+            </div>
+
+            {/* Kategori-dropdown */}
+            <div className="mb-4">
+              <label className="field-label">{t("form.category")}</label>
+              <Dropdown
+                value={category}
+                onChange={setCategory}
+                ariaLabel={t("form.category")}
+                options={lifeEventCategoryValues.map((value) => ({
+                  value,
+                  label: t("eventCategory." + value),
+                }))}
+              />
+            </div>
+
+            {/* Anteckningar — valfritt fält */}
+            <div className="mb-6">
+              <label className="field-label">{t("form.notesOptional")}</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder={t("eventForm.phNotes")}
+                rows={3}
+                className="field resize-none"
+              />
+            </div>
+
+            {/* Knappar */}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-4 py-2 btn-secondary text-soft"
+              >
+                {t("form.cancel")}
+              </button>
+              <button type="submit" className="flex-1 px-4 py-2 btn-primary">
+                {isEdit ? t("form.saveEdit") : t("form.save")}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </FocusTrap>
   )
 }

@@ -1,5 +1,5 @@
 /* Google Fonts måste importeras före andra regler */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Cairo:wght@400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Cairo:wght@400;600;700&display=swap");
 @import "tailwindcss";
 
 /* Mörkt läge styrs manuellt via data-theme="dark" på <html> (inte systemets tema) */
@@ -13,6 +13,16 @@
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
+}
+
+/* Global fokus-ring — syns BARA vid tangentbords-fokus (inte vid mus-klick) */
+/* WCAG 2.4.7: tangentbords-användare måste se var fokus är */
+@layer base {
+  *:focus-visible {
+    outline: 2px solid var(--color-amber-700);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
 
 /* Standardfont: Inter för svenska */

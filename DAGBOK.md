@@ -505,6 +505,58 @@ Att göra en entitet i taget gjorde att jag förstod mönstret ordentligt.
 
 ---
 
+### 🗓 Måndag 3 augusti 2026 — Dag 10
+
+**⏱ Tid:** _(fyll i)_
+**🎯 Mål för dagen:** Maxad typsäkerhet + hela WCAG/a11y-planen (9 steg)
+
+**✅ Vad som gjordes:**
+
+TypeScript strict (maxad):
+- Slog på strict + 5 extra flaggor (exactOptionalPropertyTypes, noUncheckedIndexedAccess,
+  noImplicitReturns, noImplicitOverride, noPropertyAccessFromIndexSignature)
+- Åtgärdade 58 typfel — bl.a. äkta null-buggar (parts[0] i avatar, palette[i], marks[id])
+
+UX & Tillgänglighet (docs/UX-A11Y-INSTRUKTION.md — alla 9 steg):
+- Semantiska taggar (main/header/section/ul) på alla fyra sidor + aria-label/role/aria-pressed
+- Focus-trap i alla 7 modaler (focus-trap-react + role="dialog" + aria-labelledby)
+- Toast-notiser (sonner) vid spara/radera
+- Skeleton-komponent vid laddning
+- @axe-core/react (dev-only a11y-skanner i konsolen)
+- Global focus-visible-ring (WCAG 2.4.7)
+- Tangentbordsnavigering var redan uppfylld (verifierade)
+
+**🎓 Lärdomar:**
+- exactOptionalPropertyTypes: optionella datafält som får hålla "inget värde" typas som T | undefined
+- noUncheckedIndexedAccess fångar riktiga undefined-buggar vid array/objekt-indexering
+- focus-trap-react fångar fokus i modaler (WCAG 2.4.3) — lag för offentlig sektor
+- sonner har inbyggd a11y (role=status / aria-live)
+- @axe-core/react körs bara i import.meta.env.DEV — aldrig i prod-bundlen
+- Verifiera med npm run build + lint + test efter stora svep
+
+**⚠️ Utmaningar:**
+- 58 typfel att åtgärda efter strict-flaggorna — men de flesta var mekaniska
+- Focus-trap i 7 modaler: uniforma edits, men enrads- vs flerrads-JSX (Prettier) krävde två anchor-varianter
+- Skapade först en ModalShell (DRY) men bytte till direkt FocusTrap-wrap (lägre risk) och tog bort ModalShell
+
+**💡 Fel att komma ihåg:**
+- Modaler och native-kontroller MÅSTE vara tangentbords-tillgängliga (WCAG = lag för offentlig sektor)
+- Verifiera JSX-balans med tsc efter wrap-edits — mellanlägen visar falska fel
+- Dev-verktyg (axe) ska aldrig hamna i produktion
+
+**📝 Reflektion:**
+Enormt pass. Appen gick från "bra a11y" till att uppfylla hela WCAG-planen: semantisk struktur,
+focus-trap, synlig fokus, toast och skeleton — plus maxad typsäkerhet. Nu är den både tillgänglig
+(lagkrav för offentlig sektor) och robust typad. Det bästa var att strict-flaggorna hittade RIKTIGA
+latenta buggar, inte bara ceremoni.
+
+**➡️ Nästa steg:**
+- Testa focus-trap live i webbläsaren (React 19 + focus-trap-react är nytt)
+- Backend (Express + Prisma)
+- Historikkort med graf (Recharts)
+
+---
+
 ## 📋 Mall för nya dagar
 
 Kopiera detta block och klistra in högst upp under "Dag-för-dag":
@@ -549,6 +601,7 @@ Kopiera detta block och klistra in högst upp under "Dag-för-dag":
 - [x] Mörkt läge på hela appen (tema-knapp + DRY färgklasser + egen dropdown) — **3 augusti 2026** ✅
 - [x] Fas 1 komplett (mörkt läge, flerspråkighet, profilbild, kortnotering) — **3 augusti 2026** ✅
 - [x] Clean Architecture på alla sidor (domän · repository · hook) — **3 augusti 2026** ✅
+- [x] Maxad TypeScript-strict + hela WCAG/a11y-planen (9 steg) — **3 augusti 2026** ✅
 - [ ] Första Express-servern igång
 - [ ] Första databaskopplingen till PostgreSQL
 - [ ] Första JWT-inloggningen fungerar

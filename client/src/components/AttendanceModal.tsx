@@ -8,6 +8,7 @@
 import { useState, useEffect } from "react"
 import { X, Check, UserX } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { FocusTrap } from "focus-trap-react"
 import type { Member } from "../domain/member"
 import type { Service, Attendance, AttendanceStatus, AbsenceReason } from "../domain/service"
 import type { ContactStatus } from "../domain/contact"
@@ -144,130 +145,137 @@ export function AttendanceModal({
 
   return (
     // Backdrop — klick utanför stänger modalen
-    <div onClick={onClose} className="modal-backdrop">
-      {/* Själva modalen — stopPropagation förhindrar att klick stänger */}
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="modal-panel max-w-md w-full p-6 max-h-[90vh] flex flex-col"
-      >
-        {/* Rubrik-rad med stäng-knapp */}
-        <div className="flex items-start justify-between mb-1">
-          <h2 className="text-xl font-bold text-strong">{service.title}</h2>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-full row-hover"
-            aria-label={t("form.close")}
-          >
-            <X size={20} className="text-faint" />
-          </button>
-        </div>
-        <p className="text-sm text-faint mb-3">
-          {t("attendance.summary", { present: presentCount, absent: absentCount })}
-        </p>
+    <FocusTrap focusTrapOptions={{ returnFocusOnDeactivate: true, escapeDeactivates: false }}>
+      <div onClick={onClose} className="modal-backdrop">
+        {/* Själva modalen — stopPropagation förhindrar att klick stänger */}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
+          className="modal-panel max-w-md w-full p-6 max-h-[90vh] flex flex-col"
+        >
+          {/* Rubrik-rad med stäng-knapp */}
+          <div className="flex items-start justify-between mb-1">
+            <h2 id="modal-title" className="text-xl font-bold text-strong">
+              {service.title}
+            </h2>
+            <button
+              onClick={onClose}
+              className="p-1 rounded-full row-hover"
+              aria-label={t("form.close")}
+            >
+              <X size={20} className="text-faint" />
+            </button>
+          </div>
+          <p className="text-sm text-faint mb-3">
+            {t("attendance.summary", { present: presentCount, absent: absentCount })}
+          </p>
 
-        {/* Anteckning för gudstjänsten — ligger kvar medan listan scrollar */}
-        <div className="mb-3">
-          <label className="field-label">{t("attendance.note")}</label>
-          <textarea
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            rows={2}
-            placeholder={t("attendance.notePlaceholder")}
-            className="field resize-none"
-          />
-        </div>
+          {/* Anteckning för gudstjänsten — ligger kvar medan listan scrollar */}
+          <div className="mb-3">
+            <label className="field-label">{t("attendance.note")}</label>
+            <textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              rows={2}
+              placeholder={t("attendance.notePlaceholder")}
+              className="field resize-none"
+            />
+          </div>
 
-        {/* Medlemslista med närvaro-knappar (scrollar om många) */}
-        <ul className="overflow-y-auto divide-y divide-rows">
-          {members.map((member) => {
-            const status = marks[member.id]
-            return (
-              <li key={member.id} className="py-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-strong">{member.name}</span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setStatus(member.id, "present")}
-                      className={
-                        "flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border " +
-                        (status === "present"
-                          ? "bg-green-600 text-white border-green-600"
-                          : "bg-white text-stone-500 border-stone-200 hover:border-green-600 dark:bg-stone-800 dark:text-stone-400 dark:border-stone-600")
-                      }
-                    >
-                      <Check size={14} />
-                      {t("attendance.present")}
-                    </button>
-                    <button
-                      onClick={() => setStatus(member.id, "absent")}
-                      className={
-                        "flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border " +
-                        (status === "absent"
-                          ? "bg-red-600 text-white border-red-600"
-                          : "bg-white text-stone-500 border-stone-200 hover:border-red-600 dark:bg-stone-800 dark:text-stone-400 dark:border-stone-600")
-                      }
-                    >
-                      <UserX size={14} />
-                      {t("attendance.absent")}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Orsak + kontaktstatus visas bara för frånvarande medlemmar */}
-                {status === "absent" && (
-                  <div className="mt-2 flex flex-col gap-2">
-                    {/* Orsak till frånvaron */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs text-faint w-16 flex-shrink-0">
-                        {t("attendance.reasonLabel")}
-                      </span>
-                      {reasonValues.map((value) => (
-                        <button
-                          key={value}
-                          onClick={() => setReason(member.id, value)}
-                          className={
-                            chipBase + (reasons[member.id] === value ? chipActive : chipInactive)
-                          }
-                        >
-                          {t("attendance.reasons." + value)}
-                        </button>
-                      ))}
-                    </div>
-                    {/* Kontaktstatus för den frånvarande */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs text-faint w-16 flex-shrink-0">
-                        {t("attendance.contactLabel")}
-                      </span>
-                      {contactOptions.map((option) => (
-                        <button
-                          key={option.value}
-                          onClick={() => setContact(member.id, option.value)}
-                          className={
-                            chipBase +
-                            (contacts[member.id] === option.value ? chipActive : chipInactive)
-                          }
-                        >
-                          {t("priority.status." + option.labelKey)}
-                        </button>
-                      ))}
+          {/* Medlemslista med närvaro-knappar (scrollar om många) */}
+          <ul className="overflow-y-auto divide-y divide-rows">
+            {members.map((member) => {
+              const status = marks[member.id]
+              return (
+                <li key={member.id} className="py-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-strong">{member.name}</span>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setStatus(member.id, "present")}
+                        className={
+                          "flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border " +
+                          (status === "present"
+                            ? "bg-green-600 text-white border-green-600"
+                            : "bg-white text-stone-500 border-stone-200 hover:border-green-600 dark:bg-stone-800 dark:text-stone-400 dark:border-stone-600")
+                        }
+                      >
+                        <Check size={14} />
+                        {t("attendance.present")}
+                      </button>
+                      <button
+                        onClick={() => setStatus(member.id, "absent")}
+                        className={
+                          "flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border " +
+                          (status === "absent"
+                            ? "bg-red-600 text-white border-red-600"
+                            : "bg-white text-stone-500 border-stone-200 hover:border-red-600 dark:bg-stone-800 dark:text-stone-400 dark:border-stone-600")
+                        }
+                      >
+                        <UserX size={14} />
+                        {t("attendance.absent")}
+                      </button>
                     </div>
                   </div>
-                )}
-              </li>
-            )
-          })}
-        </ul>
 
-        {/* Knappar */}
-        <div className="flex gap-2 mt-4 pt-4 border-t border-stone-200 dark:border-stone-700">
-          <button onClick={onClose} className="flex-1 px-4 py-2 btn-secondary text-soft">
-            {t("form.cancel")}
-          </button>
-          <button onClick={handleSave} className="flex-1 px-4 py-2 btn-primary">
-            {t("attendance.save")}
-          </button>
+                  {/* Orsak + kontaktstatus visas bara för frånvarande medlemmar */}
+                  {status === "absent" && (
+                    <div className="mt-2 flex flex-col gap-2">
+                      {/* Orsak till frånvaron */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs text-faint w-16 flex-shrink-0">
+                          {t("attendance.reasonLabel")}
+                        </span>
+                        {reasonValues.map((value) => (
+                          <button
+                            key={value}
+                            onClick={() => setReason(member.id, value)}
+                            className={
+                              chipBase + (reasons[member.id] === value ? chipActive : chipInactive)
+                            }
+                          >
+                            {t("attendance.reasons." + value)}
+                          </button>
+                        ))}
+                      </div>
+                      {/* Kontaktstatus för den frånvarande */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs text-faint w-16 flex-shrink-0">
+                          {t("attendance.contactLabel")}
+                        </span>
+                        {contactOptions.map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={() => setContact(member.id, option.value)}
+                            className={
+                              chipBase +
+                              (contacts[member.id] === option.value ? chipActive : chipInactive)
+                            }
+                          >
+                            {t("priority.status." + option.labelKey)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+
+          {/* Knappar */}
+          <div className="flex gap-2 mt-4 pt-4 border-t border-stone-200 dark:border-stone-700">
+            <button onClick={onClose} className="flex-1 px-4 py-2 btn-secondary text-soft">
+              {t("form.cancel")}
+            </button>
+            <button onClick={handleSave} className="flex-1 px-4 py-2 btn-primary">
+              {t("attendance.save")}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </FocusTrap>
   )
 }

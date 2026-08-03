@@ -13,6 +13,7 @@ import { format, parse, startOfWeek, getDay } from "date-fns"
 import { sv } from "date-fns/locale"
 import { RefreshCw, Plus } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 import { EventModal } from "../components/EventModal"
 import type { ModalEvent } from "../components/EventModal"
 import { AddEventModal } from "../components/AddEventModal"
@@ -73,6 +74,7 @@ export function Calendar() {
   const handleAddEvent = (newEvent: NewEventData) => {
     addEvent(newEvent)
     setAddModalOpen(false)
+    toast.success(t("common.added"))
   }
 
   // Körs när prästen klickar på en dag i kalendern
@@ -87,12 +89,14 @@ export function Calendar() {
     if (!editingEvent) return
     updateEvent(editingEvent.id, updated)
     setEditingEvent(null)
+    toast.success(t("common.updated"))
   }
 
   // Tar bort eventet med angivet id
   const handleDeleteEvent = (id: string) => {
     removeEvent(id)
     setSelectedEvent(null)
+    toast.success(t("common.removed"))
   }
 
   // Öppnar redigeringsformuläret förifyllt med det valda eventet
@@ -112,12 +116,14 @@ export function Calendar() {
   const shownEvents = [...events, ...copticEvents]
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-strong mb-2">{t("calendar.title")}</h1>
-      <p className="text-soft mb-6">{t("calendar.subtitle")}</p>
+    <main>
+      <header>
+        <h1 className="text-3xl font-bold text-strong mb-2">{t("calendar.title")}</h1>
+        <p className="text-soft mb-6">{t("calendar.subtitle")}</p>
+      </header>
 
       {/* Knappar för framtida synk + skapa nytt event */}
-      <div className="flex gap-2 mb-6 flex-wrap">
+      <section aria-label={t("a11y.toolbar")} className="flex gap-2 mb-6 flex-wrap">
         <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-stone-200 text-stone-600 text-sm font-semibold hover:border-amber-800 dark:bg-stone-800 dark:border-stone-600 dark:text-stone-300 dark:hover:border-amber-500">
           <RefreshCw size={16} />
           {t("calendar.syncGoogle")}
@@ -129,7 +135,7 @@ export function Calendar() {
           <Plus size={16} />
           {t("calendar.newEvent")}
         </button>
-      </div>
+      </section>
 
       {/* Själva kalendern */}
       <div className="surface border p-4 rounded-2xl shadow-sm" style={{ height: 600 }}>
@@ -188,6 +194,6 @@ export function Calendar() {
           onClose={() => setEditingEvent(null)}
         />
       )}
-    </div>
+    </main>
   )
 }

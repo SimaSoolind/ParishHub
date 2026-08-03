@@ -29,20 +29,22 @@ export function Dashboard() {
   const contacts = useContacts()
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-strong mb-2">
-        {t("dashboard.hello", { greeting: t("greeting." + greetingKey) })}
-      </h1>
-      <p className="text-soft mb-6">{date}</p>
+    <main>
+      <header>
+        <h1 className="text-3xl font-bold text-strong mb-2">
+          {t("dashboard.hello", { greeting: t("greeting." + greetingKey) })}
+        </h1>
+        <p className="text-soft mb-6">{date}</p>
+      </header>
 
-      <div className="flex gap-4 mb-6">
+      <section aria-label={t("a11y.statsRegion")} className="flex gap-4 mb-6">
         <StatCard label={t("dashboard.statMembers")} value={47} color="blue" Icon={Users} />
         <StatCard label={t("dashboard.statPresent")} value={38} color="green" Icon={Check} />
         <StatCard label={t("dashboard.statToContact")} value={5} color="red" Icon={AlertTriangle} />
-      </div>
+      </section>
 
       <BirthdayList birthdays={birthdays} />
       <PriorityList contacts={contacts} />
-    </div>
+    </main>
   )
 }
