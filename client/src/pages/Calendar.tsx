@@ -116,7 +116,7 @@ export function Calendar() {
   const shownEvents = [...events, ...copticEvents]
 
   return (
-    <main>
+    <>
       <header>
         <h1 className="text-3xl font-bold text-strong mb-2">{t("calendar.title")}</h1>
         <p className="text-soft mb-6">{t("calendar.subtitle")}</p>
@@ -194,6 +194,6 @@ export function Calendar() {
           onClose={() => setEditingEvent(null)}
         />
       )}
-    </main>
+    </>
   )
 }

@@ -4,6 +4,7 @@
 //
 // Används av: PriorityList.tsx (fler delar kan använda den senare)
 
+import { memo } from "react"
 import type { ReactNode } from "react"
 
 interface Props {
@@ -15,14 +16,16 @@ interface Props {
 const colorClasses = {
   red: "bg-red-100 text-red-800 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-900",
   blue: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-900",
-  green: "bg-green-100 text-green-800 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-900",
-  amber: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-900",
+  green:
+    "bg-green-100 text-green-800 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-900",
+  amber:
+    "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-900",
 }
 
 // Ritar en färgad etikett runt valfritt innehåll
 // Tar emot color (färg) och children (innehållet som visas)
 // Returnerar etiketten som JSX
-export function Badge({ color, children }: Props) {
+function BadgeBase({ color, children }: Props) {
   const classes = colorClasses[color]
 
   return (
@@ -31,3 +34,6 @@ export function Badge({ color, children }: Props) {
     </span>
   )
 }
+
+// Wrappar i memo — små stabila etiketter, slipper rendera om i onändrade listor
+export const Badge = memo(BadgeBase)

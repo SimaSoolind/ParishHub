@@ -242,6 +242,7 @@
 - ⚪ Händelsekalender (dop, bröllop, begravning)
 - ⚪ Dokument per medlem (scan av samtycken)
 - ⚪ Uppföljningsdatum för kontakt
+- ⚪ DOMPurify när rich-text-fält läggs till (privata anteckningar, predikan-arkiv)
 
 ### 🔧 Fas 3 — Avancerat
 - ⚪ Flera admins med olika behörigheter

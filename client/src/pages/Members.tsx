@@ -5,20 +5,20 @@
 // Bygger på: useMembers (data via repository), useMemberSearch (sök) och MemberCard
 // Data: kommer från useMembers — sidan vet INTE om det är mock eller databas
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { Search, Plus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import { MemberCard } from "../components/MemberCard"
-import { AddMemberModal } from "../components/AddMemberModal"
-import { MemberProfileModal } from "../components/MemberProfileModal"
-import { GroupMessageModal } from "../components/GroupMessageModal"
-import { Skeleton } from "../components/Skeleton"
-import { useMembers } from "../hooks/useMembers"
-import { useMemberSearch } from "../hooks/useMemberSearch"
-import type { FilterCategory } from "../hooks/useMemberSearch"
-import type { Member, NewMemberData } from "../domain/member"
-import { resolveFamilyId } from "../use-cases/family"
+import { MemberCard } from "@components/MemberCard"
+import { AddMemberModal } from "@components/AddMemberModal"
+import { MemberProfileModal } from "@components/MemberProfileModal"
+import { GroupMessageModal } from "@components/GroupMessageModal"
+import { Skeleton } from "@components/Skeleton"
+import { useMembers } from "@hooks/useMembers"
+import { useMemberSearch } from "@hooks/useMemberSearch"
+import type { FilterCategory } from "@hooks/useMemberSearch"
+import type { Member, NewMemberData } from "@domain/member"
+import { resolveFamilyId } from "@/use-cases/family"
 
 // Filter-knapparnas värden — texten översätts via t("members.filter." + value)
 const filterOptions: FilterCategory[] = ["all", "adult", "youth", "leader", "other"]
@@ -98,13 +98,19 @@ export function Members() {
     setSelectedIds([])
   }
 
+  // Öppnar medlemmens profil — stabil referens så memo:ade MemberCard slipper rendera om
+  const handleSelectMember = useCallback((member: Member) => {
+    setSelectedMember(member)
+  }, [])
+
   // Bockar av eller på en medlem i grupputskicket
-  const handleToggleSelect = (id: string) => {
+  // useCallback ger stabil referens till memo:ade MemberCard
+  const handleToggleSelect = useCallback((id: string) => {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
-  }
+  }, [])
 
   return (
-    <main>
+    <>
       <header>
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-3xl font-bold text-strong">{t("members.title")}</h1>
@@ -201,10 +207,10 @@ export function Members() {
               <MemberCard
                 key={member.id}
                 member={member}
-                onSelect={() => setSelectedMember(member)}
+                onSelect={handleSelectMember}
                 selectionMode={selectionMode}
                 selected={selectedIds.includes(member.id)}
-                onToggleSelect={() => handleToggleSelect(member.id)}
+                onToggleSelect={handleToggleSelect}
               />
             ))}
           </ul>
@@ -265,6 +271,6 @@ export function Members() {
           onClose={() => setGroupModalOpen(false)}
         />
       )}
-    </main>
+    </>
   )
 }

@@ -5,29 +5,31 @@
 //
 // Används av: Dashboard.tsx
 
+import { memo } from "react"
 import type { LucideIcon } from "lucide-react"
 
 // Definierar vilka props komponenten kräver
 // TypeScript varnar om något saknas eller är fel typ
 interface StatCardProps {
-  label: string              // Text under siffran, t.ex. "Medlemmar"
-  value: number              // Själva siffran som visas stort
-  color: "blue" | "green" | "red"   // Endast dessa tre färger tillåtna
-  Icon: LucideIcon           // Ikon-komponent från lucide-react
+  label: string // Text under siffran, t.ex. "Medlemmar"
+  value: number // Själva siffran som visas stort
+  color: "blue" | "green" | "red" // Endast dessa tre färger tillåtna
+  Icon: LucideIcon // Ikon-komponent från lucide-react
 }
 
 // Färg-mappning — kopplar färgnamn till Tailwind CSS-klasser
 // Ligger utanför komponenten för att slippa återskapa vid varje rendering
 const colorClasses = {
   blue: "bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-900 dark:text-blue-300",
-  green: "bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-900 dark:text-green-300",
+  green:
+    "bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-900 dark:text-green-300",
   red: "bg-red-50 border-red-200 text-red-800 dark:bg-red-950 dark:border-red-900 dark:text-red-300",
 }
 
 // Ritar ett statistik-kort med ikon, siffra och etikett
 // Tar emot label, value, color och Icon (se StatCardProps)
 // Returnerar kortet som JSX
-export function StatCard({ label, value, color, Icon }: StatCardProps) {
+function StatCardBase({ label, value, color, Icon }: StatCardProps) {
   // Plockar rätt CSS-klasser baserat på färg-prop
   const classes = colorClasses[color]
 
@@ -46,3 +48,6 @@ export function StatCard({ label, value, color, Icon }: StatCardProps) {
     </div>
   )
 }
+
+// Wrappar i memo — korten har stabila props och slipper onödig rendering
+export const StatCard = memo(StatCardBase)

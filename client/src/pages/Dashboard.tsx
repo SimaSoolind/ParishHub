@@ -29,7 +29,7 @@ export function Dashboard() {
   const contacts = useContacts()
 
   return (
-    <main>
+    <>
       <header>
         <h1 className="text-3xl font-bold text-strong mb-2">
           {t("dashboard.hello", { greeting: t("greeting." + greetingKey) })}
@@ -45,6 +45,6 @@ export function Dashboard() {
 
       <BirthdayList birthdays={birthdays} />
       <PriorityList contacts={contacts} />
-    </main>
+    </>
   )
 }

@@ -4,6 +4,7 @@
 //
 // Används av: Members.tsx
 
+import { memo } from "react"
 import { Phone, Mail, Users, MapPin, CheckSquare, Square } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Avatar } from "./Avatar"
@@ -11,17 +12,19 @@ import type { Member } from "../domain/member"
 
 interface Props {
   member: Member
-  onSelect: () => void
+  // Kallas med hela member — föräldern slipper skapa en ny closure per rad
+  onSelect: (member: Member) => void
   // Grupputskick-läge — bocka av flera medlemmar
   selectionMode?: boolean
   selected?: boolean
-  onToggleSelect?: () => void
+  // Kallas med medlemmens id vid avbockning i grupputskick-läge
+  onToggleSelect?: (id: string) => void
 }
 
 // Ritar en klickbar rad för en medlem
 // Tar emot member, onSelect och (valfritt) grupputskick-läge
 // Returnerar raden som JSX
-export function MemberCard({
+function MemberCardBase({
   member,
   onSelect,
   selectionMode = false,
@@ -35,8 +38,8 @@ export function MemberCard({
 
   // Klick öppnar profilen — men i grupputskick-läge bockar det av istället
   const handleActivate = () => {
-    if (selectionMode) onToggleSelect?.()
-    else onSelect()
+    if (selectionMode) onToggleSelect?.(member.id)
+    else onSelect(member)
   }
 
   // Öppnar/bockar med Enter eller mellanslag (tangentbords-stöd)
@@ -105,3 +108,7 @@ export function MemberCard({
     </li>
   )
 }
+
+// Wrappar i memo — hoppar över rendering när props är oförändrade
+// Används eftersom MemberCard renderas en gång per medlem i listan
+export const MemberCard = memo(MemberCardBase)

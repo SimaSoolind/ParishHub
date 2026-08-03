@@ -137,7 +137,7 @@ export function Services() {
   }
 
   return (
-    <main>
+    <>
       <header className="flex items-center justify-between mb-2">
         <h1 className="text-3xl font-bold text-strong">{t("services.title")}</h1>
         <button
@@ -224,6 +224,6 @@ export function Services() {
           onClose={() => setSelectedService(null)}
         />
       )}
-    </main>
+    </>
   )
 }

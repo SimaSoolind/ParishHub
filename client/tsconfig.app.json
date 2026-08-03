@@ -26,6 +26,20 @@
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
 
+    /* Path aliases — kortare imports (matchar vite.config.ts) */
+    /* baseUrl behövs inte i TS 6 — paths löses relativt denna fil */
+    "paths": {
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@pages/*": ["./src/pages/*"],
+      "@domain/*": ["./src/domain/*"],
+      "@data/*": ["./src/data/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@schemas/*": ["./src/schemas/*"]
+    },
+
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,

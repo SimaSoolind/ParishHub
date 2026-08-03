@@ -557,6 +557,50 @@ latenta buggar, inte bara ceremoni.
 
 ---
 
+### 🗓 Måndag 3 augusti 2026 — Dag 11
+
+**⏱ Tid:** _(fyll i)_
+**🎯 Mål för dagen:** Kodstruktur och prestanda (docs/KODSTRUKTUR-INSTRUKTION.md, alla 5 steg)
+
+**✅ Vad som gjordes:**
+
+- Steg 1 — Path aliases: `@components/`, `@hooks/` osv i tsconfig + vite.config;
+  konverterade Members.tsx som exempel (resten filvis senare)
+- Steg 2 — React.memo på MemberCard, StatCard och Badge (hoppar över onödig rendering)
+- Steg 3 — useCallback på handleSelectMember + handleToggleSelect (stabila referenser
+  så memo:ade MemberCard faktiskt slipper rendera om)
+- Steg 4 — lazy() + Suspense: Members, Calendar, Services och DesignPreview laddas nu
+  som separata chunks vid navigering; ny PageLoader med Skeleton
+- Steg 5 — DOMPurify: lade påminnelse i ROADMAP (ingen kod nu, inga rich-text-fält än)
+
+**🎓 Lärdomar:**
+- React.memo hjälper bara om props är stabila — annars behövs useCallback på handlers
+- lazy() med named export kräver `.then(m => ({ default: m.X }))`
+- Code-splitting: tunga Calendar (react-big-calendar, 239 kB) ligger nu i egen chunk
+- I TypeScript 6 är `baseUrl` deprecated — `paths` funkar ändå men målen måste vara
+  relativa (`./src/*`)
+
+**⚠️ Utmaningar:**
+- baseUrl gav TS5101 (deprecated i TS 6) — löste genom att ta bort baseUrl och göra
+  paths-målen relativa
+- Vissa npm-kommandon körde från fel mapp (roten via genvägen) — tsc måste köras i client
+
+**💡 Fel att komma ihåg:**
+- Verifiera alltid bygget med `tsc -b` i client/, inte bara via rot-genvägen
+- memo utan stabila props = bara overhead, ingen vinst
+
+**📝 Reflektion:**
+Appen startar nu snabbare — bara startsidan laddas direkt, resten hämtas vid behov.
+Listorna renderar smartare med memo. Aliaserna gör imports kortare och lättare att läsa
+(bra för dyslexi). Bygget är fortfarande grönt: tsc 0 fel, lint 0, 11 tester, build ✅.
+
+**➡️ Nästa steg:**
+- Konvertera resten av importerna till aliases (filvis, en sida per gång)
+- Backend (Express + Prisma)
+- color-contrast-fixet från axe (väntar på element-info)
+
+---
+
 ## 📋 Mall för nya dagar
 
 Kopiera detta block och klistra in högst upp under "Dag-för-dag":
@@ -602,6 +646,7 @@ Kopiera detta block och klistra in högst upp under "Dag-för-dag":
 - [x] Fas 1 komplett (mörkt läge, flerspråkighet, profilbild, kortnotering) — **3 augusti 2026** ✅
 - [x] Clean Architecture på alla sidor (domän · repository · hook) — **3 augusti 2026** ✅
 - [x] Maxad TypeScript-strict + hela WCAG/a11y-planen (9 steg) — **3 augusti 2026** ✅
+- [x] Kodstruktur + prestanda-optimering (aliases, memo, code-splitting) — **3 augusti 2026** ✅
 - [ ] Första Express-servern igång
 - [ ] Första databaskopplingen till PostgreSQL
 - [ ] Första JWT-inloggningen fungerar
