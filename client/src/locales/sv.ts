@@ -59,6 +59,7 @@ export default {
   common: {
     call: "Ring {{name}}",
     email: "Mejla {{name}}",
+    loading: "Laddar...",
   },
   theme: {
     toDark: "Växla till mörkt läge",
@@ -194,5 +195,13 @@ export default {
     save: "Spara närvaro",
     note: "Anteckning",
     notePlaceholder: "T.ex. predikan om barmhärtighet, fin uppslutning",
+    reasonLabel: "Orsak",
+    contactLabel: "Kontakt",
+    reasons: {
+      sick: "Sjuk",
+      travel: "Resa",
+      unknown: "Okänd",
+      other: "Annat",
+    },
   },
 }

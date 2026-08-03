@@ -454,6 +454,57 @@ HELA Fas 1 färdig — appen känns nu som en riktig produkt.
 
 ---
 
+### 🗓 Måndag 3 augusti 2026 — Dag 9
+
+**⏱ Tid:** _(fyll i)_
+**🎯 Mål för dagen:** Frånvaro-orsak, kodkvalitet (Prettier/hook) och Clean Architecture på hela appen
+
+**✅ Vad som gjordes:**
+
+Gudstjänst (DEL C):
+- Frånvaro-orsak (sjuk/resa/okänd/annat) + kontaktstatus (Ej kontaktad/Försökt/Svarat) i närvaro-modalen
+- Chips visas bara för frånvarande; sparas per gudstjänst (funktion 5 nu 90%)
+- Återanvände ContactStatus-typen + priority.status-texterna (DRY)
+
+Kodkvalitet:
+- Fyra regler dokumenterade i CLAUDE.md (CSS-struktur, DRY-komponenter, linters, död kod)
+- Prettier konfigurerad + pre-commit-hook (Gits core.hooksPath → .githooks + lint-staged)
+  som kör ESLint + Prettier på stagade filer automatiskt
+
+Clean Architecture (hela appen):
+- Införde domän/repository/hook-lager: entiteter i domain/, gränssnitt i domain/repositories/,
+  mock-implementationer i data/mock/, hooks i hooks/
+- Migrerade Member, Service, Contact, Birthday och Event — en i taget (pilot först)
+- Alla fyra sidor hämtar nu data via hook → repository; ingen sida importerar mock direkt
+
+**🎓 Lärdomar:**
+- Repository-gränssnitt gör UI oberoende av datakällan — byt mock mot API utan att röra sidor
+- Async (Promise) i repository-metoderna från början → samma kod funkar vid backend
+- Migrera en entitet i taget (pilot) = lättare att förstå och lägre risk än allt på en gång
+- Gits core.hooksPath fungerar när package.json ligger i en undermapp (bättre än husky här)
+- sed för att peka om importer i många filer på en gång — verifierat med tsc efteråt
+
+**⚠️ Utmaningar:**
+- Att flytta typ-filer till domain/ rörde många importer — löste med sed + verifiering
+- Kalendern blandar egna event (CRUD) med koptiska högtider (API) — höll dem åtskilda
+
+**💡 Fel att komma ihåg:**
+- Sidor/komponenter får ALDRIG importera mock direkt — gå via hook → repository
+- Verifiera med npm run build (tsc) efter stora omflyttningar av filer/importer
+
+**📝 Reflektion:**
+Stort arkitektur-lyft. Appen gick från att importera mock rakt in i sidorna till en ren
+lagerdelning där UI:t inte vet något om datakällan. Det känns proffsigt och gör att backend
+(v.5-6) blir enkelt att koppla in — bara skriva api-repositories och byta en rad per entitet.
+Att göra en entitet i taget gjorde att jag förstod mönstret ordentligt.
+
+**➡️ Nästa steg:**
+- Backend (Express + Prisma) + api-repositories
+- Historikkort med graf (Recharts, redan installerat)
+- Fler enhetstester (repositories är lätta att testa nu)
+
+---
+
 ## 📋 Mall för nya dagar
 
 Kopiera detta block och klistra in högst upp under "Dag-för-dag":
@@ -497,6 +548,7 @@ Kopiera detta block och klistra in högst upp under "Dag-för-dag":
 - [x] Tvåspråkig app (svenska/arabiska + RTL) på alla sidor — **3 augusti 2026** ✅
 - [x] Mörkt läge på hela appen (tema-knapp + DRY färgklasser + egen dropdown) — **3 augusti 2026** ✅
 - [x] Fas 1 komplett (mörkt läge, flerspråkighet, profilbild, kortnotering) — **3 augusti 2026** ✅
+- [x] Clean Architecture på alla sidor (domän · repository · hook) — **3 augusti 2026** ✅
 - [ ] Första Express-servern igång
 - [ ] Första databaskopplingen till PostgreSQL
 - [ ] Första JWT-inloggningen fungerar

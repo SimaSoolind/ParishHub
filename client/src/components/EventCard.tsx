@@ -5,7 +5,7 @@
 // Används av: (ingen än — komponenten är förberedd men inte inkopplad)
 
 import { Cake, Church, Heart, HandHeart, Users, Flame, Calendar } from "lucide-react"
-import type { LifeEventCategory, ChurchEventCategory } from "../types/event"
+import type { LifeEventCategory, ChurchEventCategory } from "../domain/event"
 
 // Union type — antingen en LifeEvent-kategori eller ChurchEvent-kategori
 type AnyCategory = LifeEventCategory | ChurchEventCategory
@@ -31,7 +31,7 @@ const categoryConfig: Record<AnyCategory, { Icon: typeof Cake; color: string }> 
   wedding: { Icon: Heart, color: "text-pink-700" },
   funeral: { Icon: Users, color: "text-stone-600" },
   "sick-visit": { Icon: Users, color: "text-red-700" },
-  other: { Icon: Calendar, color: "text-stone-500" }
+  other: { Icon: Calendar, color: "text-stone-500" },
 }
 
 // EventCard — visar en enda händelse som en rad
@@ -48,9 +48,7 @@ export function EventCard({ title, date, category, notes }: Props) {
       {/* Titel + eventuella anteckningar */}
       <div className="flex-1">
         <div className="font-semibold text-stone-800">{title}</div>
-        {notes && (
-          <div className="text-xs text-stone-500 italic mt-0.5">{notes}</div>
-        )}
+        {notes && <div className="text-xs text-stone-500 italic mt-0.5">{notes}</div>}
       </div>
 
       {/* Datum till höger */}

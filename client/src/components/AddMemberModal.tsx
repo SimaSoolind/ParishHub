@@ -8,7 +8,7 @@
 import { useState, useEffect, useRef } from "react"
 import { X, Upload, Camera } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import type { MemberCategory, NewMemberData } from "../types/member"
+import type { MemberCategory, NewMemberData } from "../domain/member"
 import { newMemberSchema } from "../schemas/memberSchema"
 import { Dropdown } from "./Dropdown"
 import { Avatar } from "./Avatar"
@@ -141,9 +141,7 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
         <form onSubmit={handleSubmit}>
           {/* Namn-fält */}
           <div className="mb-4">
-            <label className="field-label">
-              {t("form.name")}
-            </label>
+            <label className="field-label">{t("form.name")}</label>
             <input
               type="text"
               value={name}
@@ -151,16 +149,12 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
               placeholder={t("form.phName")}
               className="field"
             />
-            {errors.name && (
-              <p className="field-error">{errors.name}</p>
-            )}
+            {errors["name"] && <p className="field-error">{errors["name"]}</p>}
           </div>
 
           {/* Telefon-fält */}
           <div className="mb-4">
-            <label className="field-label">
-              {t("form.phone")}
-            </label>
+            <label className="field-label">{t("form.phone")}</label>
             <input
               type="tel"
               value={phone}
@@ -168,16 +162,12 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
               placeholder={t("form.phPhone")}
               className="field"
             />
-            {errors.phone && (
-              <p className="field-error">{errors.phone}</p>
-            )}
+            {errors["phone"] && <p className="field-error">{errors["phone"]}</p>}
           </div>
 
           {/* E-post-fält */}
           <div className="mb-4">
-            <label className="field-label">
-              {t("form.email")}
-            </label>
+            <label className="field-label">{t("form.email")}</label>
             <input
               type="email"
               value={email}
@@ -185,16 +175,12 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
               placeholder={t("form.phEmail")}
               className="field"
             />
-            {errors.email && (
-              <p className="field-error">{errors.email}</p>
-            )}
+            {errors["email"] && <p className="field-error">{errors["email"]}</p>}
           </div>
 
           {/* Adress-fält */}
           <div className="mb-4">
-            <label className="field-label">
-              {t("form.address")}
-            </label>
+            <label className="field-label">{t("form.address")}</label>
             <input
               type="text"
               value={address}
@@ -202,17 +188,13 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
               placeholder={t("form.phAddress")}
               className="field"
             />
-            {errors.address && (
-              <p className="field-error">{errors.address}</p>
-            )}
+            {errors["address"] && <p className="field-error">{errors["address"]}</p>}
           </div>
 
           {/* Familjestorlek och födelsedag bredvid varandra */}
           <div className="flex gap-3 mb-4">
             <div className="flex-1">
-              <label className="field-label">
-                {t("form.familySize")}
-              </label>
+              <label className="field-label">{t("form.familySize")}</label>
               <input
                 type="number"
                 min={1}
@@ -220,14 +202,10 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
                 onChange={(e) => setFamilySize(e.target.value)}
                 className="field"
               />
-              {errors.familySize && (
-                <p className="field-error">{errors.familySize}</p>
-              )}
+              {errors["familySize"] && <p className="field-error">{errors["familySize"]}</p>}
             </div>
             <div className="flex-1">
-              <label className="field-label">
-                {t("form.birthday")}
-              </label>
+              <label className="field-label">{t("form.birthday")}</label>
               <input
                 type="text"
                 value={birthday}
@@ -235,17 +213,13 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
                 placeholder={t("form.phBirthday")}
                 className="field"
               />
-              {errors.birthday && (
-                <p className="field-error">{errors.birthday}</p>
-              )}
+              {errors["birthday"] && <p className="field-error">{errors["birthday"]}</p>}
             </div>
           </div>
 
           {/* Kategori-dropdown */}
           <div className="mb-4">
-            <label className="field-label">
-              {t("form.category")}
-            </label>
+            <label className="field-label">{t("form.category")}</label>
             <Dropdown
               value={category}
               onChange={(value) => setCategory(value as MemberCategory)}
@@ -259,9 +233,7 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
 
           {/* Profilbild — välj fil eller klistra in en länk (annars visas initialer) */}
           <div className="mb-4">
-            <label className="field-label">
-              {t("form.photoUrl")}
-            </label>
+            <label className="field-label">{t("form.photoUrl")}</label>
             <div className="flex items-center gap-3 mb-2">
               {/* Förhandsvisning: bilden om den finns, annars initialer */}
               <Avatar name={name} photoUrl={photoUrl.trim() || undefined} size="lg" />
@@ -311,16 +283,12 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
               onChange={handleFile}
               className="hidden"
             />
-            {errors.photoUrl && (
-              <p className="field-error">{errors.photoUrl}</p>
-            )}
+            {errors["photoUrl"] && <p className="field-error">{errors["photoUrl"]}</p>}
           </div>
 
           {/* Anteckningar — valfritt fält */}
           <div className="mb-6">
-            <label className="field-label">
-              {t("form.notesOptional")}
-            </label>
+            <label className="field-label">{t("form.notesOptional")}</label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -339,10 +307,7 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
             >
               {t("form.cancel")}
             </button>
-            <button
-              type="submit"
-              className="flex-1 px-4 py-2 btn-primary"
-            >
+            <button type="submit" className="flex-1 px-4 py-2 btn-primary">
               {isEdit ? t("form.saveEdit") : t("form.save")}
             </button>
           </div>

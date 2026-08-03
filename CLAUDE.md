@@ -215,8 +215,71 @@ Kärnregler:
 - Validera all data i runtime — API-svar, WebSocket-meddelanden, localStorage, `JSON.parse` — med Zod (typer finns bara vid bygge)
 - React Error Boundaries runt sidor och kort så ett kraschat kort inte sänker hela appen
 - Content Security Policy (CSP): helmet på servern, begränsa externa resurser
-- `strict: true` i tsconfig (redan på) — behåll strikta null-kontroller
+- TypeScript strict-läge aktiverat med extra rekommenderade flaggor från kod-analys-rapport (2026-07-30): `strict`, `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, `noImplicitReturns`, `noImplicitOverride`, `noPropertyAccessFromIndexSignature` — behåll alla
 - Automatisk säkerhets-skanning (SAST) i CI: lint + npm audit före publicering
+
+## 🧹 Kodkvalitet och struktur (gäller VARJE pass)
+Kontrollera dessa fyra punkter innan varje commit — de håller koden ren långsiktigt.
+
+### 1. Strukturera CSS och styling
+- Undvik inkonsekvent styling och inline-CSS (`style={{...}}`) i app-koden.
+- Samla gemensamma Tailwind-klasser och egna CSS-regler i EN central fil:
+  `client/src/index.css` (t.ex. `.surface`, `.field`, `.btn-primary`, `.modal-panel`,
+  `.text-strong`, `.text-soft`, `.text-faint`, `.text-accent`).
+- Undantag: enstaka `style` för ett dynamiskt värde som inte går som klass
+  (t.ex. `style={{ height: 600 }}` på kalendern) är ok. Prototypen `src/design/`
+  räknas inte — den är en referens med egna inline-styles.
+
+### 2. Återanvändbara UI-komponenter (DRY)
+- Upprepas samma styling eller struktur mer än TVÅ gånger → bryt ut till en egen
+  klass (i `index.css`) eller komponent (i `client/src/components/`).
+- Redan utbrutet: input-fält (`.field`), knappar (`.btn-primary`/`.btn-secondary`),
+  modal-bakgrund (`.modal-backdrop`/`.modal-panel`), samt komponenterna Avatar,
+  Dropdown, Badge, StatCard. Använd dessa istället för att upprepa klass-strängar.
+- Minskar dubblering och gör koden mycket lättare att läsa och underhålla.
+
+### 3. Automatisera kodkvalitet (linters)
+- ESLint är konfigurerad (`client/eslint.config.js` med eslint-plugin-security). CI kör lint.
+- Prettier är konfigurerad (`client/.prettierrc.json`) — `npm run format` formaterar allt,
+  `npm run format:check` kontrollerar.
+- Pre-commit-hook kör automatiskt ESLint (--fix) + Prettier på stagade filer före varje
+  commit (Gits `core.hooksPath` → `.githooks/pre-commit`, konfig i `client/package.json`
+  under `lint-staged`). Aktiveras av `prepare`-scriptet vid `npm install`.
+- Kör även `npm run lint` + `npx tsc -p tsconfig.app.json --noEmit` (bygget) innan commit.
+
+### 4. Rensa och städa (refaktorering)
+- Ta bort utkommenterad kod, oanvända import-satser, temporära `console.log()` och död kod.
+- `console.error` är ok ENDAST i central felhantering (ErrorBoundary, lib/errorHandler.ts) —
+  aldrig strö-loggar i komponenter.
+- `tsc` med `noUnusedLocals` fångar oanvända importer/variabler — håll bygget rent.
+
+## 🏛 Arkitektur (Clean Architecture) — följ ALLTID
+Appen är lagerdelad så UI:t är oberoende av datakällan (mock nu, databas senare).
+Följ detta mönster för ALL data — lägg aldrig en mock-import direkt i en sida eller komponent.
+
+### Lagren
+- **domain/** — entiteter (rena typer, ingen React/API) + `domain/repositories/` (gränssnitt/kontrakt).
+- **data/mock/** — implementationer av gränssnitten (mock nu; `data/api/` när backend finns).
+- **use-cases/** — ren affärslogik som funktioner (`buildAttendanceRecords`, `resolveFamilyId`).
+  Ingen React — lätt att testa. Bryt ut logik hit när den ligger inbäddad i en komponent/hook.
+- **hooks/** — presentation-hooks (`useMembers`, `useServices`, `useEvents` ...) som använder
+  repositoryt (och ev. use-cases) och ger sidan klar data.
+- **utils/** — rena, domän-agnostiska hjälpfunktioner (`dateUtils`). **lib/** — tjänster (api, errorHandler, whatsapp).
+- **components/ + pages/** — bara visning. Får INTE importera mock-filer eller känna till datakällan.
+
+### Dataflöde
+`sida/komponent` → `useXxx()` (hook) → `xxxRepository` (gränssnitt) → mock (eller API)
+
+### Så lägger du till en ny entitet
+1. `domain/<entitet>.ts` — entiteten (typen).
+2. `domain/repositories/<entitet>Repository.ts` — gränssnitt (getAll/add/update/remove).
+3. `data/mock/mock<Entitet>Repository.ts` — mock-implementation (håller listan i minnet, async).
+4. `hooks/use<Entitet>s.ts` — hook som använder repositoryt.
+5. Sidan använder hooken — aldrig mock direkt.
+
+### När backend kommer
+Skriv `data/api/api<Entitet>Repository.ts` (samma metoder, fetch via `lib/api.ts` + Zod) och
+byt EN import-rad i hooken. Noll ändringar i sidor eller komponenter.
 
 ## 🤝 Så hjälps mig, Claude
 - Svara alltid på svenska

@@ -2,6 +2,8 @@
 // Klick på en gudstjänst öppnar närvaro-avprickningen (AttendanceModal)
 //
 // Används av: App.tsx (sidan för URL "/gudstjanster")
+// Bygger på: useServices (data via repository) och AttendanceModal
+// Data: kommer från useServices — sidan vet INTE om det är mock eller databas
 
 import { useState } from "react"
 import { Plus, Calendar, FileText } from "lucide-react"
@@ -9,39 +11,10 @@ import { useTranslation } from "react-i18next"
 import { AddServiceModal } from "../components/AddServiceModal"
 import { AttendanceModal } from "../components/AttendanceModal"
 import { Badge } from "../components/Badge"
-import type { Service, NewServiceData, Attendance } from "../types/service"
-import { mockServices, mockAttendance } from "../data/services.mock"
-import { mockMembers } from "../data/members.mock"
-
-// Dagens datum som ISO-sträng (YYYY-MM-DD) i lokal tid
-// Byggs från lokala delar för att undvika tidszonsförskjutning
-function getTodayString(): string {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, "0")
-  const day = String(now.getDate()).padStart(2, "0")
-  return `${year}-${month}-${day}`
-}
-
-// Plockar ut dag och månad ur ett ISO-datum för datum-boxen
-// Splittar strängen manuellt för att undvika tidszons-buggar (t.ex. Safari)
-function getDateBox(dateString: string): { day: string; month: string } {
-  const [year, month, day] = dateString.split("-").map(Number)
-  const date = new Date(year, month - 1, day)
-  const monthShort = date
-    .toLocaleDateString("sv-SE", { month: "short" })
-    .replace(".", "")
-    .toUpperCase()
-  return { day: String(day), month: monthShort }
-}
-
-// Ger veckodagen (med stor bokstav) för ett ISO-datum
-function getWeekday(dateString: string): string {
-  const [year, month, day] = dateString.split("-").map(Number)
-  const date = new Date(year, month - 1, day)
-  const weekday = date.toLocaleDateString("sv-SE", { weekday: "long" })
-  return weekday.charAt(0).toUpperCase() + weekday.slice(1)
-}
+import { useServices } from "../hooks/useServices"
+import { useMembers } from "../hooks/useMembers"
+import type { Service, NewServiceData, Attendance } from "../domain/service"
+import { getTodayString, getDateBox, getWeekday } from "../utils/dateUtils"
 
 // ServiceRow — en rad för en gudstjänst med datum-box, titel och status-badge
 // Tar emot service, presentCount (antal närvarande), isMarked (om avprickad) och onClick
@@ -112,8 +85,12 @@ function ServiceRow({
 export function Services() {
   const { t } = useTranslation()
 
-  const [services, setServices] = useState<Service[]>(mockServices)
-  const [attendance, setAttendance] = useState<Attendance[]>(mockAttendance)
+  // Gudstjänster, närvaro och funktioner kommer från hooken (via repositoryt)
+  const { services, attendance, loading, addService, saveNote, saveAttendance } = useServices()
+
+  // Medlemslistan (för närvaro-modalen) hämtas också via repository
+  const { members } = useMembers()
+
   const [addModalOpen, setAddModalOpen] = useState(false)
 
   // Gudstjänsten vars närvaro prickas av — null när modalen är stängd
@@ -127,50 +104,32 @@ export function Services() {
     .sort((a, b) => a.date.localeCompare(b.date))
 
   // Tidigare gudstjänster — senast genomförda först
-  const past = services
-    .filter((s) => s.date < today)
-    .sort((a, b) => b.date.localeCompare(a.date))
+  const past = services.filter((s) => s.date < today).sort((a, b) => b.date.localeCompare(a.date))
 
-  // Räknar antal närvarande för en gudstjänst (läser från närvaro-state)
+  // Räknar antal närvarande för en gudstjänst (läser från närvaro-listan)
   const getPresentCount = (serviceId: string) =>
-    attendance.filter((a) => a.serviceId === serviceId && a.status === "present")
-      .length
+    attendance.filter((a) => a.serviceId === serviceId && a.status === "present").length
 
   // Sant om närvaron är avprickad (det finns minst en post för gudstjänsten)
-  const getIsMarked = (serviceId: string) =>
-    attendance.some((a) => a.serviceId === serviceId)
+  const getIsMarked = (serviceId: string) => attendance.some((a) => a.serviceId === serviceId)
 
-  // Körs när prästen sparar en ny gudstjänst
-  // crypto.randomUUID() ger ett garanterat unikt id (till skillnad från Date.now())
+  // Körs när prästen sparar en ny gudstjänst — repositoryt skapar id:t
   const handleAddService = (newService: NewServiceData) => {
-    const serviceToAdd: Service = {
-      ...newService,
-      id: crypto.randomUUID(),
-    }
-    setServices((prev) => [...prev, serviceToAdd])
+    addService(newService)
     setAddModalOpen(false)
   }
 
   // Sparar närvaron för den valda gudstjänsten
-  // Ersätter tidigare poster för samma gudstjänst med de nya
   const handleSaveAttendance = (records: Attendance[]) => {
     if (!selectedService) return
-    setAttendance((prev) => [
-      ...prev.filter((a) => a.serviceId !== selectedService.id),
-      ...records,
-    ])
+    saveAttendance(selectedService.id, records)
     setSelectedService(null)
   }
 
-  // Sparar gudstjänstens anteckning (kortnotering) i listan
-  // Tom text nollställer fältet
+  // Sparar gudstjänstens anteckning (kortnotering)
   const handleSaveNote = (note: string) => {
     if (!selectedService) return
-    setServices((prev) =>
-      prev.map((s) =>
-        s.id === selectedService.id ? { ...s, notes: note.trim() || undefined } : s
-      )
-    )
+    saveNote(selectedService.id, note)
   }
 
   return (
@@ -185,15 +144,15 @@ export function Services() {
           {t("services.add")}
         </button>
       </div>
-      <p className="text-soft mb-6">
-        {t("services.total", { total: services.length })}
-      </p>
+      <p className="text-soft mb-6">{t("services.total", { total: services.length })}</p>
 
-      {services.length === 0 ? (
+      {loading ? (
         <div className="surface border p-6 rounded-2xl shadow-sm">
-          <p className="text-sm text-faint italic text-center py-4">
-            {t("services.empty")}
-          </p>
+          <p className="text-sm text-faint italic text-center py-4">{t("common.loading")}</p>
+        </div>
+      ) : services.length === 0 ? (
+        <div className="surface border p-6 rounded-2xl shadow-sm">
+          <p className="text-sm text-faint italic text-center py-4">{t("services.empty")}</p>
         </div>
       ) : (
         <>
@@ -222,9 +181,7 @@ export function Services() {
           {/* Tidigare gudstjänster */}
           {past.length > 0 && (
             <section>
-              <h2 className="text-sm font-bold text-faint uppercase mb-2">
-                {t("services.past")}
-              </h2>
+              <h2 className="text-sm font-bold text-faint uppercase mb-2">{t("services.past")}</h2>
               <div className="surface border p-4 rounded-2xl shadow-sm">
                 <ul>
                   {past.map((service) => (
@@ -244,20 +201,15 @@ export function Services() {
       )}
 
       {addModalOpen && (
-        <AddServiceModal
-          onSave={handleAddService}
-          onClose={() => setAddModalOpen(false)}
-        />
+        <AddServiceModal onSave={handleAddService} onClose={() => setAddModalOpen(false)} />
       )}
 
       {/* Närvaro-modal visas när en gudstjänst klickats */}
       {selectedService && (
         <AttendanceModal
           service={selectedService}
-          members={mockMembers}
-          attendance={attendance.filter(
-            (a) => a.serviceId === selectedService.id
-          )}
+          members={members}
+          attendance={attendance.filter((a) => a.serviceId === selectedService.id)}
           onSave={handleSaveAttendance}
           onSaveNote={handleSaveNote}
           onClose={() => setSelectedService(null)}

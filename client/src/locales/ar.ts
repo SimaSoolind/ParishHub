@@ -59,6 +59,7 @@ export default {
   common: {
     call: "اتصل بـ {{name}}",
     email: "راسل {{name}}",
+    loading: "جارٍ التحميل...",
   },
   theme: {
     toDark: "التبديل إلى الوضع الداكن",
@@ -194,5 +195,13 @@ export default {
     save: "حفظ الحضور",
     note: "ملاحظة",
     notePlaceholder: "مثال: عظة عن الرحمة، حضور جيد",
+    reasonLabel: "السبب",
+    contactLabel: "التواصل",
+    reasons: {
+      sick: "مريض",
+      travel: "سفر",
+      unknown: "غير معروف",
+      other: "أخرى",
+    },
   },
 }

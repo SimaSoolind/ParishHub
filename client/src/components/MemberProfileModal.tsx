@@ -8,19 +8,19 @@ import { useEffect, useState } from "react"
 import { X, Phone, Mail, Trash2, Pencil, Users, UserPlus, MessageCircle } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Avatar } from "./Avatar"
-import type { Member } from "../types/member"
+import type { Member } from "../domain/member"
 import { messageTemplateIds, fillTemplate } from "../data/messageTemplates"
 import { buildWhatsAppLink } from "../lib/whatsapp"
 
 interface Props {
   member: Member
-  allMembers: Member[]                          // alla medlemmar (för att hitta familjen)
+  allMembers: Member[] // alla medlemmar (för att hitta familjen)
   onClose: () => void
   onEdit: () => void
   onDelete: () => void
-  onOpenMember: (member: Member) => void        // öppnar en annan medlems profil
+  onOpenMember: (member: Member) => void // öppnar en annan medlems profil
   onLinkFamily: (otherMemberId: string) => void // kopplar en medlem till familjen
-  onUnlinkFamily: () => void                    // lossar denna medlem ur familjen
+  onUnlinkFamily: () => void // lossar denna medlem ur familjen
 }
 
 // Hjälp-komponent för en detaljrad (etikett ovanför värde)
@@ -215,7 +215,10 @@ export function MemberProfileModal({
             {messageTemplateIds.map((id) => (
               <a
                 key={id}
-                href={buildWhatsAppLink(member.phone, fillTemplate(t("templates." + id + ".text"), member.name))}
+                href={buildWhatsAppLink(
+                  member.phone,
+                  fillTemplate(t("templates." + id + ".text"), member.name)
+                )}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-3 py-2 border border-stone-200 rounded-xl text-sm font-semibold text-green-700 hover:bg-green-50 dark:border-stone-600 dark:text-green-400 dark:hover:bg-green-950"
@@ -238,9 +241,7 @@ export function MemberProfileModal({
         {/* Bekräftelse innan radering — annars vanliga knappar */}
         {confirmingDelete ? (
           <div className="mt-5">
-            <p className="text-sm text-soft mb-3">
-              {t("profile.deleteQ", { name: member.name })}
-            </p>
+            <p className="text-sm text-soft mb-3">{t("profile.deleteQ", { name: member.name })}</p>
             <div className="flex gap-2">
               <button
                 onClick={() => setConfirmingDelete(false)}

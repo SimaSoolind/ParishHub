@@ -33,7 +33,7 @@ export function useTheme() {
 
   // Sätter data-theme på <html> och sparar valet varje gång temat ändras
   useEffect(() => {
-    document.documentElement.dataset.theme = theme
+    document.documentElement.dataset["theme"] = theme
     localStorage.setItem(STORAGE_KEY, theme)
   }, [theme])
 

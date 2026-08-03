@@ -1,5 +1,6 @@
 // AttendanceModal — bocka av närvaro för en gudstjänst
 // Visar alla medlemmar med knappar för Närvarande / Frånvarande
+// Vid frånvaro går det att välja orsak (sjuk/resa/okänd/annat) och kontaktstatus
 // Sparar närvaron tillbaka till föräldern (Services)
 //
 // Används av: Services.tsx
@@ -7,8 +8,10 @@
 import { useState, useEffect } from "react"
 import { X, Check, UserX } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import type { Member } from "../types/member"
-import type { Service, Attendance, AttendanceStatus } from "../types/service"
+import type { Member } from "../domain/member"
+import type { Service, Attendance, AttendanceStatus, AbsenceReason } from "../domain/service"
+import type { ContactStatus } from "../domain/contact"
+import { buildAttendanceRecords } from "../use-cases/attendance"
 
 interface Props {
   service: Service
@@ -19,10 +22,33 @@ interface Props {
   onClose: () => void
 }
 
+// Orsaker prästen kan välja vid frånvaro (matchar AbsenceReason)
+const reasonValues: AbsenceReason[] = ["sick", "travel", "unknown", "other"]
+
+// Kontaktstatus-val vid frånvaro — texten återanvänds från priority.status (DRY)
+const contactOptions: { value: ContactStatus; labelKey: string }[] = [
+  { value: "not-contacted", labelKey: "notContacted" },
+  { value: "attempted", labelKey: "attempted" },
+  { value: "answered", labelKey: "answered" },
+]
+
+// Gemensamma chip-klasser för orsak och kontaktstatus
+const chipBase = "px-2 py-0.5 rounded-full text-xs font-semibold border "
+const chipActive = "bg-amber-800 text-white border-amber-800"
+const chipInactive =
+  "bg-white text-stone-600 border-stone-200 hover:border-amber-800 dark:bg-stone-800 dark:text-stone-300 dark:border-stone-600"
+
 // Ritar närvaro-modalen med en rad per medlem
 // Tar emot service, members, befintlig attendance samt onSave och onClose
 // Returnerar modalen som JSX
-export function AttendanceModal({ service, members, attendance, onSave, onSaveNote, onClose }: Props) {
+export function AttendanceModal({
+  service,
+  members,
+  attendance,
+  onSave,
+  onSaveNote,
+  onClose,
+}: Props) {
   const { t } = useTranslation()
 
   // Anteckning för gudstjänsten — förifylls med befintlig text
@@ -38,8 +64,28 @@ export function AttendanceModal({ service, members, attendance, onSave, onSaveNo
     return map
   }
 
-  // Håller vald status för varje medlem
+  // Bygger start-orsak per medlem från befintlig närvaro
+  const buildReasons = (): Record<string, AbsenceReason> => {
+    const map: Record<string, AbsenceReason> = {}
+    for (const record of attendance) {
+      if (record.absenceReason) map[record.memberId] = record.absenceReason
+    }
+    return map
+  }
+
+  // Bygger start-kontaktstatus per medlem från befintlig närvaro
+  const buildContacts = (): Record<string, ContactStatus> => {
+    const map: Record<string, ContactStatus> = {}
+    for (const record of attendance) {
+      if (record.contactStatus) map[record.memberId] = record.contactStatus
+    }
+    return map
+  }
+
+  // Håller vald status, orsak och kontaktstatus för varje medlem
   const [marks, setMarks] = useState<Record<string, AttendanceStatus>>(buildInitial)
+  const [reasons, setReasons] = useState<Record<string, AbsenceReason>>(buildReasons)
+  const [contacts, setContacts] = useState<Record<string, ContactStatus>>(buildContacts)
 
   // Stänger modalen när Escape trycks (tillgänglighet)
   useEffect(() => {
@@ -58,22 +104,39 @@ export function AttendanceModal({ service, members, attendance, onSave, onSaveNo
     }))
   }
 
+  // Sätter orsak — klick på samma chip tar bort valet
+  const setReason = (memberId: string, reason: AbsenceReason) => {
+    setReasons((prev) => {
+      const next = { ...prev }
+      if (next[memberId] === reason) delete next[memberId]
+      else next[memberId] = reason
+      return next
+    })
+  }
+
+  // Sätter kontaktstatus — klick på samma chip tar bort valet
+  const setContact = (memberId: string, contact: ContactStatus) => {
+    setContacts((prev) => {
+      const next = { ...prev }
+      if (next[memberId] === contact) delete next[memberId]
+      else next[memberId] = contact
+      return next
+    })
+  }
+
   // Räknar hur många som är närvarande respektive frånvarande
   const presentCount = Object.values(marks).filter((s) => s === "present").length
   const absentCount = Object.values(marks).filter((s) => s === "absent").length
 
-  // Sparar — skapar Attendance-poster för alla som är markerade
-  // markedAt sätts för spårbarhet (vem-fältet läggs till när inloggning finns)
+  // Sparar — bygger Attendance-posterna via use-case:et (ren affärslogik)
   const handleSave = () => {
-    const now = new Date().toISOString()
-    const records: Attendance[] = members
-      .filter((m) => marks[m.id] !== "not-marked")
-      .map((m) => ({
-        serviceId: service.id,
-        memberId: m.id,
-        status: marks[m.id],
-        markedAt: now,
-      }))
+    const records = buildAttendanceRecords({
+      serviceId: service.id,
+      members,
+      marks,
+      reasons,
+      contacts,
+    })
     // Sparar både anteckningen och närvaron
     onSaveNote(note)
     onSave(records)
@@ -119,39 +182,77 @@ export function AttendanceModal({ service, members, attendance, onSave, onSaveNo
           {members.map((member) => {
             const status = marks[member.id]
             return (
-              <li
-                key={member.id}
-                className="flex items-center justify-between py-2"
-              >
-                <span className="text-sm font-medium text-strong">
-                  {member.name}
-                </span>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setStatus(member.id, "present")}
-                    className={
-                      "flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border " +
-                      (status === "present"
-                        ? "bg-green-600 text-white border-green-600"
-                        : "bg-white text-stone-500 border-stone-200 hover:border-green-600 dark:bg-stone-800 dark:text-stone-400 dark:border-stone-600")
-                    }
-                  >
-                    <Check size={14} />
-                    {t("attendance.present")}
-                  </button>
-                  <button
-                    onClick={() => setStatus(member.id, "absent")}
-                    className={
-                      "flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border " +
-                      (status === "absent"
-                        ? "bg-red-600 text-white border-red-600"
-                        : "bg-white text-stone-500 border-stone-200 hover:border-red-600 dark:bg-stone-800 dark:text-stone-400 dark:border-stone-600")
-                    }
-                  >
-                    <UserX size={14} />
-                    {t("attendance.absent")}
-                  </button>
+              <li key={member.id} className="py-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-strong">{member.name}</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setStatus(member.id, "present")}
+                      className={
+                        "flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border " +
+                        (status === "present"
+                          ? "bg-green-600 text-white border-green-600"
+                          : "bg-white text-stone-500 border-stone-200 hover:border-green-600 dark:bg-stone-800 dark:text-stone-400 dark:border-stone-600")
+                      }
+                    >
+                      <Check size={14} />
+                      {t("attendance.present")}
+                    </button>
+                    <button
+                      onClick={() => setStatus(member.id, "absent")}
+                      className={
+                        "flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border " +
+                        (status === "absent"
+                          ? "bg-red-600 text-white border-red-600"
+                          : "bg-white text-stone-500 border-stone-200 hover:border-red-600 dark:bg-stone-800 dark:text-stone-400 dark:border-stone-600")
+                      }
+                    >
+                      <UserX size={14} />
+                      {t("attendance.absent")}
+                    </button>
+                  </div>
                 </div>
+
+                {/* Orsak + kontaktstatus visas bara för frånvarande medlemmar */}
+                {status === "absent" && (
+                  <div className="mt-2 flex flex-col gap-2">
+                    {/* Orsak till frånvaron */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs text-faint w-16 flex-shrink-0">
+                        {t("attendance.reasonLabel")}
+                      </span>
+                      {reasonValues.map((value) => (
+                        <button
+                          key={value}
+                          onClick={() => setReason(member.id, value)}
+                          className={
+                            chipBase + (reasons[member.id] === value ? chipActive : chipInactive)
+                          }
+                        >
+                          {t("attendance.reasons." + value)}
+                        </button>
+                      ))}
+                    </div>
+                    {/* Kontaktstatus för den frånvarande */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs text-faint w-16 flex-shrink-0">
+                        {t("attendance.contactLabel")}
+                      </span>
+                      {contactOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          onClick={() => setContact(member.id, option.value)}
+                          className={
+                            chipBase +
+                            (contacts[member.id] === option.value ? chipActive : chipInactive)
+                          }
+                        >
+                          {t("priority.status." + option.labelKey)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </li>
             )
           })}
@@ -159,16 +260,10 @@ export function AttendanceModal({ service, members, attendance, onSave, onSaveNo
 
         {/* Knappar */}
         <div className="flex gap-2 mt-4 pt-4 border-t border-stone-200 dark:border-stone-700">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-2 btn-secondary text-soft"
-          >
+          <button onClick={onClose} className="flex-1 px-4 py-2 btn-secondary text-soft">
             {t("form.cancel")}
           </button>
-          <button
-            onClick={handleSave}
-            className="flex-1 px-4 py-2 btn-primary"
-          >
+          <button onClick={handleSave} className="flex-1 px-4 py-2 btn-primary">
             {t("attendance.save")}
           </button>
         </div>

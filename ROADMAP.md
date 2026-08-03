@@ -99,7 +99,7 @@
 
 ---
 
-### 5. ⛪ Gudstjänstvyer — 🔵 70% KLART
+### 5. ⛪ Gudstjänstvyer — 🔵 90% KLART
 
 **Vad:** Registrera närvaro under gudstjänst
 
@@ -108,8 +108,8 @@
 - ✅ Vyerna grupperade och sorterade efter datum (Kommande/Tidigare)
 - ✅ Bocka av Närvarande/Frånvarande per medlem
 - ✅ Snabb registrering + status-badge (X närvarande)
-- ⚪ Vid frånvaro välja orsak (sjuk, resa, okänd)
-- ⚪ Kontaktstatus per frånvarande
+- ✅ Vid frånvaro välja orsak (sjuk/resa/okänd/annat) — 3 aug 2026
+- ✅ Kontaktstatus per frånvarande (Ej kontaktad/Försökt/Svarat) — 3 aug 2026
 
 **Prioritering:** Hög — kärnfunktion
 
@@ -273,8 +273,8 @@
 
 ## 🎯 NÄSTA 3 STEG
 
-1. **⏳ Frånvaro-orsak + kontaktstatus** i närvaron (funktion 5)
-2. **⏳ Backend** — Express + Prisma så data sparas permanent (v.3-6)
+1. **⏳ Backend** — Express + Prisma så data sparas permanent (v.3-6)
+2. **⏳ Historikkort med graf** (Recharts, redan installerat)
 3. **⏳ Fas 2** — automatiska påminnelser, bönelista, uppföljningsdatum
 
 ---
@@ -304,6 +304,7 @@
 - ✅ **3 augusti 2026** — Hela appen tvåspråkig (svenska/arabiska + RTL)
 - ✅ **3 augusti 2026** — Mörkt läge på hela appen (tema-knapp + DRY färgklasser)
 - ✅ **3 augusti 2026** — Fas 1 komplett (mörkt läge, flerspråkighet, profilbilder, kortnoteringar)
+- ✅ **3 augusti 2026** — Clean Architecture på alla sidor (domän · repository · hook)
 - ⏳ **Nästa milstolpe:** Första riktiga API-anropet (backend, v.3-4)
 
 ---

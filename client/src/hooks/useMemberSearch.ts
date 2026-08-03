@@ -5,7 +5,7 @@
 // Används av: Members.tsx
 
 import { useState, useMemo } from "react"
-import type { Member, MemberCategory } from "../types/member"
+import type { Member, MemberCategory } from "../domain/member"
 
 export type FilterCategory = MemberCategory | "all"
 
@@ -19,9 +19,7 @@ export function useMemberSearch(members: Member[]) {
   const filteredMembers = useMemo(() => {
     return members.filter((member) => {
       const matchesFilter = filter === "all" || member.category === filter
-      const matchesSearch = member.name
-        .toLowerCase()
-        .includes(searchText.toLowerCase())
+      const matchesSearch = member.name.toLowerCase().includes(searchText.toLowerCase())
       return matchesFilter && matchesSearch
     })
   }, [members, searchText, filter])
@@ -31,6 +29,6 @@ export function useMemberSearch(members: Member[]) {
     setSearchText,
     filter,
     setFilter,
-    filteredMembers
+    filteredMembers,
   }
 }

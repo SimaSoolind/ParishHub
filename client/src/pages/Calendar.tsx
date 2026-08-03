@@ -3,8 +3,8 @@
 // Klick på "Ny händelse" öppnar AddEventModal (formulär)
 //
 // Används av: App.tsx (sidan för URL "/kalender")
-// Bygger på: react-big-calendar, EventModal och AddEventModal
-// Data: startar från events.mock, ligger sedan i state så nya kan läggas till
+// Bygger på: react-big-calendar, useEvents (egna event) och useCopticCelebrations (högtider)
+// Data: egna event via useEvents — sidan vet inte om det är mock eller databas
 
 import { useState } from "react"
 import { Calendar as BigCalendar, dateFnsLocalizer, Views } from "react-big-calendar"
@@ -13,13 +13,13 @@ import { format, parse, startOfWeek, getDay } from "date-fns"
 import { sv } from "date-fns/locale"
 import { RefreshCw, Plus } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import { churchEvents, lifeEvents } from "../data/events.mock"
 import { EventModal } from "../components/EventModal"
 import type { ModalEvent } from "../components/EventModal"
 import { AddEventModal } from "../components/AddEventModal"
-import type { NewEventData } from "../components/AddEventModal"
-import { useCopticCelebrations } from "../hooks/useCopticCelebrations"
 import { CalendarToolbar } from "../components/CalendarToolbar"
+import { useEvents } from "../hooks/useEvents"
+import { useCopticCelebrations } from "../hooks/useCopticCelebrations"
+import type { CalendarEvent, NewEventData } from "../domain/event"
 
 // Localizer med date-fns för datum-hantering på svenska
 const locales = { sv: sv }
@@ -32,48 +32,14 @@ const localizer = dateFnsLocalizer({
   locales,
 })
 
-// Beskriver formen för ett event som visas i kalendern
-interface CalendarEvent {
-  id: string
-  title: string
-  start: Date
-  end: Date
-  category: string
-  notes?: string
-  // Sant för koptiska högtider — dessa kan inte ändras eller raderas
-  isReadOnly?: boolean
-}
-
-// Bygger startlistan med events från mockdatan
-// Konverterar church- och life-events till kalenderns format
-// Tar inga argument och returnerar en lista med CalendarEvent
-function buildInitialEvents(): CalendarEvent[] {
-  const church = churchEvents.map((event) => ({
-    id: event.id,
-    title: event.name,
-    start: new Date(event.date),
-    end: new Date(event.date),
-    category: event.category,
-    notes: undefined,
-  }))
-
-  const life = lifeEvents.map((event) => ({
-    id: event.id,
-    title: event.title,
-    start: new Date(event.date),
-    end: new Date(event.date),
-    category: event.category,
-    notes: event.notes,
-  }))
-
-  return [...church, ...life]
-}
-
 // Ritar kalendern och sköter events, vald vy, datum och modaler
 // Tar inga props
 // Returnerar sidan som JSX
 export function Calendar() {
   const { t } = useTranslation()
+
+  // Egna event och CRUD-funktioner kommer från hooken (via repositoryt)
+  const { events, addEvent, updateEvent, removeEvent } = useEvents()
 
   // Kalender-knappar i valt språk (react-big-calendar messages)
   const messages = {
@@ -90,9 +56,6 @@ export function Calendar() {
     noEventsInRange: t("calendar.noEventsInRange"),
   }
 
-  // Hela listan med events — ligger i state så nya kan läggas till
-  const [events, setEvents] = useState<CalendarEvent[]>(buildInitialEvents)
-
   // Det valda eventet — null om inget är valt (styr detalj-modalen)
   const [selectedEvent, setSelectedEvent] = useState<ModalEvent | null>(null)
 
@@ -106,20 +69,9 @@ export function Calendar() {
   // Håller eventet som redigeras — null när inget redigeras
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null)
 
-  // Körs när prästen sparar ett nytt event från formuläret
-  // Skapar ett CalendarEvent och lägger till det i listan
+  // Körs när prästen sparar ett nytt event — repositoryt skapar id:t
   const handleAddEvent = (newEvent: NewEventData) => {
-    const eventToAdd: CalendarEvent = {
-      id: "e" + Date.now(),
-      title: newEvent.title,
-      start: new Date(newEvent.date),
-      end: new Date(newEvent.date),
-      category: newEvent.category,
-      notes: newEvent.notes,
-    }
-
-    // Skapar en NY array med gamla events + det nya (immutable update)
-    setEvents((prev) => [...prev, eventToAdd])
+    addEvent(newEvent)
     setAddModalOpen(false)
   }
 
@@ -130,31 +82,16 @@ export function Calendar() {
     setView(Views.DAY)
   }
 
-  // Körs när prästen sparar en ändring av ett befintligt event
-  // Ersätter eventet med samma id med de nya värdena
+  // Körs när prästen sparar en ändring — uppdaterar eventet med samma id
   const handleUpdateEvent = (updated: NewEventData) => {
     if (!editingEvent) return
-
-    setEvents((prev) =>
-      prev.map((event) =>
-        event.id === editingEvent.id
-          ? {
-              ...event,
-              title: updated.title,
-              start: new Date(updated.date),
-              end: new Date(updated.date),
-              category: updated.category,
-              notes: updated.notes,
-            }
-          : event
-      )
-    )
+    updateEvent(editingEvent.id, updated)
     setEditingEvent(null)
   }
 
-  // Tar bort eventet med angivet id ur listan
+  // Tar bort eventet med angivet id
   const handleDeleteEvent = (id: string) => {
-    setEvents((prev) => prev.filter((event) => event.id !== id))
+    removeEvent(id)
     setSelectedEvent(null)
   }
 
@@ -171,17 +108,13 @@ export function Calendar() {
   const copticEvents = useCopticCelebrations()
 
   // Slår ihop egna event med de koptiska högtiderna för visning
-  // Bara egna event ligger i state — högtiderna kommer från API:et
+  // Bara egna event hanteras via repositoryt — högtiderna kommer från API:et
   const shownEvents = [...events, ...copticEvents]
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-strong mb-2">
-        {t("calendar.title")}
-      </h1>
-      <p className="text-soft mb-6">
-        {t("calendar.subtitle")}
-      </p>
+      <h1 className="text-3xl font-bold text-strong mb-2">{t("calendar.title")}</h1>
+      <p className="text-soft mb-6">{t("calendar.subtitle")}</p>
 
       {/* Knappar för framtida synk + skapa nytt event */}
       <div className="flex gap-2 mb-6 flex-wrap">
@@ -238,10 +171,7 @@ export function Calendar() {
 
       {/* Ny-händelse-modal visas när Ny-knappen klickats */}
       {addModalOpen && (
-        <AddEventModal
-          onSave={handleAddEvent}
-          onClose={() => setAddModalOpen(false)}
-        />
+        <AddEventModal onSave={handleAddEvent} onClose={() => setAddModalOpen(false)} />
       )}
 
       {/* Ändra-modal visas när ett event redigeras — förifylld med värdena */}

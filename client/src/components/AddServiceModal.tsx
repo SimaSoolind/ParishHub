@@ -7,7 +7,7 @@
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import type { NewServiceData } from "../types/service"
+import type { NewServiceData } from "../domain/service"
 import { newServiceSchema } from "../schemas/serviceSchema"
 
 interface Props {
@@ -80,10 +80,7 @@ export function AddServiceModal({ onSave, onClose }: Props) {
     // Backdrop — klick utanför stänger modalen
     <div onClick={onClose} className="modal-backdrop">
       {/* Själva modalen — stopPropagation förhindrar att klick stänger */}
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="modal-panel max-w-md w-full p-6"
-      >
+      <div onClick={(e) => e.stopPropagation()} className="modal-panel max-w-md w-full p-6">
         {/* Rubrik-rad med stäng-knapp */}
         <div className="flex items-start justify-between mb-4">
           <h2 className="text-xl font-bold text-strong">{t("serviceForm.title")}</h2>
@@ -99,9 +96,7 @@ export function AddServiceModal({ onSave, onClose }: Props) {
         <form onSubmit={handleSubmit}>
           {/* Titel — snabbval-knappar + fritext för eget namn (maxLength 100) */}
           <div className="mb-4">
-            <label className="field-label">
-              {t("form.title")}
-            </label>
+            <label className="field-label">{t("form.title")}</label>
             <div className="flex flex-wrap gap-2 mb-2">
               {presetTitleIds.map((id) => {
                 const preset = t("serviceForm.presets." + id)
@@ -130,47 +125,35 @@ export function AddServiceModal({ onSave, onClose }: Props) {
               placeholder={t("serviceForm.phTitle")}
               className="field"
             />
-            {errors.title && (
-              <p className="field-error">{errors.title}</p>
-            )}
+            {errors["title"] && <p className="field-error">{errors["title"]}</p>}
           </div>
 
           {/* Datum */}
           <div className="mb-4">
-            <label className="field-label">
-              {t("form.date")}
-            </label>
+            <label className="field-label">{t("form.date")}</label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               className="field"
             />
-            {errors.date && (
-              <p className="field-error">{errors.date}</p>
-            )}
+            {errors["date"] && <p className="field-error">{errors["date"]}</p>}
           </div>
 
           {/* Starttid och sluttid bredvid varandra */}
           <div className="flex gap-3 mb-4">
             <div className="flex-1">
-              <label className="field-label">
-                {t("serviceForm.startTime")}
-              </label>
+              <label className="field-label">{t("serviceForm.startTime")}</label>
               <input
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
                 className="field"
               />
-              {errors.startTime && (
-                <p className="field-error">{errors.startTime}</p>
-              )}
+              {errors["startTime"] && <p className="field-error">{errors["startTime"]}</p>}
             </div>
             <div className="flex-1">
-              <label className="field-label">
-                {t("serviceForm.endTime")}
-              </label>
+              <label className="field-label">{t("serviceForm.endTime")}</label>
               <input
                 type="time"
                 value={endTime}
@@ -182,9 +165,7 @@ export function AddServiceModal({ onSave, onClose }: Props) {
 
           {/* Anteckningar — valfritt fält (maxLength 500) */}
           <div className="mb-6">
-            <label className="field-label">
-              {t("form.notesOptional")}
-            </label>
+            <label className="field-label">{t("form.notesOptional")}</label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -204,10 +185,7 @@ export function AddServiceModal({ onSave, onClose }: Props) {
             >
               {t("form.cancel")}
             </button>
-            <button
-              type="submit"
-              className="flex-1 px-4 py-2 btn-primary"
-            >
+            <button type="submit" className="flex-1 px-4 py-2 btn-primary">
               {t("form.save")}
             </button>
           </div>

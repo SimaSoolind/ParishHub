@@ -1,7 +1,7 @@
 // Tillfällig mockdata för medlemmar
 // Ersätts med riktig databas i vecka 5-6
 
-import type { Member } from "../types/member"
+import type { Member } from "../domain/member"
 
 export const mockMembers: Member[] = [
   {
@@ -13,7 +13,7 @@ export const mockMembers: Member[] = [
     familySize: 3,
     birthday: "5 aug",
     category: "adult",
-    familyId: "fam-1"
+    familyId: "fam-1",
   },
   {
     id: "2",
@@ -23,7 +23,7 @@ export const mockMembers: Member[] = [
     address: "Kyrkvägen 5, Uppsala",
     familySize: 1,
     birthday: "27 jul",
-    category: "adult"
+    category: "adult",
   },
   {
     id: "3",
@@ -34,7 +34,7 @@ export const mockMembers: Member[] = [
     familySize: 3,
     birthday: "12 sep",
     category: "leader",
-    familyId: "fam-1"
+    familyId: "fam-1",
   },
   {
     id: "4",
@@ -44,7 +44,7 @@ export const mockMembers: Member[] = [
     address: "Ringvägen 22, Malmö",
     familySize: 2,
     birthday: "3 mar",
-    category: "youth"
+    category: "youth",
   },
   {
     id: "5",
@@ -54,6 +54,6 @@ export const mockMembers: Member[] = [
     address: "Parkgatan 3, Solna",
     familySize: 2,
     birthday: "18 nov",
-    category: "other"
-  }
+    category: "other",
+  },
 ]

@@ -11,6 +11,6 @@ export const messageTemplateIds = ["reminder", "birthday", "missed"] as const
 // text är mallen (från översättningen), name är medlemmens fullständiga namn
 // Returnerar den färdiga texten som kan skickas via WhatsApp
 export function fillTemplate(text: string, name: string): string {
-  const firstName = name.split(" ")[0]
+  const firstName = name.split(" ")[0] ?? name
   return text.replaceAll("{namn}", firstName)
 }

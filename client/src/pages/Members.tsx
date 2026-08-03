@@ -2,8 +2,8 @@
 // Innehåller sök-fält och kategori-filter
 //
 // Används av: App.tsx (sidan för URL "/medlemmar")
-// Bygger på: useMemberSearch (logik) och MemberCard (visning)
-// Data: startar från mockMembers, ligger sedan i state så nya kan läggas till
+// Bygger på: useMembers (data via repository), useMemberSearch (sök) och MemberCard
+// Data: kommer från useMembers — sidan vet INTE om det är mock eller databas
 
 import { useState } from "react"
 import { Search, Plus } from "lucide-react"
@@ -12,10 +12,11 @@ import { MemberCard } from "../components/MemberCard"
 import { AddMemberModal } from "../components/AddMemberModal"
 import { MemberProfileModal } from "../components/MemberProfileModal"
 import { GroupMessageModal } from "../components/GroupMessageModal"
+import { useMembers } from "../hooks/useMembers"
 import { useMemberSearch } from "../hooks/useMemberSearch"
 import type { FilterCategory } from "../hooks/useMemberSearch"
-import type { Member, NewMemberData } from "../types/member"
-import { mockMembers } from "../data/members.mock"
+import type { Member, NewMemberData } from "../domain/member"
+import { resolveFamilyId } from "../use-cases/family"
 
 // Filter-knapparnas värden — texten översätts via t("members.filter." + value)
 const filterOptions: FilterCategory[] = ["all", "adult", "youth", "leader", "other"]
@@ -26,8 +27,8 @@ const filterOptions: FilterCategory[] = ["all", "adult", "youth", "leader", "oth
 export function Members() {
   const { t } = useTranslation()
 
-  // Hela medlemslistan — ligger i state så nya kan läggas till
-  const [members, setMembers] = useState<Member[]>(mockMembers)
+  // Medlemmar och CRUD-funktioner kommer från hooken (via repositoryt)
+  const { members, loading, addMember, updateMember, removeMember } = useMembers()
 
   // Styr om Ny-medlem-modalen är öppen
   const [addModalOpen, setAddModalOpen] = useState(false)
@@ -43,37 +44,26 @@ export function Members() {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [groupModalOpen, setGroupModalOpen] = useState(false)
 
-  const { searchText, setSearchText, filter, setFilter, filteredMembers } =
-    useMemberSearch(members)
+  const { searchText, setSearchText, filter, setFilter, filteredMembers } = useMemberSearch(members)
 
   const total = filteredMembers.length
 
-  // Körs när prästen sparar en ny medlem från formuläret
-  // Skapar ett Member med nytt id och lägger till det i listan
+  // Körs när prästen sparar en ny medlem — repositoryt skapar id:t
   const handleAddMember = (newMember: NewMemberData) => {
-    const memberToAdd: Member = {
-      id: "m" + Date.now(),
-      ...newMember,
-    }
-    setMembers((prev) => [...prev, memberToAdd])
+    addMember(newMember)
     setAddModalOpen(false)
   }
 
-  // Körs när prästen sparar en ändring
-  // Ersätter medlemmen med samma id med de nya värdena (id behålls)
+  // Körs när prästen sparar en ändring — uppdaterar medlemmen med samma id
   const handleUpdateMember = (updated: NewMemberData) => {
     if (!editingMember) return
-    setMembers((prev) =>
-      prev.map((member) =>
-        member.id === editingMember.id ? { ...member, ...updated } : member
-      )
-    )
+    updateMember(editingMember.id, updated)
     setEditingMember(null)
   }
 
-  // Tar bort medlemmen med angivet id ur listan
+  // Tar bort medlemmen med angivet id
   const handleDeleteMember = (id: string) => {
-    setMembers((prev) => prev.filter((member) => member.id !== id))
+    removeMember(id)
   }
 
   // Kopplar den valda medlemmen och en annan medlem till samma familj
@@ -81,13 +71,11 @@ export function Members() {
   const handleLinkFamily = (otherId: string) => {
     if (!selectedMember) return
     const other = members.find((m) => m.id === otherId)
-    const familyId = selectedMember.familyId ?? other?.familyId ?? crypto.randomUUID()
+    const familyId = resolveFamilyId(selectedMember.familyId, other?.familyId)
 
-    setMembers((prev) =>
-      prev.map((m) =>
-        m.id === selectedMember.id || m.id === otherId ? { ...m, familyId } : m
-      )
-    )
+    // Sätter samma familyId på båda medlemmarna via repositoryt
+    updateMember(selectedMember.id, { familyId })
+    updateMember(otherId, { familyId })
     // Uppdaterar profilen så familjen syns direkt
     setSelectedMember({ ...selectedMember, familyId })
   }
@@ -95,11 +83,7 @@ export function Members() {
   // Lossar den valda medlemmen ur sin familj (nollställer familyId)
   const handleUnlinkFamily = () => {
     if (!selectedMember) return
-    setMembers((prev) =>
-      prev.map((m) =>
-        m.id === selectedMember.id ? { ...m, familyId: undefined } : m
-      )
-    )
+    updateMember(selectedMember.id, { familyId: undefined })
     setSelectedMember({ ...selectedMember, familyId: undefined })
   }
 
@@ -111,9 +95,7 @@ export function Members() {
 
   // Bockar av eller på en medlem i grupputskicket
   const handleToggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    )
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
   }
 
   return (
@@ -156,13 +138,17 @@ export function Members() {
         {filterOptions.map((value) => {
           const isActive = filter === value
           const activeClasses = "bg-amber-800 text-white border-amber-800"
-          const inactiveClasses = "bg-white text-stone-600 border-stone-200 hover:border-amber-800 dark:bg-stone-800 dark:text-stone-300 dark:border-stone-600"
+          const inactiveClasses =
+            "bg-white text-stone-600 border-stone-200 hover:border-amber-800 dark:bg-stone-800 dark:text-stone-300 dark:border-stone-600"
 
           return (
             <button
               key={value}
               onClick={() => setFilter(value)}
-              className={"px-4 py-2 rounded-full border text-sm font-semibold " + (isActive ? activeClasses : inactiveClasses)}
+              className={
+                "px-4 py-2 rounded-full border text-sm font-semibold " +
+                (isActive ? activeClasses : inactiveClasses)
+              }
             >
               {t("members.filter." + value)}
             </button>
@@ -173,7 +159,9 @@ export function Members() {
       {/* Urvalsrad i grupputskick-läge */}
       {selectionMode && (
         <div className="flex items-center justify-between mb-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 dark:bg-amber-950 dark:border-amber-900">
-          <span className="text-sm text-soft">{t("members.selected", { n: selectedIds.length })}</span>
+          <span className="text-sm text-soft">
+            {t("members.selected", { n: selectedIds.length })}
+          </span>
           <button
             onClick={() => setGroupModalOpen(true)}
             disabled={selectedIds.length === 0}
@@ -185,10 +173,10 @@ export function Members() {
       )}
 
       <div className="surface border p-6 rounded-2xl shadow-sm">
-        {filteredMembers.length === 0 ? (
-          <p className="text-sm text-faint italic text-center py-4">
-            {t("members.empty")}
-          </p>
+        {loading ? (
+          <p className="text-sm text-faint italic text-center py-4">{t("common.loading")}</p>
+        ) : filteredMembers.length === 0 ? (
+          <p className="text-sm text-faint italic text-center py-4">{t("members.empty")}</p>
         ) : (
           <ul>
             {filteredMembers.map((member) => (
@@ -229,10 +217,7 @@ export function Members() {
 
       {/* Ny-medlem-modal visas när Ny-knappen klickats */}
       {addModalOpen && (
-        <AddMemberModal
-          onSave={handleAddMember}
-          onClose={() => setAddModalOpen(false)}
-        />
+        <AddMemberModal onSave={handleAddMember} onClose={() => setAddModalOpen(false)} />
       )}
 
       {/* Redigera-modal visas när en medlem redigeras — förifylld med värdena */}

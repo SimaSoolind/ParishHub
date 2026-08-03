@@ -1,0 +1,6 @@
+#!/bin/sh
+# Pre-commit-hook — kör ESLint (--fix) och Prettier på stagade filer
+# Konfiguration: client/package.json ("lint-staged")
+# Aktiveras via: git config core.hooksPath .githooks (sätts av client "prepare"-script)
+
+cd client && npx lint-staged

@@ -7,7 +7,7 @@
 import { Phone, Mail, Users, MapPin, CheckSquare, Square } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Avatar } from "./Avatar"
-import type { Member } from "../types/member"
+import type { Member } from "../domain/member"
 
 interface Props {
   member: Member

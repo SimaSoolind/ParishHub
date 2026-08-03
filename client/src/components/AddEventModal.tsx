@@ -11,14 +11,7 @@ import { useTranslation } from "react-i18next"
 import { lifeEventCategoryValues } from "../data/eventCategories"
 import { newEventSchema } from "../schemas/eventSchema"
 import { Dropdown } from "./Dropdown"
-
-// Beskriver formen för ett nytt event som skickas till föräldern
-export interface NewEventData {
-  title: string
-  date: string
-  category: string
-  notes?: string
-}
+import type { NewEventData } from "../domain/event"
 
 interface Props {
   onSave: (event: NewEventData) => void
@@ -85,10 +78,7 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
     // Backdrop — klick utanför stänger modalen
     <div onClick={onClose} className="modal-backdrop">
       {/* Själva modalen — stopPropagation förhindrar att klick stänger */}
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="modal-panel max-w-md w-full p-6"
-      >
+      <div onClick={(e) => e.stopPropagation()} className="modal-panel max-w-md w-full p-6">
         {/* Rubrik-rad med stäng-knapp */}
         <div className="flex items-start justify-between mb-4">
           <h2 className="text-xl font-bold text-strong">
@@ -107,9 +97,7 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
         <form onSubmit={handleSubmit}>
           {/* Titel-fält */}
           <div className="mb-4">
-            <label className="field-label">
-              {t("form.title")}
-            </label>
+            <label className="field-label">{t("form.title")}</label>
             <input
               type="text"
               value={title}
@@ -117,32 +105,24 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
               placeholder={t("eventForm.phTitle")}
               className="field"
             />
-            {errors.title && (
-              <p className="field-error">{errors.title}</p>
-            )}
+            {errors.title && <p className="field-error">{errors.title}</p>}
           </div>
 
           {/* Datum-fält */}
           <div className="mb-4">
-            <label className="field-label">
-              {t("form.date")}
-            </label>
+            <label className="field-label">{t("form.date")}</label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               className="field"
             />
-            {errors.date && (
-              <p className="field-error">{errors.date}</p>
-            )}
+            {errors.date && <p className="field-error">{errors.date}</p>}
           </div>
 
           {/* Kategori-dropdown */}
           <div className="mb-4">
-            <label className="field-label">
-              {t("form.category")}
-            </label>
+            <label className="field-label">{t("form.category")}</label>
             <Dropdown
               value={category}
               onChange={setCategory}
@@ -156,9 +136,7 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
 
           {/* Anteckningar — valfritt fält */}
           <div className="mb-6">
-            <label className="field-label">
-              {t("form.notesOptional")}
-            </label>
+            <label className="field-label">{t("form.notesOptional")}</label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -177,10 +155,7 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
             >
               {t("form.cancel")}
             </button>
-            <button
-              type="submit"
-              className="flex-1 px-4 py-2 btn-primary"
-            >
+            <button type="submit" className="flex-1 px-4 py-2 btn-primary">
               {isEdit ? t("form.saveEdit") : t("form.save")}
             </button>
           </div>

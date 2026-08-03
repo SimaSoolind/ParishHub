@@ -1,0 +1,7 @@
+# Byggutdata och beroenden
+dist
+node_modules
+coverage
+
+# Prototypen har egen tät inline-stil (referens) — formateras inte
+src/design

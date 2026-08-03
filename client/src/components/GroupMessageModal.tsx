@@ -10,7 +10,7 @@
 import { useEffect, useState } from "react"
 import { X, MessageCircle } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import type { Member } from "../types/member"
+import type { Member } from "../domain/member"
 import { messageTemplateIds, fillTemplate } from "../data/messageTemplates"
 import { buildWhatsAppLink } from "../lib/whatsapp"
 
@@ -56,9 +56,7 @@ export function GroupMessageModal({ members, onClose }: Props) {
             <X size={20} className="text-faint" />
           </button>
         </div>
-        <p className="text-sm text-faint mb-4">
-          {t("group.subtitle", { n: members.length })}
-        </p>
+        <p className="text-sm text-faint mb-4">{t("group.subtitle", { n: members.length })}</p>
 
         {/* Välj en mall (fyller i textrutan) */}
         <div className="flex flex-wrap gap-2 mb-3">

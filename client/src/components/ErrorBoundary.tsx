@@ -18,7 +18,7 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false }
+  override state: State = { hasError: false }
 
   // Körs när ett barn kastar ett fel — växlar till fel-läget
   static getDerivedStateFromError(): State {
@@ -26,11 +26,11 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   // Loggar felet internt (till konsolen) — visas aldrig för användaren
-  componentDidCatch(error: Error, info: ErrorInfo) {
+  override componentDidCatch(error: Error, info: ErrorInfo) {
     console.error("ErrorBoundary fångade ett fel:", error, info)
   }
 
-  render() {
+  override render() {
     // Vid fel visas ett generellt meddelande istället för en vit skärm
     if (this.state.hasError) {
       return (

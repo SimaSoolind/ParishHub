@@ -6,7 +6,7 @@
 
 interface Props {
   name: string
-  photoUrl?: string
+  photoUrl?: string | undefined
   // "md" för listan, "lg" för profil-modalen
   size?: "md" | "lg"
 }
@@ -26,11 +26,14 @@ const palette = [
 // "Anna Lindgren" -> "AL", "Sima" -> "SI"
 // Returnerar versaler
 function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/)
-  if (parts.length === 1) {
-    return parts[0].slice(0, 2).toUpperCase()
-  }
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return "?"
+
+  const first = parts[0] ?? ""
+  if (parts.length === 1) return first.slice(0, 2).toUpperCase()
+
+  const last = parts[parts.length - 1] ?? ""
+  return (first.charAt(0) + last.charAt(0)).toUpperCase()
 }
 
 // Väljer en färg från paletten baserat på namnet
@@ -40,7 +43,8 @@ function colorForName(name: string): string {
   for (const char of name) {
     sum += char.charCodeAt(0)
   }
-  return palette[sum % palette.length]
+  // Index är alltid inom paletten (modulo på en icke-tom lista) → aldrig undefined
+  return palette[sum % palette.length]!
 }
 
 // Ritar avataren — bild om photoUrl finns, annars initialer

@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react"
 import { X, Trash2, Pencil } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { formatLongDate } from "../utils/dateUtils"
 
 // Definierar vad ett event ska innehålla för att visas i modalen
 // Union type — antingen ChurchEvent eller LifeEvent i react-big-calendar-format
@@ -15,7 +16,7 @@ export interface ModalEvent {
   title: string
   start: Date
   category: string
-  notes?: string
+  notes?: string | undefined
   // Sant för koptiska högtider — de kan inte ändras eller raderas
   isReadOnly?: boolean
 }
@@ -25,18 +26,6 @@ interface Props {
   onClose: () => void
   onEdit: () => void
   onDelete: () => void
-}
-
-// Formaterar datum till svenskt läsbart format
-// Exempel: "Söndag 22 juni 2026"
-function formatDate(date: Date): string {
-  const formatted = date.toLocaleDateString("sv-SE", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  })
-  return formatted.charAt(0).toUpperCase() + formatted.slice(1)
 }
 
 // Ritar modalen med eventets titel, datum, kategori och anteckningar
@@ -65,10 +54,7 @@ export function EventModal({ event, onClose, onEdit, onDelete }: Props) {
     // Klick på backdrop stänger modalen
     <div onClick={onClose} className="modal-backdrop">
       {/* Själva modalen — stopPropagation stoppar klick från att nå backdrop */}
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="modal-panel max-w-md w-full p-6"
-      >
+      <div onClick={(e) => e.stopPropagation()} className="modal-panel max-w-md w-full p-6">
         {/* Rubrik-rad med stäng-knapp */}
         <div className="flex items-start justify-between mb-4">
           <h2 className="text-xl font-bold text-strong">{event.title}</h2>
@@ -84,7 +70,7 @@ export function EventModal({ event, onClose, onEdit, onDelete }: Props) {
         {/* Datum */}
         <div className="mb-3">
           <div className="text-xs font-semibold text-faint uppercase">{t("form.date")}</div>
-          <div className="text-strong">{formatDate(event.start)}</div>
+          <div className="text-strong">{formatLongDate(event.start)}</div>
         </div>
 
         {/* Kategori */}
@@ -103,14 +89,10 @@ export function EventModal({ event, onClose, onEdit, onDelete }: Props) {
 
         {/* Skrivskyddade event (koptiska högtider) kan inte ändras */}
         {event.isReadOnly ? (
-          <p className="text-xs text-faint italic mt-5">
-            {t("calendar.fromCopticCalendar")}
-          </p>
+          <p className="text-xs text-faint italic mt-5">{t("calendar.fromCopticCalendar")}</p>
         ) : confirmingDelete ? (
           <div className="mt-5">
-            <p className="text-sm text-soft mb-3">
-              {t("profile.deleteQ", { name: event.title })}
-            </p>
+            <p className="text-sm text-soft mb-3">{t("profile.deleteQ", { name: event.title })}</p>
             <div className="flex gap-2">
               <button
                 onClick={() => setConfirmingDelete(false)}

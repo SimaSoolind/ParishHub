@@ -8,7 +8,7 @@
 import { PhoneCall } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Badge } from "./Badge"
-import type { Contact, ContactStatus } from "../types/contact"
+import type { Contact, ContactStatus } from "../domain/contact"
 
 interface Props {
   contacts: Contact[]
@@ -19,7 +19,7 @@ interface Props {
 const statusInfo: Record<ContactStatus, { color: "red" | "amber" | "green"; key: string }> = {
   "not-contacted": { color: "red", key: "notContacted" },
   attempted: { color: "amber", key: "attempted" },
-  answered: { color: "green", key: "answered" }
+  answered: { color: "green", key: "answered" },
 }
 
 // Ritar en lista med kontakter, en rad per person
