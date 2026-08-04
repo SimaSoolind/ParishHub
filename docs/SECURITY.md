@@ -287,6 +287,40 @@ så kända sårbarheter fångas automatiskt.
 
 ---
 
+## 12. Säker filuppladdning
+
+Bilder (profilfoton) laddas upp i AddMemberModal. Just nu bara base64 i minnet
+med 1 MB storleksgräns och `accept="image/*"`. **När backend kommer** måste
+servern göra riktig validering — MIME-typ från webbläsaren kan spoofas.
+
+### Servern måste
+- **Validera magic bytes** (första 4 bytes) — inte lita på MIME-typen
+  - PNG: `89 50 4E 47`
+  - JPEG: `FF D8 FF`
+  - WebP: `52 49 46 46`
+- **Sanera filnamn** — ta bort `../`, specialtecken, ändra till UUID
+- **Storleksgräns även på server** (inte bara i klienten — kan kringgås)
+- **Antivirus-skanning** (t.ex. ClamAV) om filer sparas på disk
+- **Separat CDN-bucket** för uppladdade filer — aldrig samma origin som API:t
+- **Inga körbara filer** — bara whitelist av bild-format
+- **Rate-limit på upload-endpoint** — förhindra DoS via storleks-spam
+
+### Kod-exempel (server, framtida)
+
+```ts
+import { fileTypeFromBuffer } from "file-type"
+
+// Validerar att en uppladdad fil verkligen ar en bild
+// mimeType fran multipart racker inte — kolla filens verkliga innehall
+async function validateImage(buffer: Buffer): Promise<boolean> {
+  const detected = await fileTypeFromBuffer(buffer)
+  const allowed = ["image/png", "image/jpeg", "image/webp"]
+  return detected !== undefined && allowed.includes(detected.mime)
+}
+```
+
+---
+
 ## ✅ Snabb checklista
 
 - [ ] Inga nycklar i koden eller frontend — bara i `.env` på servern
@@ -305,3 +339,4 @@ så kända sårbarheter fångas automatiskt.
 - [ ] `unknown` istället för `any`, inga `eval()`/`new Function()`
 - [ ] Runtime-validering av API/WebSocket-svar (Zod)
 - [ ] React Error Boundaries runt sidor/kort
+- [ ] Filuppladdning: magic bytes-validering + sanera filnamn + antivirus

@@ -9,7 +9,7 @@ import { useState, useCallback } from "react"
 import { Search, Plus, Users } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import { logError } from "@lib/errorHandler"
+import { logError, getErrorMessageKey } from "@lib/errorHandler"
 import { MemberCard } from "@components/MemberCard"
 import { AddMemberModal } from "@components/AddMemberModal"
 import { MemberProfileModal } from "@components/MemberProfileModal"
@@ -61,7 +61,7 @@ export function Members() {
     } catch (error) {
       // Loggar internt och visar ett generellt fel — aldrig interna detaljer
       logError("Members.handleAddMember", error)
-      toast.error(t("common.errorGeneric"))
+      toast.error(t(getErrorMessageKey(error)))
     }
   }
 
@@ -74,7 +74,7 @@ export function Members() {
       toast.success(t("common.updated"))
     } catch (error) {
       logError("Members.handleUpdateMember", error)
-      toast.error(t("common.errorGeneric"))
+      toast.error(t(getErrorMessageKey(error)))
     }
   }
 
@@ -85,7 +85,7 @@ export function Members() {
       toast.success(t("common.removed"))
     } catch (error) {
       logError("Members.handleDeleteMember", error)
-      toast.error(t("common.errorGeneric"))
+      toast.error(t(getErrorMessageKey(error)))
     }
   }
 

@@ -8,7 +8,7 @@ ett steg per session, korta stycken, konkreta filnamn och kodexempel.
 
 Uppdaterad: 2026-08-03
 
-**✅ STATUS: Alla 5 steg klara (3 aug 2026).** Kvar (valfritt): konvertera resten av importerna till aliases, filvis.
+**STATUS:** Steg 1–9 klara (7–9 CI-härdning: 4 aug 2026). Steg 10 (Sentry) är en framtida-påminnelse vid prod-deploy. Även valfritt kvar: konvertera resten av importerna till aliases, filvis.
 
 ---
 
@@ -453,7 +453,7 @@ Lägg till en TODO i `ROADMAP.md` under "Fas 2 — Smartare funktioner":
 
 ---
 
-## Steg 6: ErrorBase-klass-mönster
+## Steg 6: ErrorBase-klass-mönster ✅ KLAR (4 aug 2026)
 
 **Tid:** 20 min
 **Prioritet:** Viktig
@@ -552,7 +552,7 @@ try {
 
 ---
 
-## Steg 7: Semgrep SAST i CI
+## Steg 7: Semgrep SAST i CI ✅ KLAR (4 aug 2026)
 
 **Tid:** 15 min
 **Prioritet:** Rekommenderad
@@ -590,7 +590,7 @@ Uppdatera `.github/workflows/ci.yml` — lägg till efter befintlig audit-step:
 
 ---
 
-## Steg 8: Lighthouse CI
+## Steg 8: Lighthouse CI ✅ KLAR (4 aug 2026)
 
 **Tid:** 20 min
 **Prioritet:** Rekommenderad
@@ -649,7 +649,7 @@ cd client && npm install --save-dev @lhci/cli
 
 ---
 
-## Steg 9: Snyk CLI för sårbarhetsscanning
+## Steg 9: Snyk CLI för sårbarhetsscanning ✅ KLAR (4 aug 2026)
 
 **Tid:** 15 min
 **Prioritet:** Rekommenderad
@@ -753,6 +753,94 @@ Lägg till TODO i `ROADMAP.md` under "Fas 3 — Avancerat":
 
 ---
 
+## Steg 11: useDebounce-hook för sökning (framtida — när backend finns)
+
+**Tid:** 15 min (när tiden kommer)
+**Prioritet:** Rekommenderad — aktiveras vecka 5-6
+
+### VAD
+Skapa en `useDebounce`-hook som dröjer värdet en kort stund efter senaste
+ändring. Använd i `useMemberSearch` så filter-/API-anrop inte triggas vid
+varje tangenttryck.
+
+### VARFÖR
+Utan debounce körs sökfiltret vid varje bokstav — omedvetet OK med mockdata
+(~30 medlemmar) men skickar en API-request per bokstav när backend är på
+plats. Med 100+ medlemmar och riktig databas → prestandaproblem och onödig
+serverbelastning.
+
+Just nu: **inte akut**. När backend byggs (vecka 5-6 enligt ROADMAP):
+**kritiskt**.
+
+### HUR
+
+Skapa `client/src/hooks/useDebounce.ts`:
+
+```tsx
+// useDebounce — drojer vardet en kort stund efter senaste andring
+// Anvands nar dyra operationer (API-anrop, tunga filter) ska vanta
+// tills anvandaren slutat skriva
+//
+// Anvands av: useMemberSearch (aktiveras nar backend finns)
+
+import { useState, useEffect } from "react"
+
+// Returnerar det senaste vardet, men bara efter delayMs utan ny andring
+export function useDebounce<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = useState(value)
+
+  useEffect(() => {
+    // Startar en timer varje gang vardet andras
+    const timer = setTimeout(() => setDebounced(value), delayMs)
+    // Om vardet andras igen INNAN timern gar ut — avbryt och starta om
+    return () => clearTimeout(timer)
+  }, [value, delayMs])
+
+  return debounced
+}
+```
+
+Använd i `hooks/useMemberSearch.ts`:
+
+Före:
+```tsx
+const matchesSearch = member.name
+  .toLowerCase()
+  .includes(searchText.toLowerCase())
+```
+
+Efter:
+```tsx
+import { useDebounce } from "./useDebounce"
+
+// Vantar 300ms efter senaste tangenttryck — sedan filtreras listan
+const debouncedSearch = useDebounce(searchText, 300)
+
+const filteredMembers = useMemo(() => {
+  return members.filter((member) => {
+    const matchesSearch = member.name
+      .toLowerCase()
+      .includes(debouncedSearch.toLowerCase())
+    // ...
+  })
+}, [members, debouncedSearch, filter])
+```
+
+Ingången uppdateras direkt (`searchText`), men filtret använder
+`debouncedSearch` som väntar 300ms.
+
+### VERIFIERA
+1. Skriv snabbt i sökfältet — se att listan INTE flackar för varje bokstav
+2. Vänta 300ms efter senaste bokstav — listan filtreras
+3. Ingen `npm install` behövs — 10 rader kod, noll deps
+
+### KOMMANDE PÅMINNELSE
+Aktivera detta samtidigt som backend + Prisma börjar användas i vecka 5-6.
+Uppdatera `ROADMAP.md` under Fas 3 med:
+`- useDebounce-hook för sökning (Members)`
+
+---
+
 ## Sammanfattning
 
 | # | Steg | Tid | Prioritet |
@@ -767,8 +855,9 @@ Lägg till TODO i `ROADMAP.md` under "Fas 3 — Avancerat":
 | 8 | Lighthouse CI (a11y + prestanda budget) | 20 min | Rekommenderad |
 | 9 | Snyk CLI för sårbarhetsscanning | 15 min | Rekommenderad |
 | 10 | Sentry — bara påminnelse i ROADMAP | 0 min | Rekommenderad (framtida) |
+| 11 | useDebounce-hook för sökning | 15 min | Rekommenderad (framtida — v.5-6) |
 
-**Total tid:** ungefär 160 min, uppdelat i 6-7 sessioner.
+**Total tid:** ungefär 175 min, uppdelat i 6-8 sessioner.
 
 ---
 
@@ -787,6 +876,7 @@ Lägg till TODO i `ROADMAP.md` under "Fas 3 — Avancerat":
 **Session 4 — Framtidssäkring (5 min)**
 - Steg 5: Lägg TODO för DOMPurify i ROADMAP.md
 - Steg 10: Lägg TODO för Sentry i ROADMAP.md
+- Steg 11: Lägg TODO för useDebounce i ROADMAP.md (aktiveras v.5-6)
 
 **Session 5 — Felhantering (20 min)**
 - Steg 6: ErrorBase-klass-mönster

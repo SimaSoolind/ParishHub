@@ -535,6 +535,42 @@ bra exempel på hur enkelt Clean Architecture gör en ny funktion.
 
 ---
 
+### 🗓 Måndag 4 augusti 2026 — Dag 13 (forts.)
+
+**⏱ Tid:** _(fyll i)_
+**🎯 Mål:** Typad felhantering (ErrorBase) + slutföra kontrast-fixar
+
+**✅ Vad som gjordes:**
+
+KODSTRUKTUR Steg 6 — ErrorBase-mönster:
+- Felklasser i lib/errors.ts (AppError, ValidationError, NetworkError, AuthError)
+- safeFetch kastar NetworkError; getErrorMessageKey (DRY) ger rätt toast-meddelande per feltyp
+- Alla 10 CRUD-handlers använder hjälpfunktionen; nya nycklar errorValidation/errorAuth
+
+Kontrast (WCAG AA):
+- text-faint mörkad centralt i index.css (#726a60) → klarar 4.5:1 på alla bakgrunder
+- Tog bort opacity-75 på StatCard-etiketterna — opacitet sänkte kontrasten under 4.5
+
+**🎓 Lärdomar:**
+- Parameter-properties (constructor(public x)) funkar INTE med erasableSyntaxOnly — deklarera fält explicit
+- Opacitet på liten text = klassisk kontrast-fälla (blandar färgen mot bakgrunden)
+- instanceof-check kräver riktiga klasser — därför ErrorBase
+- Samla instanceof-logiken på ETT ställe (getErrorMessageKey) = DRY
+
+**⚠️ Utmaningar:**
+- Kontrast-fyndet återkom flera gånger — löstes systematiskt (grep efter opacity- på text hittade boven)
+
+**📝 Reflektion:**
+Felhanteringen är nu förberedd för backend: när api-repositories via safeFetch kommer får användaren
+automatiskt rätt meddelande (nätverk/validering/auth). Kontrast-jakten lärde mig att gräva systematiskt
+istället för att gissa.
+
+**➡️ Nästa steg:**
+- Committa (ErrorBase + kontrast-fixar)
+- Färgsystem-beslut eller backend
+
+---
+
 ## 📋 Mall för nya dagar
 
 Kopiera detta block och klistra in högst upp under "Dag-för-dag":

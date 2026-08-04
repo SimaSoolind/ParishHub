@@ -67,6 +67,8 @@ export default {
     saved: "Sparat",
     errorGeneric: "Något gick fel. Försök igen.",
     errorNetwork: "Ingen anslutning. Kontrollera nätet.",
+    errorValidation: "Kontrollera fälten och försök igen.",
+    errorAuth: "Du måste logga in igen.",
   },
   a11y: {
     statsRegion: "Statistik",

@@ -14,7 +14,7 @@ import { sv } from "date-fns/locale"
 import { RefreshCw, Plus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import { logError } from "../lib/errorHandler"
+import { logError, getErrorMessageKey } from "../lib/errorHandler"
 import { EventModal } from "../components/EventModal"
 import type { ModalEvent } from "../components/EventModal"
 import { AddEventModal } from "../components/AddEventModal"
@@ -80,7 +80,7 @@ export function Calendar() {
     } catch (error) {
       // Loggar internt och visar ett generellt fel — aldrig interna detaljer
       logError("Calendar.handleAddEvent", error)
-      toast.error(t("common.errorGeneric"))
+      toast.error(t(getErrorMessageKey(error)))
     }
   }
 
@@ -100,7 +100,7 @@ export function Calendar() {
       toast.success(t("common.updated"))
     } catch (error) {
       logError("Calendar.handleUpdateEvent", error)
-      toast.error(t("common.errorGeneric"))
+      toast.error(t(getErrorMessageKey(error)))
     }
   }
 
@@ -112,7 +112,7 @@ export function Calendar() {
       toast.success(t("common.removed"))
     } catch (error) {
       logError("Calendar.handleDeleteEvent", error)
-      toast.error(t("common.errorGeneric"))
+      toast.error(t(getErrorMessageKey(error)))
     }
   }
 

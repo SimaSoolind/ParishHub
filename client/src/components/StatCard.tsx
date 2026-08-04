@@ -43,8 +43,8 @@ function StatCardBase({ label, value, color, Icon }: StatCardProps) {
       {/* Själva siffran — stor och fetstil */}
       <div className="text-3xl font-bold mb-1">{value}</div>
 
-      {/* Etikett under — mindre text som förklarar siffran */}
-      <div className="text-xs opacity-75">{label}</div>
+      {/* Etikett under — mindre text som förklarar siffran (full opacitet för WCAG-kontrast) */}
+      <div className="text-xs font-medium">{label}</div>
     </div>
   )
 }

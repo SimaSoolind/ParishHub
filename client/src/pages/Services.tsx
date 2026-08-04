@@ -9,7 +9,7 @@ import { useState } from "react"
 import { Plus, Calendar, FileText, Trash2, Check, Clock } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import { logError } from "../lib/errorHandler"
+import { logError, getErrorMessageKey } from "../lib/errorHandler"
 import { AddServiceModal } from "../components/AddServiceModal"
 import { AttendanceModal } from "../components/AttendanceModal"
 import { Badge } from "../components/Badge"
@@ -179,7 +179,7 @@ export function Services() {
     } catch (error) {
       // Loggar internt och visar ett generellt fel — aldrig interna detaljer
       logError("Services.handleAddService", error)
-      toast.error(t("common.errorGeneric"))
+      toast.error(t(getErrorMessageKey(error)))
     }
   }
 
@@ -192,7 +192,7 @@ export function Services() {
       toast.success(t("common.saved"))
     } catch (error) {
       logError("Services.handleSaveAttendance", error)
-      toast.error(t("common.errorGeneric"))
+      toast.error(t(getErrorMessageKey(error)))
     }
   }
 
@@ -203,7 +203,7 @@ export function Services() {
       await saveNote(selectedService.id, note)
     } catch (error) {
       logError("Services.handleSaveNote", error)
-      toast.error(t("common.errorGeneric"))
+      toast.error(t(getErrorMessageKey(error)))
     }
   }
 
@@ -214,7 +214,7 @@ export function Services() {
       toast.success(t("common.removed"))
     } catch (error) {
       logError("Services.handleDeleteService", error)
-      toast.error(t("common.errorGeneric"))
+      toast.error(t(getErrorMessageKey(error)))
     }
   }
 

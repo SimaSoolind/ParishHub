@@ -6,6 +6,7 @@
 
 import type { ZodType } from "zod"
 import { logError } from "./errorHandler"
+import { NetworkError } from "./errors"
 
 // Hämtar JSON från en URL på ett säkert sätt
 // url är adressen, schema är ett valfritt Zod-schema som validerar svaret i runtime
@@ -16,7 +17,8 @@ export async function safeFetch<T>(url: string, schema?: ZodType<T>): Promise<T>
 
     // response.ok är false vid felkoder som 404 eller 500
     if (!response.ok) {
-      throw new Error(`Anropet misslyckades (status ${response.status})`)
+      // Kastar en typad felklass så anroparen kan reagera specifikt (instanceof)
+      throw new NetworkError("Anropet misslyckades", response.status)
     }
 
     const data = await response.json()

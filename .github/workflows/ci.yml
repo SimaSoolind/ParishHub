@@ -1,5 +1,5 @@
 # CI — körs vid push till main och vid pull requests
-# Kontrollerar typer, lint (inkl. säkerhet), tester och kända sårbarheter
+# Kontrollerar typer, lint (inkl. säkerhet), tester, sårbarheter och kvalitet
 name: CI
 
 on:
@@ -9,6 +9,7 @@ on:
 
 jobs:
   build:
+    name: Bygg och tester
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -33,3 +34,44 @@ jobs:
       - name: Säkerhets-audit
         run: npm audit --audit-level=high
         continue-on-error: true
+
+      # Snyk hittar sårbara paket + fix-versioner
+      # Kräver SNYK_TOKEN som repo-secret — continue-on-error så bygget inte stoppas om token saknas
+      - name: Snyk sårbarhets-scan
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: npx --yes snyk test --severity-threshold=high
+
+  # Semgrep SAST — fångar säkerhetsmönster som ESLint missar (hemligheter, ReDoS, XSS)
+  # Kör i Semgreps container med community-regler (gratis, inget konto krävs)
+  semgrep:
+    name: Semgrep SAST
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+      - name: Semgrep-scan (React, TypeScript, säkerhet)
+        continue-on-error: true
+        run: semgrep scan --config p/react --config p/typescript --config p/security-audit --error
+
+  # Lighthouse CI — mäter tillgänglighet, prestanda, SEO och best practices
+  # Bygger appen, startar preview-servern och kör mätningen (se client/lighthouserc.json)
+  lighthouse:
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - name: Bygg appen
+        run: npm run build
+      - name: Lighthouse-mätning
+        continue-on-error: true
+        run: npx --yes @lhci/cli autorun

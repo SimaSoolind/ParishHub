@@ -71,8 +71,13 @@ html[lang="ar"] .font-serif {
     @apply text-stone-600 dark:text-stone-300;
   }
   /* Dämpad text (undertext, datum) */
+  /* Mörkad från stone-500 så den klarar WCAG AA (4.5:1) även på beige bakgrund */
+  /* Ljust läge: eget värde mellan stone-500 och stone-600 — mörkt läge: stone-400 */
   .text-faint {
-    @apply text-stone-500 dark:text-stone-400;
+    color: #726a60;
+  }
+  :root[data-theme="dark"] .text-faint {
+    color: var(--color-stone-400);
   }
   /* Kopparaccent (ikoner och aktiva rubriker) */
   .text-accent {

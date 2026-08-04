@@ -67,6 +67,8 @@ export default {
     saved: "تم الحفظ",
     errorGeneric: "حدث خطأ ما. حاول مرة أخرى.",
     errorNetwork: "لا يوجد اتصال. تحقق من الشبكة.",
+    errorValidation: "تحقق من الحقول وحاول مرة أخرى.",
+    errorAuth: "يجب تسجيل الدخول مرة أخرى.",
   },
   a11y: {
     statsRegion: "إحصائيات",

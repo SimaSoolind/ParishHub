@@ -43,6 +43,8 @@
 
 **Beroenden:** Backend + JWT
 
+> Se konkret backend-säkerhets-checklista under Fas 3 nedan.
+
 ---
 
 ### 2. 👥 Medlemsregister — 🔵 85% KLART
@@ -250,6 +252,40 @@
 - ⚪ Statistik-dashboard med diagram per år
 - ⚪ Koppling till Google Calendar
 - ⚪ Automatisk GDPR-rensning
+
+#### 🔒 Backend-säkerhet checklista (aktiveras Fas 3, vecka 5-7)
+
+Konkreta säkerhetsuppgifter som MÅSTE göras när backend byggs.
+Full beskrivning i `docs/SECURITY.md`.
+
+**Cookies + Auth:**
+- [ ] Refresh-token i httpOnly + Secure + SameSite=Strict-cookie
+- [ ] Access-token kort livslängd (15 min)
+- [ ] bcrypt saltRounds ≥ 10
+
+**Input + validering:**
+- [ ] Zod-validering på ALLA endpoints (body, params, query)
+- [ ] Auktoriserings-middleware kollar `parishId` per resurs
+- [ ] Prisma utan `$queryRawUnsafe`
+
+**Filuppladdning:**
+- [ ] Magic bytes-validering (inte MIME från webbläsaren)
+- [ ] Sanera filnamn → UUID
+- [ ] Storleksgräns även på server
+- [ ] Antivirus-skanning (ClamAV) om disk-sparning
+- [ ] Separat CDN-bucket för uppladdade filer
+
+**Nätverk + headers:**
+- [ ] helmet (CSP, HSTS, X-Frame-Options)
+- [ ] cors med allowlist — aldrig `origin: "*"`
+- [ ] express-rate-limit på /login (5 försök / 15 min)
+
+**CI + drift:**
+- [ ] Snyk sårbarhets-scan (KODSTRUKTUR Steg 9)
+- [ ] Semgrep SAST (KODSTRUKTUR Steg 7)
+- [ ] Inga source maps i produktion
+
+Se `docs/SECURITY.md` för fullständiga kod-exempel och motiveringar.
 
 ### 🤖 Fas 4 — Framtid & AI
 - ⚪ AI-sammanfattning: vem behöver extra omsorg denna vecka
