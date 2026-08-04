@@ -67,3 +67,109 @@ Kontrollera att `FRONTEND_URL` i `server/.env` matchar klientens URL (t.ex. `htt
 1. Läs felmeddelandet — det säger EXAKT vad som är fel
 2. Kolla att typen i `src/types/` matchar det som skickas
 3. Undvik `any` — bättre att fixa typen ordentligt
+
+---
+
+## 🔴 Fel: JSX-tagg utan stängning (`<a>` fungerar inte)
+
+**När:** Vid rendering av länkar eller ikoner i JSX
+
+**Orsak:** En JSX-tagg måste ha BÅDE öppningstagg (`<a>`) och stängningstagg (`</a>`). Vite/OXC ger otydliga fel om ena saknas.
+
+**Lösning:**
+1. Öppna filen med felet
+2. Sök efter alla `<a `-taggar och räkna att det finns lika många `</a>`
+3. Regel att komma ihåg: självstängande taggar (`<img />`, `<br />`) fungerar bara för element utan barn
+
+---
+
+## 🔴 Fel: `tsc --noEmit` säger OK men koden har typfel
+
+**När:** Vid typkontroll från roten av projektet
+
+**Orsak:** Fel `tsconfig`-fil används. `tsc --noEmit` utan flagga plockar upp rotens config, inte klientens.
+
+**Lösning:**
+```bash
+cd client
+npx tsc -p tsconfig.app.json --noEmit
+```
+
+Alltid kör typkontroll med explicit config-fil.
+
+---
+
+## 🔴 Fel: "This is not allowed as an import"
+
+**När:** Vid import av TypeScript-typer
+
+**Orsak:** `verbatimModuleSyntax` är på i `tsconfig.app.json`. Typer måste importeras med `import type`.
+
+**Lösning:**
+
+Före:
+```ts
+import { Member } from "../domain/member"
+```
+
+Efter:
+```ts
+import type { Member } from "../domain/member"
+```
+
+Regel: värden = `import`, typer = `import type`.
+
+---
+
+## 🔴 Fel: TS4111 — "Property comes from an index signature"
+
+**När:** Efter aktivering av `noPropertyAccessFromIndexSignature`
+
+**Orsak:** Egenskaper från index-signaturer (t.ex. Zod-formdata, `Record<string, T>`) kan inte nås med punkt-notation.
+
+**Lösning:**
+
+Före:
+```ts
+const name = formData.name  // TS4111
+```
+
+Efter:
+```ts
+const name = formData['name']  // OK
+```
+
+Regel: när flaggan är på — använd `['key']` för alla index-baserade objekt.
+
+---
+
+## 🔴 Fel: react-big-calendar typfel med `exactOptionalPropertyTypes`
+
+**När:** I `Calendar.tsx` när `onSelectEvent` typas mot en modal-typ med valfria fält
+
+**Orsak:** `CalendarEvent.notes` är `string | undefined` men modal-typen kräver `string`. Med `exactOptionalPropertyTypes` accepterar TypeScript inte att `undefined` skickas till en `T`-typ.
+
+**Lösning:**
+1. Uppdatera modal-typen så valfria fält deklareras som `notes?: string | undefined`
+2. Eller: säkerställ att `notes` alltid har ett värde innan modalen öppnas (`event.notes ?? ""`)
+
+---
+
+## 🔴 Fel: Template literals med svenska tecken kraschar Vite
+
+**När:** Vid användning av å, ä, ö i template literals inuti komplex JSX
+
+**Orsak:** OXC-parsern i Vite hanterar inte alla svenska tecken i alla lägen.
+
+**Lösning:**
+Använd strängkonkatenering istället:
+
+Före:
+```tsx
+aria-label={`Ring ${person.name}`}
+```
+
+Efter:
+```tsx
+aria-label={"Ring " + person.name}
+```

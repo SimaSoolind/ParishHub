@@ -6,13 +6,15 @@
 // Data: kommer från useServices — sidan vet INTE om det är mock eller databas
 
 import { useState } from "react"
-import { Plus, Calendar, FileText } from "lucide-react"
+import { Plus, Calendar, FileText, Trash2, Check, Clock } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
+import { logError } from "../lib/errorHandler"
 import { AddServiceModal } from "../components/AddServiceModal"
 import { AttendanceModal } from "../components/AttendanceModal"
 import { Badge } from "../components/Badge"
 import { Skeleton } from "../components/Skeleton"
+import { EmptyState } from "../components/EmptyState"
 import { useServices } from "../hooks/useServices"
 import { useMembers } from "../hooks/useMembers"
 import type { Service, NewServiceData, Attendance } from "../domain/service"
@@ -26,15 +28,20 @@ function ServiceRow({
   presentCount,
   isMarked,
   onClick,
+  onDelete,
 }: {
   service: Service
   presentCount: number
   isMarked: boolean
   onClick: () => void
+  onDelete: () => void
 }) {
   const { t } = useTranslation()
   const box = getDateBox(service.date)
   const weekday = getWeekday(service.date)
+
+  // Sant när prästen klickat radera och ska bekräfta borttagningen
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   return (
     <li
@@ -72,12 +79,59 @@ function ServiceRow({
         </div>
       </div>
 
-      {/* Status-badge: grön om avprickad, annars gul */}
-      {isMarked ? (
-        <Badge color="green">{t("services.marked", { n: presentCount })}</Badge>
-      ) : (
-        <Badge color="amber">{t("services.notMarked")}</Badge>
-      )}
+      {/* Höger sida: status-badge + radera-knapp, eller bekräftelse-läge */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        {confirmingDelete ? (
+          // stopPropagation så klick och tangent inte öppnar närvaro-modalen bakom
+          <div
+            className="flex items-center gap-2"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
+            <span className="text-xs text-soft hidden sm:inline">
+              {t("profile.deleteQ", { name: service.title })}
+            </span>
+            <button
+              onClick={() => setConfirmingDelete(false)}
+              className="px-3 py-1 rounded-lg text-xs btn-secondary text-soft"
+            >
+              {t("form.cancel")}
+            </button>
+            <button
+              onClick={onDelete}
+              className="px-3 py-1 rounded-lg text-xs bg-red-700 text-white font-semibold hover:bg-red-800"
+            >
+              {t("profile.confirmDelete")}
+            </button>
+          </div>
+        ) : (
+          <>
+            {isMarked ? (
+              <Badge color="green">
+                <Check size={12} aria-hidden="true" />
+                {t("services.marked", { n: presentCount })}
+              </Badge>
+            ) : (
+              <Badge color="amber">
+                <Clock size={12} aria-hidden="true" />
+                {t("services.notMarked")}
+              </Badge>
+            )}
+            {/* Radera-knapp — stopPropagation så raden inte öppnar modalen */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                setConfirmingDelete(true)
+              }}
+              onKeyDown={(e) => e.stopPropagation()}
+              aria-label={t("services.delete")}
+              className="p-1.5 rounded-full text-soft hover:text-red-700 dark:hover:text-red-400 row-hover"
+            >
+              <Trash2 size={16} />
+            </button>
+          </>
+        )}
+      </div>
     </li>
   )
 }
@@ -88,7 +142,8 @@ export function Services() {
   const { t } = useTranslation()
 
   // Gudstjänster, närvaro och funktioner kommer från hooken (via repositoryt)
-  const { services, attendance, loading, addService, saveNote, saveAttendance } = useServices()
+  const { services, attendance, loading, addService, saveNote, saveAttendance, removeService } =
+    useServices()
 
   // Medlemslistan (för närvaro-modalen) hämtas också via repository
   const { members } = useMembers()
@@ -116,30 +171,57 @@ export function Services() {
   const getIsMarked = (serviceId: string) => attendance.some((a) => a.serviceId === serviceId)
 
   // Körs när prästen sparar en ny gudstjänst — repositoryt skapar id:t
-  const handleAddService = (newService: NewServiceData) => {
-    addService(newService)
-    setAddModalOpen(false)
-    toast.success(t("common.added"))
+  const handleAddService = async (newService: NewServiceData) => {
+    try {
+      await addService(newService)
+      setAddModalOpen(false)
+      toast.success(t("common.added"))
+    } catch (error) {
+      // Loggar internt och visar ett generellt fel — aldrig interna detaljer
+      logError("Services.handleAddService", error)
+      toast.error(t("common.errorGeneric"))
+    }
   }
 
   // Sparar närvaron för den valda gudstjänsten
-  const handleSaveAttendance = (records: Attendance[]) => {
+  const handleSaveAttendance = async (records: Attendance[]) => {
     if (!selectedService) return
-    saveAttendance(selectedService.id, records)
-    setSelectedService(null)
-    toast.success(t("common.saved"))
+    try {
+      await saveAttendance(selectedService.id, records)
+      setSelectedService(null)
+      toast.success(t("common.saved"))
+    } catch (error) {
+      logError("Services.handleSaveAttendance", error)
+      toast.error(t("common.errorGeneric"))
+    }
   }
 
   // Sparar gudstjänstens anteckning (kortnotering)
-  const handleSaveNote = (note: string) => {
+  const handleSaveNote = async (note: string) => {
     if (!selectedService) return
-    saveNote(selectedService.id, note)
+    try {
+      await saveNote(selectedService.id, note)
+    } catch (error) {
+      logError("Services.handleSaveNote", error)
+      toast.error(t("common.errorGeneric"))
+    }
+  }
+
+  // Tar bort en gudstjänst (och dess närvaro) med felhantering och toast
+  const handleDeleteService = async (id: string) => {
+    try {
+      await removeService(id)
+      toast.success(t("common.removed"))
+    } catch (error) {
+      logError("Services.handleDeleteService", error)
+      toast.error(t("common.errorGeneric"))
+    }
   }
 
   return (
     <>
       <header className="flex items-center justify-between mb-2">
-        <h1 className="text-3xl font-bold text-strong">{t("services.title")}</h1>
+        <h1 className="text-4xl font-serif font-bold text-strong">{t("services.title")}</h1>
         <button
           onClick={() => setAddModalOpen(true)}
           className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-800 text-white text-sm font-semibold hover:bg-amber-900"
@@ -161,14 +243,26 @@ export function Services() {
         </div>
       ) : services.length === 0 ? (
         <div className="surface border p-6 rounded-2xl shadow-sm">
-          <p className="text-sm text-faint italic text-center py-4">{t("services.empty")}</p>
+          <EmptyState
+            icon={Calendar}
+            title={t("services.empty")}
+            action={
+              <button
+                onClick={() => setAddModalOpen(true)}
+                className="btn-primary inline-flex items-center gap-2"
+              >
+                <Plus size={16} aria-hidden="true" />
+                {t("services.add")}
+              </button>
+            }
+          />
         </div>
       ) : (
         <>
           {/* Kommande gudstjänster */}
           {upcoming.length > 0 && (
             <section className="mb-6">
-              <h2 className="text-sm font-bold text-faint uppercase mb-2">
+              <h2 className="text-sm font-bold text-soft uppercase mb-2">
                 {t("services.upcoming")}
               </h2>
               <div className="surface border p-4 rounded-2xl shadow-sm">
@@ -180,6 +274,7 @@ export function Services() {
                       presentCount={getPresentCount(service.id)}
                       isMarked={getIsMarked(service.id)}
                       onClick={() => setSelectedService(service)}
+                      onDelete={() => handleDeleteService(service.id)}
                     />
                   ))}
                 </ul>
@@ -190,7 +285,7 @@ export function Services() {
           {/* Tidigare gudstjänster */}
           {past.length > 0 && (
             <section>
-              <h2 className="text-sm font-bold text-faint uppercase mb-2">{t("services.past")}</h2>
+              <h2 className="text-sm font-bold text-soft uppercase mb-2">{t("services.past")}</h2>
               <div className="surface border p-4 rounded-2xl shadow-sm">
                 <ul>
                   {past.map((service) => (
@@ -200,6 +295,7 @@ export function Services() {
                       presentCount={getPresentCount(service.id)}
                       isMarked={getIsMarked(service.id)}
                       onClick={() => setSelectedService(service)}
+                      onDelete={() => handleDeleteService(service.id)}
                     />
                   ))}
                 </ul>

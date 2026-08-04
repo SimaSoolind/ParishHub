@@ -1,15 +1,23 @@
 /* Google Fonts måste importeras före andra regler */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Cairo:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Cairo:wght@400;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap");
 @import "tailwindcss";
 
 /* Mörkt läge styrs manuellt via data-theme="dark" på <html> (inte systemets tema) */
 /* Gör att alla dark:-klasser slår till när temat är valt i appen */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* Rubrik-typsnitt: Cormorant Garamond (designsystemet "Varm Olivsten") */
+/* Kopplas till font-serif så klassen font-serif ger detta typsnitt på rubriker */
+@theme {
+  --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
+}
+
 /* Native-kontroller (select-listor, datum/tid-väljare, scrollbars) följer temat */
 /* color-scheme talar om för webbläsaren att rita inbyggda kontroller mörka */
 :root {
   color-scheme: light;
+  /* Font-scale multipliceras med all text för inställbar textstorlek (WCAG 1.4.4) */
+  --font-scale: 1;
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
@@ -25,6 +33,12 @@
   }
 }
 
+/* Root-textstorlek skalas av --font-scale (inställbar via headern) */
+/* Alla rem-baserade Tailwind-storlekar följer med automatiskt (WCAG 1.4.4) */
+html {
+  font-size: calc(16px * var(--font-scale));
+}
+
 /* Standardfont: Inter för svenska */
 body {
   font-family: "Inter", sans-serif;
@@ -32,6 +46,11 @@ body {
 
 /* Arabiska använder Cairo-font (sätts när lang="ar") */
 html[lang="ar"] body {
+  font-family: "Cairo", sans-serif;
+}
+
+/* Arabiska rubriker använder också Cairo — Cormorant saknar arabiska tecken */
+html[lang="ar"] .font-serif {
   font-family: "Cairo", sans-serif;
 }
 

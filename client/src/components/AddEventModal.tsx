@@ -97,7 +97,7 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
               className="p-1 rounded-full row-hover"
               aria-label={t("form.close")}
             >
-              <X size={20} className="text-faint" />
+              <X size={20} className="text-soft" />
             </button>
           </div>
 

@@ -236,7 +236,7 @@ webbläsaren. Dagen är inte slut än.
 
 ### 🗓 Onsdag–Torsdag 29–30 juli 2026 — Dag 5
 
-**⏱ Tid:** _(fyll i)_
+**⏱ Tid:** _(fyll i timmar)_
 **🎯 Mål för dagen:** Dokumentera hela projektet och spara designsystemet
 
 **✅ Vad som gjordes:**
@@ -280,7 +280,7 @@ samlat och konsekvent inför redovisningen.
 
 ### 🗓 Torsdag 30 juli 2026 — Dag 6
 
-**⏱ Tid:** _(fyll i)_
+**⏱ Tid:** _(fyll i timmar)_
 **🎯 Mål för dagen:** Full CRUD för medlemmar, gudstjänst-modul med närvaro, samt säkerhet, tester och CI
 
 **✅ Vad som gjordes:**
@@ -346,258 +346,192 @@ om vad som är kvar.
 
 ### 🗓 Måndag 3 augusti 2026 — Dag 7
 
-**⏱ Tid:** _(fyll i)_
-**🎯 Mål för dagen:** Göra hela appen tvåspråkig (svenska + arabiska) med i18next och RTL
+**⏱ Tid:** _(fyll i timmar)_
+**🎯 Mål för dagen:** Fem sammanhängande sprintar — tvåspråkighet, mörkt läge + Fas 1-klart, frånvaro-orsak + Clean Architecture, strict-flaggor + WCAG-plan, kodstruktur + prestanda
 
-**✅ Vad som gjordes:**
+**✅ Vad som blev klart:**
 
-Grund (Steg 1):
+Pass 1 — Tvåspråkighet (i18next + RTL):
 - Satte upp i18next + react-i18next (src/i18n.ts, locales/sv.ts, locales/ar.ts)
 - Språkväxlare i headern (SV / AR) + automatisk RTL för arabiska (dir="rtl")
 - Inter-font för svenska, Cairo-font för arabiska
 - useDateTime returnerar nu en hälsnings-nyckel (morning/day/evening) istället för färdig text
-- Dashboard migrerad som bevis
+- Migrerade alla sidor och komponenter: Dashboard, Medlemmar (+MemberCard, AddMemberModal, MemberProfileModal, GroupMessageModal), Kalender (+EventModal, AddEventModal, CalendarToolbar), Gudstjänster (+AddServiceModal, AttendanceModal)
+- DRY-städning på vägen: kategori-texter, WhatsApp-mallar och event-kategori-texter samlade i översättnings-nycklar
 
-Migrerade alla sidor (Steg 2):
-- Dashboard-komponenter (BirthdayList, PriorityList)
-- Medlemmar-sidan + MemberCard
-- Medlemsmodalerna (AddMemberModal, MemberProfileModal, GroupMessageModal)
-- Kalender-sidan + EventModal, AddEventModal, CalendarToolbar
-- Gudstjänster-sidan + AddServiceModal, AttendanceModal
-
-DRY-städning på vägen:
-- Kategori-texter (Vuxen/Ungdom/...) hämtas nu från EN nyckel-grupp (members.filter) istället för tre ställen
-- WhatsApp-mallarnas text flyttade från datafil till översättningarna (en per språk)
-- Event-kategori-texter flyttade till översättningarna (eventCategories.ts blev bara en värde-lista)
-
-**🎓 Lärdomar:**
-- i18next slår på plural-logik om man skickar variabeln `count` — döpte om till total/n för vanlig text
-- t("nyckel." + värde) gör dynamiska nycklar (kategori, status, mall) enkla
-- Placeholder-token {namn} (enkel klammer) rör i18next inte — så fillTemplate kan byta den per person
-- Översättningsnycklar kan återanvändas mellan komponenter → mindre dubbeltext (DRY)
-- t() med { defaultValue } ger säker fallback när en nyckel saknas
-
-**⚠️ Utmaningar:**
-- Många "mellanlägen" i editorn mellan del-ändringar — tsc i slutet är alltid facit
-- react-big-calendars egna knappar kräver ett messages-objekt som måste byggas i komponenten för att bli språkstyrt
-
-**💡 Fel att komma ihåg:**
-- Använd inte `count` som interpolations-variabel om du inte vill ha plural
-- Kör alltid tsc -p tsconfig.app.json som sista kontroll — inte editor-varningarna
-- Kalendern och datum-formaten är fortfarande svenska internt (date-fns sv) — förfina senare
-
-**📝 Reflektion:**
-Stort steg mot en app som fungerar för hela församlingen. Nu kan man klicka på AR och
-hela gränssnittet — meny, sidor, formulär, WhatsApp-mallar — byter till arabiska och
-vänds höger-till-vänster. Kändes extra bra att i18n-arbetet också tvingade fram
-DRY-städning: texter som fanns på flera ställen samlades till ett. tsc grön och testet
-passerar hela vägen.
-
-**➡️ Nästa steg:**
-- Datum-format per språk (arabiska månader och siffror)
-- Zod-felmeddelanden via översättningar
-- Backend (Express + Prisma)
-
----
-
-### 🗓 Måndag 3 augusti 2026 — Dag 8 (senare pass)
-
-**⏱ Tid:** _(fyll i)_
-**🎯 Mål för dagen:** Mörkt läge (DRY) + sista Fas 1-funktionerna — profilbild och kortnotering (Fas 1 klar)
-
-**✅ Vad som gjordes:**
+Pass 2 — Mörkt läge + Fas 1 komplett:
 - Tema-knapp (sol/måne) i headern + useTheme-hook som minns valet i localStorage (validerat)
-- Kopplade dark:-klasser till data-theme="dark" på html (Tailwind @custom-variant)
-- color-scheme så webbläsarens native-kontroller (datum/tid-väljare, scrollbar) följer temat
-- Samlade ALLA ljus/mörk-färger i ca 15 semantiska klasser i index.css (DRY):
-  surface, text-strong/soft/faint, text-accent, hover-accent, divide-rows, row-hover,
-  modal-backdrop, modal-panel, field, field-label, field-error, btn-primary, btn-secondary
-- Gjorde om alla sidor, komponenter och modaler att använda klasserna
-- Mörka regler för react-big-calendar-rutnätet (biblioteket har egen ljus CSS)
-- Byggde egen Dropdown-komponent — native select gick inte att färga mörk i Chrome/macOS
-- Kortnotering per gudstjänst — visas på raden, redigeras i närvaro-modalen (använder notes-fältet som redan fanns)
-- Profilbild per medlem — ny Avatar-komponent (initialer i färgad cirkel, färg från namnet); Ta foto (kamera på mobil) + Välj bild (base64, max 1 MB); URL-fältet togs bort på begäran
+- dark:-klasser kopplade till data-theme="dark" på html (Tailwind @custom-variant)
+- color-scheme så webbläsarens native-kontroller följer temat
+- Samlade ALLA ljus/mörk-färger i ca 15 semantiska klasser i index.css (surface, text-strong/soft/faint, text-accent, modal-backdrop, modal-panel, field, field-label, field-error, btn-primary, btn-secondary, m.fl.)
+- Gjorde om alla sidor, komponenter och modaler till att använda klasserna
+- Mörka regler för react-big-calendar-rutnätet
+- Byggde egen Dropdown-komponent (native select gick inte att färga mörk i Chrome/macOS)
+- Kortnotering per gudstjänst (använder notes-fältet som redan fanns)
+- Profilbild per medlem: ny Avatar-komponent (initialer i färgcirkel) + Ta foto (mobilkamera) / Välj bild (base64, max 1 MB)
 - FAS 1 KLAR: mörkt läge, flerspråkighet, profilbild, kortnotering
 
-**🎓 Lärdomar:**
-- Tailwind v4: @custom-variant dark (&:where([data-theme="dark"] *)) ger manuell toggle
-- @apply funkar i egna klasser (@layer components) — samlar färgkombinationer på ett ställe
-- color-scheme styr native-kontroller (datum/tid, scrollbar)
-- Native select-popup går INTE att styla mörk pålitligt i Chrome/macOS → egen komponent
-- localStorage måste valideras i runtime (bara "light"/"dark" tillåts)
-- Nya globala CSS-regler kan kräva omstart av dev-servern (inte bara reload)
-- Fil till bild: FileReader.readAsDataURL ger base64 data-URL (hålls i minnet tills backend finns)
-- capture="environment" på ett fil-fält öppnar kameran på mobil (dator ignorerar det → filväljare)
-
-**⚠️ Utmaningar:**
-- Fastnade på att färga select-dropdownen mörk — color-scheme och option-styling räckte inte
-  i Chrome/macOS. Löste det med en egen, återanvändbar Dropdown-komponent.
-- Höll koden DRY: bröt ut färgerna till semantiska klasser istället för att upprepa
-  dark:-strängar i tjugo filer
-
-**💡 Fel att komma ihåg:**
-- Upprepa inte dark:-klasser i varje fil — samla i semantiska klasser (DRY)
-- Native form-kontroller går inte alltid att styla — bygg egen komponent vid behov
-- Verifiera CSS med npm run build (tsc fångar inte CSS-fel)
-
-**📝 Reflektion:**
-Appen har nu ett komplett mörkt läge som minns sitt val och fungerar ihop med både svenska
-och arabiska (RTL). Det bästa var att hålla det DRY — all färg bor på ett ställe, så en
-ändring slår igenom överallt. Lärde mig också att inte allt går att styla i webbläsaren,
-och att en egen komponent ibland är rätt väg. Med profilbild och kortnotering på plats är
-HELA Fas 1 färdig — appen känns nu som en riktig produkt.
-
-**➡️ Nästa steg:**
-- Frånvaro-orsak + kontaktstatus i närvaron
-- Backend (Express + Prisma)
-- Testa profilbild-kameran på riktig mobil (påminnelse sparad)
-
----
-
-### 🗓 Måndag 3 augusti 2026 — Dag 9
-
-**⏱ Tid:** _(fyll i)_
-**🎯 Mål för dagen:** Frånvaro-orsak, kodkvalitet (Prettier/hook) och Clean Architecture på hela appen
-
-**✅ Vad som gjordes:**
-
-Gudstjänst (DEL C):
+Pass 3 — Frånvaro-orsak + Prettier + Clean Architecture:
 - Frånvaro-orsak (sjuk/resa/okänd/annat) + kontaktstatus (Ej kontaktad/Försökt/Svarat) i närvaro-modalen
-- Chips visas bara för frånvarande; sparas per gudstjänst (funktion 5 nu 90%)
-- Återanvände ContactStatus-typen + priority.status-texterna (DRY)
-
-Kodkvalitet:
-- Fyra regler dokumenterade i CLAUDE.md (CSS-struktur, DRY-komponenter, linters, död kod)
+- Chips visas bara för frånvarande; sparas per gudstjänst (funktion 5 nu 90 %)
 - Prettier konfigurerad + pre-commit-hook (Gits core.hooksPath → .githooks + lint-staged)
-  som kör ESLint + Prettier på stagade filer automatiskt
-
-Clean Architecture (hela appen):
-- Införde domän/repository/hook-lager: entiteter i domain/, gränssnitt i domain/repositories/,
-  mock-implementationer i data/mock/, hooks i hooks/
+- Fyra kodkvalitets-regler dokumenterade i CLAUDE.md (CSS-struktur, DRY-komponenter, linters, död kod)
+- Införde domän/repository/hook-lager: entiteter i domain/, gränssnitt i domain/repositories/, mock-implementationer i data/mock/, hooks i hooks/
 - Migrerade Member, Service, Contact, Birthday och Event — en i taget (pilot först)
 - Alla fyra sidor hämtar nu data via hook → repository; ingen sida importerar mock direkt
 
-**🎓 Lärdomar:**
-- Repository-gränssnitt gör UI oberoende av datakällan — byt mock mot API utan att röra sidor
-- Async (Promise) i repository-metoderna från början → samma kod funkar vid backend
-- Migrera en entitet i taget (pilot) = lättare att förstå och lägre risk än allt på en gång
-- Gits core.hooksPath fungerar när package.json ligger i en undermapp (bättre än husky här)
-- sed för att peka om importer i många filer på en gång — verifierat med tsc efteråt
-
-**⚠️ Utmaningar:**
-- Att flytta typ-filer till domain/ rörde många importer — löste med sed + verifiering
-- Kalendern blandar egna event (CRUD) med koptiska högtider (API) — höll dem åtskilda
-
-**💡 Fel att komma ihåg:**
-- Sidor/komponenter får ALDRIG importera mock direkt — gå via hook → repository
-- Verifiera med npm run build (tsc) efter stora omflyttningar av filer/importer
-
-**📝 Reflektion:**
-Stort arkitektur-lyft. Appen gick från att importera mock rakt in i sidorna till en ren
-lagerdelning där UI:t inte vet något om datakällan. Det känns proffsigt och gör att backend
-(v.5-6) blir enkelt att koppla in — bara skriva api-repositories och byta en rad per entitet.
-Att göra en entitet i taget gjorde att jag förstod mönstret ordentligt.
-
-**➡️ Nästa steg:**
-- Backend (Express + Prisma) + api-repositories
-- Historikkort med graf (Recharts, redan installerat)
-- Fler enhetstester (repositories är lätta att testa nu)
-
----
-
-### 🗓 Måndag 3 augusti 2026 — Dag 10
-
-**⏱ Tid:** _(fyll i)_
-**🎯 Mål för dagen:** Maxad typsäkerhet + hela WCAG/a11y-planen (9 steg)
-
-**✅ Vad som gjordes:**
-
-TypeScript strict (maxad):
-- Slog på strict + 5 extra flaggor (exactOptionalPropertyTypes, noUncheckedIndexedAccess,
-  noImplicitReturns, noImplicitOverride, noPropertyAccessFromIndexSignature)
-- Åtgärdade 58 typfel — bl.a. äkta null-buggar (parts[0] i avatar, palette[i], marks[id])
-
-UX & Tillgänglighet (docs/UX-A11Y-INSTRUKTION.md — alla 9 steg):
+Pass 4 — TypeScript strict + WCAG-plan:
+- Slog på strict + 5 extra flaggor (exactOptionalPropertyTypes, noUncheckedIndexedAccess, noImplicitReturns, noImplicitOverride, noPropertyAccessFromIndexSignature)
+- Åtgärdade 57 av 58 typfel — bl.a. äkta null-buggar (parts[0] i avatar, palette[i], marks[id])
 - Semantiska taggar (main/header/section/ul) på alla fyra sidor + aria-label/role/aria-pressed
 - Focus-trap i alla 7 modaler (focus-trap-react + role="dialog" + aria-labelledby)
 - Toast-notiser (sonner) vid spara/radera
 - Skeleton-komponent vid laddning
 - @axe-core/react (dev-only a11y-skanner i konsolen)
 - Global focus-visible-ring (WCAG 2.4.7)
-- Tangentbordsnavigering var redan uppfylld (verifierade)
 
-**🎓 Lärdomar:**
+Pass 5 — Kodstruktur + prestanda:
+- Path aliases (@components/, @hooks/ osv i tsconfig + vite.config) — Members.tsx konverterad som exempel
+- React.memo på MemberCard, StatCard och Badge
+- useCallback på handleSelectMember + handleToggleSelect (stabila referenser för memo)
+- lazy() + Suspense: Members, Calendar, Services och DesignPreview som separata chunks
+- Ny PageLoader med Skeleton
+- DOMPurify: påminnelse i ROADMAP (ingen kod nu, inga rich-text-fält än)
+
+**💡 Fel jag löste:**
+- i18next `count` triggade plural-logik — döpte om till `total`/`n` för vanlig text
+- Native select-popup gick inte att styla mörk i Chrome/macOS → egen Dropdown-komponent
+- Nya globala CSS-regler kan kräva omstart av dev-servern (inte bara reload)
+- localStorage måste valideras i runtime (bara "light"/"dark" tillåts)
+- Focus-trap i 7 modaler: uniforma edits, men enrads- vs flerrads-JSX (Prettier) krävde två anchor-varianter
+- baseUrl gav TS5101 (deprecated i TS 6) — löste genom att ta bort baseUrl och göra paths-målen relativa
+- Vissa npm-kommandon körde från fel mapp — tsc måste köras i client/
+- Att flytta typ-filer till domain/ rörde många importer — löste med sed + tsc-verifiering
+
+**🎓 Vad jag lärde mig:**
+- Repository-gränssnitt gör UI oberoende av datakällan — byt mock mot API utan att röra sidor
+- Async (Promise) i repository-metoderna från början → samma kod funkar vid backend
+- Migrera en entitet i taget (pilot) = lättare att förstå och lägre risk
+- Tailwind v4: @custom-variant dark ger manuell toggle
+- @apply funkar i egna klasser (@layer components) — samlar färgkombinationer på ett ställe
+- FileReader.readAsDataURL ger base64 data-URL (hålls i minnet tills backend finns)
+- capture="environment" på ett fil-fält öppnar kameran på mobil
 - exactOptionalPropertyTypes: optionella datafält som får hålla "inget värde" typas som T | undefined
 - noUncheckedIndexedAccess fångar riktiga undefined-buggar vid array/objekt-indexering
 - focus-trap-react fångar fokus i modaler (WCAG 2.4.3) — lag för offentlig sektor
 - sonner har inbyggd a11y (role=status / aria-live)
 - @axe-core/react körs bara i import.meta.env.DEV — aldrig i prod-bundlen
-- Verifiera med npm run build + lint + test efter stora svep
-
-**⚠️ Utmaningar:**
-- 58 typfel att åtgärda efter strict-flaggorna — men de flesta var mekaniska
-- Focus-trap i 7 modaler: uniforma edits, men enrads- vs flerrads-JSX (Prettier) krävde två anchor-varianter
-- Skapade först en ModalShell (DRY) men bytte till direkt FocusTrap-wrap (lägre risk) och tog bort ModalShell
-
-**💡 Fel att komma ihåg:**
-- Modaler och native-kontroller MÅSTE vara tangentbords-tillgängliga (WCAG = lag för offentlig sektor)
-- Verifiera JSX-balans med tsc efter wrap-edits — mellanlägen visar falska fel
-- Dev-verktyg (axe) ska aldrig hamna i produktion
+- React.memo hjälper bara om props är stabila — annars behövs useCallback på handlers
+- lazy() med named export kräver `.then(m => ({ default: m.X }))`
+- I TypeScript 6 är `baseUrl` deprecated — `paths` funkar ändå men målen måste vara relativa
 
 **📝 Reflektion:**
-Enormt pass. Appen gick från "bra a11y" till att uppfylla hela WCAG-planen: semantisk struktur,
-focus-trap, synlig fokus, toast och skeleton — plus maxad typsäkerhet. Nu är den både tillgänglig
-(lagkrav för offentlig sektor) och robust typad. Det bästa var att strict-flaggorna hittade RIKTIGA
-latenta buggar, inte bara ceremoni.
+Ett gigantiskt arbetspass. Appen gick från "svensk enkelspråkig" till komplett tvåspråkig
+(svenska + arabiska + RTL), fick fullt mörkt läge, familjekoppling + WhatsApp, profilbilder,
+frånvaro-orsak, egen designsystem-arkitektur (domain + use-cases + repositories), maxad
+typsäkerhet med riktiga latenta buggar åtgärdade, hela WCAG-planen på plats (focus-trap,
+semantik, skeleton, toast, axe), och prestanda-optimeringar (lazy, memo, code-splitting).
+Fas 1 är komplett. Bygget är fortfarande grönt: tsc 0 fel, lint 0, 11 tester, build ✅.
 
 **➡️ Nästa steg:**
+- Konvertera resten av importerna till path aliases (filvis, en sida per gång)
+- Datum-format per språk (arabiska månader och siffror)
+- Zod-felmeddelanden via översättningar
+- Backend (Express + Prisma) + api-repositories
+- Historikkort med graf (Recharts, redan installerat)
 - Testa focus-trap live i webbläsaren (React 19 + focus-trap-react är nytt)
-- Backend (Express + Prisma)
-- Historikkort med graf (Recharts)
+- Testa profilbild-kameran på riktig mobil
+- color-contrast-fixet från axe (väntar på element-info)
 
 ---
 
-### 🗓 Måndag 3 augusti 2026 — Dag 11
+### 📌 Pass 6 — Dokumentation-städ + WCAG-analys + verktygs-stack-analys
+
+**⏱ Tid:** ca 11 timmar (11:00-22:00, med pauser)
+
+**🎯 Mål:**
+- Städa och synka all projektdokumentation
+- Räkna WCAG-kontrast på hela "Varm Olivsten"-paletten
+- Analysera mot rekommenderad best-practice verktygs-stack
+
+**✅ Vad blev klart:**
+- Skrev CHANGELOG 0.4.0 med allt sedan 30 juli (i18n, mörkt läge, Clean Architecture, WhatsApp, Avatar, Skeleton, sonner, axe-core, focus-trap, strict-flaggor)
+- 18 doc-fixar på 8 filer (README, CHANGELOG, CV-BULLETS, DESIGN, TROUBLESHOOTING, ROADMAP, DAGBOK, client/README)
+- STT-beslut fastställt: Speechmatics valdes efter dialektanalys — 11 filer synkade
+- Skapade tre parallella instruktionsfiler:
+  - `docs/UX-A11Y-INSTRUKTION.md` (10 steg — semantik, focus-trap, textstorlek m.m.)
+  - `docs/KODSTRUKTUR-INSTRUKTION.md` (10 steg — path aliases, memo, ErrorBase, Semgrep, Lighthouse, Snyk)
+  - `docs/FARG-OCH-DESIGN-ATT-GORA.md` (16 steg — koppar-kontrast, bottennav, färgblindhet m.m.)
+- WCAG-kontrast räknad på 19 kombinationer — kritisk fail hittad: röd-mörkt #A05858 = 2.98:1
+- Verktygs-stack-analys mot rekommenderad best-practice-stack — 8 saknade punkter identifierade
+
+**💡 Vad jag lärde mig:**
+- Doc-städ tar längre tid än man tror men är superviktigt inför LIA
+- WCAG-kontrast måste testas i BÅDA lägen (ljust + mörkt), inte bara ljust
+- Semgrep fångar säkerhetsmönster som ESLint missar
+- shadcn/ui är battle-tested men matchar inte varje designspråk
+
+**🔧 Fel jag löste:**
+- Datum-fel i CHANGELOG (0.3.0 vs verkligt datum)
+- Motsägelse mellan AI-TOLKNING-RAPPORT (Speechmatics) och alla andra filer (Deepgram)
+- 7 kosmetiska fel i README, CV-BULLETS, DAGBOK
+
+**📝 Reflektion:**
+Idag var en stor dokumentations-dag. Har nu tre parallella att-göra-listor som stegvis guidar genom UX-, kod- och designarbete. Fastnade lite på Snyk-diskussionen — bra att fråga.
+
+**➡️ Nästa steg:**
+- Fixa röd-mörkt-fail (Steg 15 i FARG-OCH-DESIGN)
+- Börja med bottennavigering (Steg 2 samma fil)
+- Committa alla docs-ändringar
+
+---
+
+### 🗓 Måndag 4 augusti 2026 — Dag 12
 
 **⏱ Tid:** _(fyll i)_
-**🎯 Mål för dagen:** Kodstruktur och prestanda (docs/KODSTRUKTUR-INSTRUKTION.md, alla 5 steg)
+**🎯 Mål för dagen:** UX/design-steg (FARG-OCH-DESIGN) + felhantering + radera-gudstjänst
 
 **✅ Vad som gjordes:**
 
-- Steg 1 — Path aliases: `@components/`, `@hooks/` osv i tsconfig + vite.config;
-  konverterade Members.tsx som exempel (resten filvis senare)
-- Steg 2 — React.memo på MemberCard, StatCard och Badge (hoppar över onödig rendering)
-- Steg 3 — useCallback på handleSelectMember + handleToggleSelect (stabila referenser
-  så memo:ade MemberCard faktiskt slipper rendera om)
-- Steg 4 — lazy() + Suspense: Members, Calendar, Services och DesignPreview laddas nu
-  som separata chunks vid navigering; ny PageLoader med Skeleton
-- Steg 5 — DOMPurify: lade påminnelse i ROADMAP (ingen kod nu, inga rich-text-fält än)
+UX-A11Y Steg 10:
+- Inställbar textstorlek (80–200 %) via useFontScale + CSS-variabeln --font-scale (WCAG 1.4.4)
+
+FARG-OCH-DESIGN (6 steg):
+- Steg 2 — Bottennavigering för mobil (BottomNav, md:hidden, fasta ikon-flikar)
+- Steg 3 — Färgblindhet: ikoner på status-badges (kontaktstatus + närvaro)
+- Steg 4 — Toast vid fel (toast.error + try/catch i alla CRUD-handlers)
+- Steg 6 — EmptyState-komponent (Members + Services)
+- Steg 8 — Formulär-förenkling: expanderbara valfria fält i AddMemberModal + inputMode
+- Steg 9 — Visuell hierarki: Cormorant Garamond på rubriker (implementerar designsystemet)
+
+Ny funktion + fixar:
+- Radera gudstjänst genom alla fyra Clean Architecture-lager + bekräftelse på raden
+- Suspense flyttad in i Layout (header + main står kvar under laddning; fixade axe-landmark)
+- Flera kontrast-fixar (text-faint → text-soft där texten låg på beige bakgrund + ikon-knappar)
 
 **🎓 Lärdomar:**
-- React.memo hjälper bara om props är stabila — annars behövs useCallback på handlers
-- lazy() med named export kräver `.then(m => ({ default: m.X }))`
-- Code-splitting: tunga Calendar (react-big-calendar, 239 kB) ligger nu i egen chunk
-- I TypeScript 6 är `baseUrl` deprecated — `paths` funkar ändå men målen måste vara
-  relativa (`./src/*`)
+- text-faint (stone-500) klarar 4.80:1 på vitt men bara 4.40:1 på beige (stone-100) — under AA
+- Suspense ovanför Routes byter ut HELA appen; lägg den runt Outlet så skalet står kvar
+- Status via ikon + text = färgblind-säkert (WCAG 1.4.1)
+- Cormorant saknar arabiska tecken → arabiska rubriker faller tillbaka till Cairo
+- Clean Architecture gör ny CRUD-metod enkel: interface → mock → hook → sida
 
 **⚠️ Utmaningar:**
-- baseUrl gav TS5101 (deprecated i TS 6) — löste genom att ta bort baseUrl och göra
-  paths-målen relativa
-- Vissa npm-kommandon körde från fel mapp (roten via genvägen) — tsc måste köras i client
+- Kontrast-fyndet återkom flera gånger — löstes genom att räkna exakt kontrast per bakgrund
+- Doc:ens färg-steg bygger på CSS-variabler som inte finns i koden → måste översättas
 
 **💡 Fel att komma ihåg:**
-- Verifiera alltid bygget med `tsc -b` i client/, inte bara via rot-genvägen
-- memo utan stabila props = bara overhead, ingen vinst
+- Verifiera kontrast mot RÄTT bakgrund (kort = vitt, sida = beige) — inte bara "på vitt"
+- Radering bör städa relaterad data (närvaro-poster) — inte lämna föräldralösa rader
 
 **📝 Reflektion:**
-Appen startar nu snabbare — bara startsidan laddas direkt, resten hämtas vid behov.
-Listorna renderar smartare med memo. Aliaserna gör imports kortare och lättare att läsa
-(bra för dyslexi). Bygget är fortfarande grönt: tsc 0 fel, lint 0, 11 tester, build ✅.
+Stor design/UX-dag. Appen känns mer färdig nu: mobilnav, tydliga tomma vyer, feedback vid fel,
+snabbare formulär, elegant rubrik-typsnitt och skarpare kontraster. Radera-gudstjänst var ett
+bra exempel på hur enkelt Clean Architecture gör en ny funktion.
 
 **➡️ Nästa steg:**
-- Konvertera resten av importerna till aliases (filvis, en sida per gång)
-- Backend (Express + Prisma)
-- color-contrast-fixet från axe (väntar på element-info)
+- Beslut om färgsystemet (så Steg 1/5/11/15 kan göras rätt mot Tailwind)
+- Eller: börja på backend (Express + Prisma)
 
 ---
 
@@ -647,10 +581,12 @@ Kopiera detta block och klistra in högst upp under "Dag-för-dag":
 - [x] Clean Architecture på alla sidor (domän · repository · hook) — **3 augusti 2026** ✅
 - [x] Maxad TypeScript-strict + hela WCAG/a11y-planen (9 steg) — **3 augusti 2026** ✅
 - [x] Kodstruktur + prestanda-optimering (aliases, memo, code-splitting) — **3 augusti 2026** ✅
+- [x] UX/design-pass (mobilnav, färgblind-badges, EmptyState, felhantering, radera-gudstjänst, rubrik-typsnitt) — **4 augusti 2026** ✅
+- [x] Fullständig dokumentations-städ + WCAG-kontrast räknad + 3 att-göra-listor för UX/kod/design — **3 augusti 2026** ✅
 - [ ] Första Express-servern igång
 - [ ] Första databaskopplingen till PostgreSQL
 - [ ] Första JWT-inloggningen fungerar
-- [ ] Första AI-tolkningen live via Deepgram
+- [ ] Första AI-tolkningen live via Speechmatics
 - [ ] Första gången någon annan använder appen
 - [ ] Appen används i riktig gudstjänst
 - [ ] Appen släppt i App Store / Google Play

@@ -861,7 +861,7 @@ Skapa fil `.claude/hooks/postToolUse.json`:
 ## 🔌 STEG 12 — MCP (Model Context Protocol)
 
 ### 🟠 VAD
-Låter Claude prata **direkt** med externa tjänster (databas, GitHub, Slack, Deepgram).
+Låter Claude prata **direkt** med externa tjänster (databas, GitHub, Slack, Speechmatics).
 
 ### 🟢 VARFÖR
 Slippa kopiera data manuellt mellan verktyg. Claude gör allt själv.
@@ -897,7 +897,7 @@ Skapa fil `.claude/mcp.json`:
 **Rekommenderade MCP-servrar för ParishHub:**
 - `@modelcontextprotocol/server-postgres` — läsa/skriva medlemmar
 - `@modelcontextprotocol/server-github` — hantera issues och PR
-- Deepgram MCP — testa live-tolkning direkt
+- Speechmatics MCP — testa live-tolkning direkt
 
 ---
 

@@ -21,7 +21,7 @@
 | Backend (server/) | ⚪ 0% | Startar vecka 3-4 av studieplan |
 | Databas (PostgreSQL) | ⚪ 0% | Startar vecka 5-6 |
 | Auth (JWT) | ⚪ 0% | Startar vecka 7 |
-| AI-tolkning (Deepgram) | ⚪ 0% | Startar vecka 8 |
+| AI-tolkning (Speechmatics) | ⚪ 0% | Startar vecka 8 |
 | Publicering | ⚪ 0% | Efter LIA |
 
 ---
@@ -217,14 +217,14 @@
 **Delfunktioner:**
 - ⚪ Prästen startar via kyrkoappen
 - ⚪ Mikrofonen fångar prästens tal
-- ⚪ Deepgram konverterar tal → arabisk text (realtid)
+- ⚪ Speechmatics konverterar tal → arabisk text (realtid)
 - ⚪ DeepL översätter arabiska → svenska
 - ⚪ Text visas på kyrkans skärm (BÅDA språk)
 - ⚪ WebSocket för snabb överföring
 - ⚪ OBS Studio-integration för YouTube-sändning
 - ⚪ Predikan sparas i arkiv efteråt
 
-**Beroenden:** Backend + WebSocket + Deepgram + DeepL
+**Beroenden:** Backend + WebSocket + Speechmatics + DeepL
 
 ---
 
@@ -260,15 +260,15 @@
 
 ---
 
-## 📅 STUDIEPLAN — vecka för vecka
+## 📅 STUDIEPLAN — plan-ordning
 
-| Vecka | Datum | Fokus | Status |
-|-------|-------|-------|--------|
-| — | Nu | Frontend UI (Dashboard, Medlemmar, Kalender) | 🔵 pågår |
-| 3-4 | 15-28 juli | Express.js + REST API | ⚪ senare |
-| 5-6 | 29 jul-11 aug | PostgreSQL + Prisma | ⚪ |
-| 7 | 12-18 aug | JWT + bcrypt | ⚪ |
-| 8 | 19-31 aug | Deepgram + koppla frontend/backend | ⚪ |
+| Fas | Fokus | Status |
+|-----|-------|--------|
+| Nu | Frontend UI (Dashboard, Medlemmar, Kalender, Gudstjänster) | ✅ klart |
+| Fas 3 | Express.js + REST API | ⚪ senare |
+| Fas 4 | PostgreSQL + Prisma | ⚪ senare |
+| Fas 5 | JWT + bcrypt | ⚪ senare |
+| Fas 6 | Speechmatics + koppla frontend/backend | ⚪ senare |
 
 ---
 

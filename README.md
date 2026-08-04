@@ -24,7 +24,7 @@ ParishHub/
 ### Frontend (client/)
 - React + Vite + TypeScript
 - React Router
-- Tailwind CSS
+- Tailwind CSS v4
 - react-i18next (svenska + arabiska)
 - @tanstack/react-query
 
@@ -32,7 +32,7 @@ ParishHub/
 - Node.js + Express + TypeScript
 - PostgreSQL via Prisma ORM
 - JWT + bcrypt
-- Deepgram (speech-to-text live)
+- Speechmatics (speech-to-text live)
 - DeepL (arabisk → svensk översättning)
 
 ### Hosting
@@ -45,7 +45,7 @@ ParishHub/
 - Node.js 20 eller högre
 - npm
 - PostgreSQL-konto (Railway)
-- Deepgram-konto (gratis 200 USD)
+- Speechmatics-konto (⚠️ TODO: Sima uppdaterar aktuell gratisnivå)
 - DeepL-konto (gratis 500 000 tecken/månad)
 
 ### Steg 1 — Klona projektet
@@ -54,24 +54,28 @@ git clone https://github.com/SimaSoolind/ParishHub.git
 cd ParishHub
 ```
 
-### Steg 2 — Installera backend
+### Steg 2 — Installera backend (kommer i vecka 5-6)
+
+> ⚠️ **Backend är inte startad ännu.** `server/`-mappen är tom.
+> Hoppa direkt till Steg 5 (frontend) för att köra appen med mockdata.
+
 ```bash
 cd server
 npm install
 ```
 
-### Steg 3 — Skapa .env-fil i server/
+### Steg 3 — Skapa .env-fil i server/ (kommer i vecka 5-6)
 Kopiera `.env.example` till `.env` och fyll i värden.
 
-### Steg 4 — Starta backend
+### Steg 4 — Starta backend (kommer i vecka 5-6)
 ```bash
 npm run dev
 ```
-Backenden körs på http://localhost:3000
+Backenden kommer köras på http://localhost:3000
 
 ### Steg 5 — Installera och starta frontend
 ```bash
-cd ../client
+cd client
 npm install
 npm run dev
 ```
@@ -87,27 +91,41 @@ Frontenden körs på http://localhost:5173
 
 ## 🧩 TypeScript-konfiguration
 
-- `strict: true` i tsconfig.json för full typsäkerhet
+- `strict: true` i `tsconfig.app.json` för full typsäkerhet
 - `noUnusedLocals` och `noUnusedParameters` aktiverade
-- `exactOptionalPropertyTypes` för noggrannare objekttyper
+- Extra strikta flaggor för att fånga latenta buggar tidigt:
+  - `exactOptionalPropertyTypes` — optionella fält typas som `T | undefined`
+  - `noUncheckedIndexedAccess` — array/objekt-index kan vara `undefined`
+  - `noImplicitReturns` — alla vägar i en funktion måste returnera
+  - `noImplicitOverride` — override-metoder måste ha `override`-modifierare
+  - `noPropertyAccessFromIndexSignature` — index-signaturer måste nås med `['key']`
 - Använd `unknown` istället för `any` när typen är okänd
 - Egen typ-fil per feature-modul
 
-## 🧪 Testning (planerat)
+## 🧪 Testning
 
-- Enhetstester med Vitest (frontend) och Jest (backend)
-- Integrationstester för API-endpoints
-- Testa hooks med @testing-library/react
+- **Vitest** som testrunner (frontend), konfigurerad i `client/vite.config.ts`
+- **@testing-library/react** för komponent-tester
+- **jsdom** som browsermiljö i tester
+- Nuvarande tester: `ErrorBoundary.test.tsx`, `attendance.test.ts`, `family.test.ts`, `dateUtils.test.ts`
+- Kör tester lokalt: `cd client && npm run test`
+- CI kör lint + tsc + tester + npm audit automatiskt via GitHub Actions (`.github/workflows/ci.yml`)
+- Backend-tester läggs till när backend byggs (vecka 5-6)
 
 ## 📖 Vidare läsning
 
 - [CLAUDE.md](./CLAUDE.md) — Projektregler och kodstandard
+- [ROADMAP.md](./ROADMAP.md) — Alla funktioner, status per funktion + faser
 - [docs/DESIGN.md](./docs/DESIGN.md) — Designsystem (färger, typografi, komponenter, skärmar)
+- [docs/REDOVISNING.md](./docs/REDOVISNING.md) — Offentlig redovisning för lärare och LIA
 - [docs/SECURITY.md](./docs/SECURITY.md) — Säkerhetschecklista (backend + frontend)
 - [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) — Systemarkitektur
 - [docs/AI-TOLKNING-RAPPORT.md](./docs/AI-TOLKNING-RAPPORT.md) — Rapport & handlingsplan för realtids-AI-tolkning (WebSocket, STT, DeepL)
 - [docs/API.md](./docs/API.md) — API-dokumentation
 - [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) — Vanliga fel och lösningar
+- [docs/UX-A11Y-INSTRUKTION.md](./docs/UX-A11Y-INSTRUKTION.md) — 9-stegs plan för WCAG-tillgänglighet
+- [docs/KODSTRUKTUR-INSTRUKTION.md](./docs/KODSTRUKTUR-INSTRUKTION.md) — 5-stegs plan för prestanda och kodstruktur
+- [docs/MALL-SETUP.md](./docs/MALL-SETUP.md) — Mall för nya projekt-tillägg
 - [CHANGELOG.md](./CHANGELOG.md) — Ändringslogg
 
 ## 👤 Byggd av

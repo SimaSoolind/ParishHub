@@ -11,6 +11,7 @@ export default {
     members: "الأعضاء",
     calendar: "التقويم",
     services: "القداس",
+    mobile: "التنقل الرئيسي",
   },
   greeting: {
     morning: "صباح الخير",
@@ -64,6 +65,8 @@ export default {
     updated: "تم التحديث",
     removed: "تمت الإزالة",
     saved: "تم الحفظ",
+    errorGeneric: "حدث خطأ ما. حاول مرة أخرى.",
+    errorNetwork: "لا يوجد اتصال. تحقق من الشبكة.",
   },
   a11y: {
     statsRegion: "إحصائيات",
@@ -73,6 +76,7 @@ export default {
     serviceList: "قائمة القداسات",
     toolbar: "شريط الأدوات",
     calendarRegion: "التقويم",
+    fontScale: "حجم الخط {{percent}} بالمئة",
   },
   theme: {
     toDark: "التبديل إلى الوضع الداكن",
@@ -91,6 +95,8 @@ export default {
     title: "العنوان",
     date: "التاريخ",
     notesOptional: "ملاحظات (اختياري)",
+    showMore: "إظهار المزيد من الحقول",
+    hideMore: "إخفاء الحقول الإضافية",
     save: "حفظ",
     saveEdit: "حفظ التعديل",
     cancel: "إلغاء",
@@ -187,6 +193,7 @@ export default {
     past: "القداسات السابقة",
     marked: "تم التحضير ({{n}} حاضر)",
     notMarked: "لم يتم التحضير",
+    delete: "حذف القداس",
   },
   serviceForm: {
     title: "قداس جديد",

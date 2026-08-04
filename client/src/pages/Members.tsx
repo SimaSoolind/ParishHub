@@ -6,14 +6,16 @@
 // Data: kommer från useMembers — sidan vet INTE om det är mock eller databas
 
 import { useState, useCallback } from "react"
-import { Search, Plus } from "lucide-react"
+import { Search, Plus, Users } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
+import { logError } from "@lib/errorHandler"
 import { MemberCard } from "@components/MemberCard"
 import { AddMemberModal } from "@components/AddMemberModal"
 import { MemberProfileModal } from "@components/MemberProfileModal"
 import { GroupMessageModal } from "@components/GroupMessageModal"
 import { Skeleton } from "@components/Skeleton"
+import { EmptyState } from "@components/EmptyState"
 import { useMembers } from "@hooks/useMembers"
 import { useMemberSearch } from "@hooks/useMemberSearch"
 import type { FilterCategory } from "@hooks/useMemberSearch"
@@ -51,24 +53,40 @@ export function Members() {
   const total = filteredMembers.length
 
   // Körs när prästen sparar en ny medlem — repositoryt skapar id:t
-  const handleAddMember = (newMember: NewMemberData) => {
-    addMember(newMember)
-    setAddModalOpen(false)
-    toast.success(t("common.added"))
+  const handleAddMember = async (newMember: NewMemberData) => {
+    try {
+      await addMember(newMember)
+      setAddModalOpen(false)
+      toast.success(t("common.added"))
+    } catch (error) {
+      // Loggar internt och visar ett generellt fel — aldrig interna detaljer
+      logError("Members.handleAddMember", error)
+      toast.error(t("common.errorGeneric"))
+    }
   }
 
   // Körs när prästen sparar en ändring — uppdaterar medlemmen med samma id
-  const handleUpdateMember = (updated: NewMemberData) => {
+  const handleUpdateMember = async (updated: NewMemberData) => {
     if (!editingMember) return
-    updateMember(editingMember.id, updated)
-    setEditingMember(null)
-    toast.success(t("common.updated"))
+    try {
+      await updateMember(editingMember.id, updated)
+      setEditingMember(null)
+      toast.success(t("common.updated"))
+    } catch (error) {
+      logError("Members.handleUpdateMember", error)
+      toast.error(t("common.errorGeneric"))
+    }
   }
 
   // Tar bort medlemmen med angivet id
-  const handleDeleteMember = (id: string) => {
-    removeMember(id)
-    toast.success(t("common.removed"))
+  const handleDeleteMember = async (id: string) => {
+    try {
+      await removeMember(id)
+      toast.success(t("common.removed"))
+    } catch (error) {
+      logError("Members.handleDeleteMember", error)
+      toast.error(t("common.errorGeneric"))
+    }
   }
 
   // Kopplar den valda medlemmen och en annan medlem till samma familj
@@ -113,7 +131,7 @@ export function Members() {
     <>
       <header>
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-3xl font-bold text-strong">{t("members.title")}</h1>
+          <h1 className="text-4xl font-serif font-bold text-strong">{t("members.title")}</h1>
           <div className="flex gap-2">
             <button
               onClick={toggleSelectionMode}
@@ -200,7 +218,19 @@ export function Members() {
             <Skeleton className="h-14 w-full" />
           </div>
         ) : filteredMembers.length === 0 ? (
-          <p className="text-sm text-faint italic text-center py-4">{t("members.empty")}</p>
+          <EmptyState
+            icon={Users}
+            title={t("members.empty")}
+            action={
+              <button
+                onClick={() => setAddModalOpen(true)}
+                className="btn-primary inline-flex items-center gap-2"
+              >
+                <Plus size={16} aria-hidden="true" />
+                {t("members.add")}
+              </button>
+            }
+          />
         ) : (
           <ul aria-label={t("a11y.memberList")}>
             {filteredMembers.map((member) => (

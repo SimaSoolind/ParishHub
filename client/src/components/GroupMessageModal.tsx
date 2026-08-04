@@ -60,7 +60,7 @@ export function GroupMessageModal({ members, onClose }: Props) {
               className="p-1 rounded-full row-hover"
               aria-label={t("form.close")}
             >
-              <X size={20} className="text-faint" />
+              <X size={20} className="text-soft" />
             </button>
           </div>
           <p className="text-sm text-faint mb-4">{t("group.subtitle", { n: members.length })}</p>

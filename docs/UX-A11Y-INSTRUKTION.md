@@ -6,6 +6,8 @@ Instruktionen är designad för ADHD- och dyslexi-vänligt arbete: ett steg per 
 
 Uppdaterad: 2026-08-03
 
+**✅ STATUS: Alla 10 steg klara.** Steg 1–9 (3 aug 2026), Steg 10 inställbar textstorlek (4 aug 2026).
+
 ---
 
 ## Så här läser du instruktionen
@@ -472,6 +474,118 @@ Tab genom hela appen — se en tydlig kopparfärgad ring runt varje fokuserat el
 
 ---
 
+## Steg 10: Inställbar textstorlek
+
+**Tid:** 25 min
+**Prioritet:** Viktig (WCAG 1.4.4)
+
+### VAD
+Knapp-grupp i header för 80 % / 100 % / 120 % / 140 % / 200 % textstorlek.
+Valet sparas i localStorage. Alla text-klasser skalas via en CSS-variabel.
+
+### VARFÖR
+WCAG 1.4.4 kräver att text ska kunna zoomas till 200 % utan att layouten
+bryts. Målgruppen (präster 60+) har ofta nedsatt syn — bättre läsbarhet
+utan att behöva zooma hela webbläsaren.
+
+### HUR
+
+**Steg A — Skapa `client/src/hooks/useFontScale.ts`** (samma mönster som `useTheme`):
+
+```ts
+// useFontScale — halter valfri textstorlek (font-scale) och sparar i localStorage
+// Anvander CSS-variabeln --font-scale som multipliceras med alla text-storlekar
+//
+// Anvands av: Layout.tsx (skalvaljaren) och hela appen via CSS
+
+import { useState, useEffect } from "react"
+
+// Tillatna varden — begransar vad som kan sparas i localStorage (sakerhet)
+export type FontScale = 0.8 | 1 | 1.2 | 1.4 | 2
+
+const STORAGE_KEY = "parishhub.fontScale"
+
+// Lasar sparad skala fran localStorage och validerar den i runtime
+// Returnerar 1 (100 %) om inget sparat eller ogiltig varde
+function readStoredScale(): FontScale {
+  const raw: unknown = localStorage.getItem(STORAGE_KEY)
+  if (raw === "0.8" || raw === "1" || raw === "1.2" || raw === "1.4" || raw === "2") {
+    return Number(raw) as FontScale
+  }
+  return 1
+}
+
+// Hook som halter font-scale i state och synkar med DOM + localStorage
+// Returnerar aktuell skala och en setter-funktion
+export function useFontScale() {
+  const [scale, setScale] = useState<FontScale>(readStoredScale)
+
+  // Uppdaterar CSS-variabeln pa root-elementet nar skalan andras
+  // Alla text-*-klasser i index.css ganger med denna variabel
+  useEffect(() => {
+    document.documentElement.style.setProperty("--font-scale", String(scale))
+    localStorage.setItem(STORAGE_KEY, String(scale))
+  }, [scale])
+
+  return { scale, setScale }
+}
+```
+
+**Steg B — Lägg till CSS-variabel i `client/src/index.css`:**
+
+```css
+:root {
+  /* Font-scale multipliceras med alla text-storlekar for inställbar text */
+  --font-scale: 1;
+}
+
+/* Skalar alla text-*-klasser via en central CSS-variabel */
+html {
+  font-size: calc(16px * var(--font-scale));
+}
+```
+
+**Steg C — Lägg till knapp-grupp i `Layout.tsx`:**
+
+```tsx
+import { useFontScale, type FontScale } from "../hooks/useFontScale"
+import { Type } from "lucide-react"
+
+const { scale, setScale } = useFontScale()
+
+// De tillatna skalvardena i ordning
+const scales: FontScale[] = [0.8, 1, 1.2, 1.4, 2]
+
+// Bland tema-knappen och sprakvaljaren:
+<div className="flex items-center gap-1">
+  <Type size={16} aria-hidden="true" className="text-faint" />
+  {scales.map((s) => (
+    <button
+      key={s}
+      onClick={() => setScale(s)}
+      aria-pressed={scale === s}
+      aria-label={t("a11y.fontScale") + " " + Math.round(s * 100) + "%"}
+      className={
+        "px-2 py-1 rounded text-xs " +
+        (scale === s ? "bg-amber-800 text-white" : "text-faint hover-accent")
+      }
+    >
+      {Math.round(s * 100)}%
+    </button>
+  ))}
+</div>
+```
+
+Lägg till nyckel `a11y.fontScale` i `locales/sv.ts` och `locales/ar.ts`.
+
+### VERIFIERA
+1. Öppna appen → klicka "200 %" → text ska dubblas
+2. Layout ska inte brytas (kort ska växa vertikalt, inte överlappa)
+3. Ladda om sidan → valet ska sparas
+4. Chrome DevTools → Lighthouse Accessibility → 1.4.4-check ska passera
+
+---
+
 ## Sammanfattning
 
 | # | Steg | Tid | Prioritet |
@@ -485,8 +599,9 @@ Tab genom hela appen — se en tydlig kopparfärgad ring runt varje fokuserat el
 | 7 | Skeleton-komponenter | 30 min | Rekommenderad |
 | 8 | @axe-core/react | 15 min | Rekommenderad |
 | 9 | Focus-visible i Tailwind | 20 min | Rekommenderad |
+| 10 | Inställbar textstorlek | 25 min | Viktig (WCAG 1.4.4) |
 
-**Total tid:** ungefär 3-4 arbetstimmar, uppdelat i 9 sessioner.
+**Total tid:** ungefär 3-4 arbetstimmar, uppdelat i 10 sessioner.
 
 ---
 
@@ -508,6 +623,9 @@ Tab genom hela appen — se en tydlig kopparfärgad ring runt varje fokuserat el
 - Steg 6: Toast-notiser
 - Steg 7: Skeleton-komponenter
 - Steg 9: Focus-visible
+
+**Dag 5 — Läsbarhet (WCAG 1.4.4)**
+- Steg 10: Inställbar textstorlek
 
 ---
 

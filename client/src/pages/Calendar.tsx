@@ -14,6 +14,7 @@ import { sv } from "date-fns/locale"
 import { RefreshCw, Plus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
+import { logError } from "../lib/errorHandler"
 import { EventModal } from "../components/EventModal"
 import type { ModalEvent } from "../components/EventModal"
 import { AddEventModal } from "../components/AddEventModal"
@@ -71,10 +72,16 @@ export function Calendar() {
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null)
 
   // Körs när prästen sparar ett nytt event — repositoryt skapar id:t
-  const handleAddEvent = (newEvent: NewEventData) => {
-    addEvent(newEvent)
-    setAddModalOpen(false)
-    toast.success(t("common.added"))
+  const handleAddEvent = async (newEvent: NewEventData) => {
+    try {
+      await addEvent(newEvent)
+      setAddModalOpen(false)
+      toast.success(t("common.added"))
+    } catch (error) {
+      // Loggar internt och visar ett generellt fel — aldrig interna detaljer
+      logError("Calendar.handleAddEvent", error)
+      toast.error(t("common.errorGeneric"))
+    }
   }
 
   // Körs när prästen klickar på en dag i kalendern
@@ -85,18 +92,28 @@ export function Calendar() {
   }
 
   // Körs när prästen sparar en ändring — uppdaterar eventet med samma id
-  const handleUpdateEvent = (updated: NewEventData) => {
+  const handleUpdateEvent = async (updated: NewEventData) => {
     if (!editingEvent) return
-    updateEvent(editingEvent.id, updated)
-    setEditingEvent(null)
-    toast.success(t("common.updated"))
+    try {
+      await updateEvent(editingEvent.id, updated)
+      setEditingEvent(null)
+      toast.success(t("common.updated"))
+    } catch (error) {
+      logError("Calendar.handleUpdateEvent", error)
+      toast.error(t("common.errorGeneric"))
+    }
   }
 
   // Tar bort eventet med angivet id
-  const handleDeleteEvent = (id: string) => {
-    removeEvent(id)
-    setSelectedEvent(null)
-    toast.success(t("common.removed"))
+  const handleDeleteEvent = async (id: string) => {
+    try {
+      await removeEvent(id)
+      setSelectedEvent(null)
+      toast.success(t("common.removed"))
+    } catch (error) {
+      logError("Calendar.handleDeleteEvent", error)
+      toast.error(t("common.errorGeneric"))
+    }
   }
 
   // Öppnar redigeringsformuläret förifyllt med det valda eventet
@@ -118,7 +135,7 @@ export function Calendar() {
   return (
     <>
       <header>
-        <h1 className="text-3xl font-bold text-strong mb-2">{t("calendar.title")}</h1>
+        <h1 className="text-4xl font-serif font-bold text-strong mb-2">{t("calendar.title")}</h1>
         <p className="text-soft mb-6">{t("calendar.subtitle")}</p>
       </header>
 

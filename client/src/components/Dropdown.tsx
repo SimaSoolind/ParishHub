@@ -69,7 +69,7 @@ export function Dropdown({ value, options, onChange, ariaLabel }: Props) {
         className="field flex items-center justify-between text-left"
       >
         <span>{selected?.label ?? ""}</span>
-        <ChevronDown size={16} className="text-faint" />
+        <ChevronDown size={16} className="text-soft" />
       </button>
 
       {/* Listan visas bara när open är sant */}

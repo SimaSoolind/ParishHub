@@ -26,7 +26,7 @@ AI-tolkning live på svenska + arabiska.
 - Node.js + Express + TypeScript
 - PostgreSQL via Prisma ORM
 - JWT + bcrypt — säker inloggning
-- Deepgram — live speech-to-text
+- Speechmatics — live speech-to-text
 - DeepL — arabisk→svensk översättning (AI-tolkning live)
 
 ### Hosting
@@ -174,7 +174,7 @@ Kärnregler:
 ### Hemligheter och nycklar
 - API-nycklar ALDRIG i koden — bara i .env på servern
 - .env får ALDRIG committas (ligger i .gitignore)
-- Frontend får ALDRIG se Deepgram- eller DeepL-nycklar — anropas via egen backend
+- Frontend får ALDRIG se Speechmatics- eller DeepL-nycklar — anropas via egen backend
 - Ingen `dangerouslyAllowBrowser: true`
 - Separata nycklar per miljö (dev/prod), rotera vid läcka
 

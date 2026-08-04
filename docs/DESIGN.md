@@ -81,7 +81,7 @@ vad som är byggt i den riktiga appen.
 | 2 | Komponenter | 🎨 design | Knappar, badges, language switcher |
 | 3 | **Dashboard** | ✅ byggd | Hälsning, statistik, födelsedagar, kontaktlista |
 | 4 | **Medlemmar** | ✅ byggd | Sök + filter, medlemslista |
-| 5 | Gudstjänst | 🔜 planerad | Närvaro (närv/från), start av AI-tolkning live |
+| 5 | **Gudstjänst** | ✅ byggd | Skapa gudstjänst, närvaro-avprickning, frånvaro-orsak, kontaktstatus |
 | 6 | Kommunikation | 🔜 planerad | SMS, gruppmeddelande, mallar, mottagare |
 | 7 | Planering | 🔜 planerad | Gudstjänstplanering med sektioner och roller (präst/diakon) |
 | 8 | Predikan | 🔜 planerad | Predikanarkiv, AI-transkription, redigering, YouTube-länk |

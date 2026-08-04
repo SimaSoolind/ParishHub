@@ -39,11 +39,18 @@ export function useServices() {
     setServices(await repository.getAll())
   }
 
+  // Tar bort en gudstjänst och läser om listorna (även närvaron påverkas)
+  const removeService = async (id: string) => {
+    await repository.remove(id)
+    setServices(await repository.getAll())
+    setAttendance(await repository.getAttendance())
+  }
+
   // Sparar närvaron för en gudstjänst
   const saveAttendance = async (serviceId: string, records: Attendance[]) => {
     await repository.saveAttendance(serviceId, records)
     setAttendance(await repository.getAttendance())
   }
 
-  return { services, attendance, loading, addService, saveNote, saveAttendance }
+  return { services, attendance, loading, addService, saveNote, saveAttendance, removeService }
 }

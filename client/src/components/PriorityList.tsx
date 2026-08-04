@@ -5,7 +5,8 @@
 // Används av: Dashboard.tsx
 // Bygger på: Badge (visar status med färg)
 
-import { PhoneCall } from "lucide-react"
+import { PhoneCall, AlertCircle, PhoneOutgoing, CheckCircle2 } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Badge } from "./Badge"
 import type { Contact, ContactStatus } from "../domain/contact"
@@ -14,12 +15,16 @@ interface Props {
   contacts: Contact[]
 }
 
-// Kopplar varje status till färg och en översättnings-nyckel för Badge
+// Kopplar varje status till färg, ikon och en översättnings-nyckel för Badge
+// Ikonen gör statusen läsbar även för färgblinda (inte bara färg)
 // Ligger utanför komponenten för att slippa återskapa vid varje rendering
-const statusInfo: Record<ContactStatus, { color: "red" | "amber" | "green"; key: string }> = {
-  "not-contacted": { color: "red", key: "notContacted" },
-  attempted: { color: "amber", key: "attempted" },
-  answered: { color: "green", key: "answered" },
+const statusInfo: Record<
+  ContactStatus,
+  { color: "red" | "amber" | "green"; key: string; Icon: LucideIcon }
+> = {
+  "not-contacted": { color: "red", key: "notContacted", Icon: AlertCircle },
+  attempted: { color: "amber", key: "attempted", Icon: PhoneOutgoing },
+  answered: { color: "green", key: "answered", Icon: CheckCircle2 },
 }
 
 // Ritar en lista med kontakter, en rad per person
@@ -48,7 +53,10 @@ export function PriorityList({ contacts }: Props) {
               </div>
 
               <div className="flex items-center gap-3">
-                <Badge color={status.color}>{t("priority.status." + status.key)}</Badge>
+                <Badge color={status.color}>
+                  <status.Icon size={12} aria-hidden="true" />
+                  {t("priority.status." + status.key)}
+                </Badge>
 
                 <a
                   href={"tel:" + contact.phone}

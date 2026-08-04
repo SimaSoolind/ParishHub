@@ -17,8 +17,8 @@ ParishHub är en monorepo med två delar som pratar med varandra:
 1. Prästen trycker "Starta tolkning" i klienten
 2. Klienten öppnar WebSocket-anslutning till servern
 3. Klienten skickar mikrofon-ljud i realtid
-4. Servern vidarebefordrar ljudet till Deepgram
-5. Deepgram skickar arabisk text tillbaka (~300 ms latens)
+4. Servern vidarebefordrar ljudet till Speechmatics
+5. Speechmatics skickar arabisk text tillbaka (~150 ms latens)
 6. Servern skickar arabisk text till DeepL för översättning
 7. Servern skickar BÅDA texterna (arabisk + svensk) till alla skärm-klienter
 8. Kyrkans projektor visar båda texterna
@@ -31,10 +31,12 @@ ParishHub är en monorepo med två delar som pratar med varandra:
 - PostgreSQL har starkare stöd för GDPR (radera + spåra samtycke)
 - Prisma ORM ger säkra TypeScript-typer automatiskt
 
-### Varför Deepgram istället för OpenAI Whisper?
-- Deepgram har **äkta live-streaming** via WebSocket
-- Fördröjning ~300 ms mot Whisper ~3-5 sek
-- Billigare per minut
+### Varför Speechmatics istället för Deepgram/Whisper?
+- **96 % noggrannhet** för arabiska — högst av jämförda leverantörer
+- **<150 ms latens** i realtid via WebSocket
+- Stöd för MSA (Modern Standard Arabic) + dialekter (Egyptian, Gulf, Levantine, Maghrebi) + koptiska inslag
+- Utmärkt kodväxlings-stöd (viktigt när prästen växlar mellan arabiska och koptiska under gudstjänsten)
+- Se detaljerad jämförelse i `docs/AI-TOLKNING-RAPPORT.md` avsnitt 7
 
 ### Varför DeepL istället för OpenAI för översättning?
 - DeepL är specialiserad på europeiska språk
@@ -49,7 +51,7 @@ ParishHub är en monorepo med två delar som pratar med varandra:
 ## Beroenden (externa tjänster)
 
 - **PostgreSQL** — Databas (Railway)
-- **Deepgram Nova-2** — Live speech-to-text för arabiska
+- **Speechmatics** — Live speech-to-text för arabiska (MSA + dialekter + koptiska inslag)
 - **DeepL API** — Arabisk → svensk översättning
 - **Vercel** — Hosting för frontend
 - **Railway** — Hosting för backend + databas

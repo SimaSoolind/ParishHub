@@ -76,7 +76,7 @@ function MemberCardBase({
             </span>
             <span>{t("members.birthdayLabel", { date: member.birthday })}</span>
           </div>
-          <div className="flex items-center gap-1 text-xs text-stone-400 mt-1 dark:text-stone-500">
+          <div className="flex items-center gap-1 text-xs text-faint mt-1">
             <MapPin size={12} />
             {member.address}
           </div>

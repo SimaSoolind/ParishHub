@@ -12,7 +12,7 @@ Skriven på lätt svenska. Kod och identifierare på engelska.
 ParishHub hanterar två känsliga saker:
 
 1. **Medlemsregister = personuppgifter** → GDPR gäller (namn, telefon, e-post, familj).
-2. **AI-nycklar** (Deepgram, DeepL) → kostar pengar och får aldrig läcka.
+2. **AI-nycklar** (Speechmatics, DeepL) → kostar pengar och får aldrig läcka.
 
 Om nycklar läcker kan någon annan använda dem på din faktura. Om medlemsdata läcker
 är det ett GDPR-brott. Därför är säkerhet inte valfritt i detta projekt.
@@ -24,7 +24,7 @@ Om nycklar läcker kan någon annan använda dem på din faktura. Om medlemsdata
 - Alla nycklar ligger i `.env` på servern — aldrig i koden, aldrig i frontend.
 - `.env` ligger i `.gitignore` och committas ALDRIG. Committa istället `.env.example`
   med tomma värden så andra vet vilka variabler som behövs.
-- Frontend anropar ALDRIG Deepgram/DeepL direkt. Frontend anropar din egen backend,
+- Frontend anropar ALDRIG Speechmatics/DeepL direkt. Frontend anropar din egen backend,
   som i sin tur anropar tjänsten med nyckeln. Nyckeln lämnar aldrig servern.
 - Separata nycklar för utveckling och produktion.
 - Rotera (byt) nyckeln direkt om den läcker.
@@ -198,7 +198,7 @@ function errorHandler(err, req, res, next) {
 
 ---
 
-## 9. Externa anrop (Deepgram, DeepL, coptic.io)
+## 9. Externa anrop (Speechmatics, DeepL, coptic.io)
 
 - Samla alla externa anrop i `server/src/api/` (eller `services/`) med try/catch.
 - Använd återförsök med exponentiell backoff + jitter vid tillfälliga fel.

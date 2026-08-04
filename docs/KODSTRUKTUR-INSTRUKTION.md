@@ -8,6 +8,8 @@ ett steg per session, korta stycken, konkreta filnamn och kodexempel.
 
 Uppdaterad: 2026-08-03
 
+**✅ STATUS: Alla 5 steg klara (3 aug 2026).** Kvar (valfritt): konvertera resten av importerna till aliases, filvis.
+
 ---
 
 ## Så här läser du instruktionen
@@ -451,6 +453,306 @@ Lägg till en TODO i `ROADMAP.md` under "Fas 2 — Smartare funktioner":
 
 ---
 
+## Steg 6: ErrorBase-klass-mönster
+
+**Tid:** 20 min
+**Prioritet:** Viktig
+
+### VAD
+Skapa `client/src/lib/errors.ts` med basklass `AppError` + specialiserade
+underklasser: `ValidationError`, `NetworkError`, `AuthError`.
+
+### VARFÖR
+Idag fångas fel som `unknown` i alla try/catch — inget sätt att veta VILKEN
+sorts fel det är. Med ErrorBase-mönstret kan koden göra `instanceof`-kontroll
+och behandla nätverksfel annorlunda än valideringsfel.
+
+### HUR
+
+Skapa `client/src/lib/errors.ts`:
+
+```ts
+// errors — samlade felklasser for typsaker felhantering
+// Basklass AppError + specialiserade underklasser
+// Anvands i lib/api.ts, hooks och komponenter dar fel behover behandlas per typ
+
+// Basklass for alla appspecifika fel — gor instanceof-check mojlig
+export class AppError extends Error {
+  constructor(message: string) {
+    super(message)
+    // Sattet name till klassens namn — annars visar Chrome bara "Error"
+    this.name = this.constructor.name
+  }
+}
+
+// Kastas nar Zod-validering misslyckas eller data har fel form
+export class ValidationError extends AppError {
+  constructor(message: string, public field?: string) {
+    super(message)
+  }
+}
+
+// Kastas vid natverksfel — timeout, offline, felkoder
+export class NetworkError extends AppError {
+  constructor(message: string, public status?: number) {
+    super(message)
+  }
+}
+
+// Kastas vid autentiseringsfel — 401, saknad token, utgangen session
+export class AuthError extends AppError {
+  constructor(message: string) {
+    super(message)
+  }
+}
+```
+
+Använd i `lib/api.ts`:
+
+Före:
+```ts
+if (!response.ok) {
+  throw new Error(`Anropet misslyckades (status ${response.status})`)
+}
+```
+
+Efter:
+```ts
+import { NetworkError } from "./errors"
+
+if (!response.ok) {
+  // Kastar en typad felklass sa anroparen kan reagera specifikt
+  throw new NetworkError(`Anropet misslyckades`, response.status)
+}
+```
+
+I komponenten som anropar:
+
+```tsx
+import { NetworkError, ValidationError } from "../lib/errors"
+
+try {
+  await memberRepository.add(newMember)
+} catch (error) {
+  // Typsaker check pa fel-klass — reagera per typ
+  if (error instanceof NetworkError) {
+    toast.error(t("common.errorNetwork"))
+  } else if (error instanceof ValidationError) {
+    toast.error(t("common.errorValidation"))
+  } else {
+    toast.error(t("common.errorGeneric"))
+  }
+}
+```
+
+### VERIFIERA
+1. `npx tsc -p tsconfig.app.json --noEmit` — grönt
+2. Simulera nätverksfel (Chrome DevTools → Offline) → se att `NetworkError`-toasten visas
+3. Fånga med `instanceof NetworkError` — kompilator ska INTE varna för `unknown`
+
+---
+
+## Steg 7: Semgrep SAST i CI
+
+**Tid:** 15 min
+**Prioritet:** Rekommenderad
+
+### VAD
+Lägg till Semgrep community rules i `.github/workflows/ci.yml`.
+
+### VARFÖR
+Semgrep är en SAST-scanner (Static Application Security Testing) som fångar
+säkerhetsmönster ESLint missar: hårdkodade tokens, osäker deserialisering,
+farliga regex (ReDoS), XSS-mönster, hemligheter i koden.
+
+Gratis för publika repon.
+
+### HUR
+
+Uppdatera `.github/workflows/ci.yml` — lägg till efter befintlig audit-step:
+
+```yaml
+      - name: Semgrep säkerhetsanalys
+        uses: returntocorp/semgrep-action@v1
+        with:
+          # Anvander community-regler for React, TypeScript och sakerhet
+          config: >-
+            p/react
+            p/typescript
+            p/security-audit
+```
+
+### VERIFIERA
+1. Skapa PR med testkod som har hårdkodad token (t.ex.
+   `const API_KEY = "sk-abc123"`)
+2. CI-jobbet ska fånga det och markera PR-varning
+3. Ta bort testkoden — CI ska bli grönt igen
+
+---
+
+## Steg 8: Lighthouse CI
+
+**Tid:** 20 min
+**Prioritet:** Rekommenderad
+
+### VAD
+Installera `@lhci/cli` + config-fil + CI-steg som mäter a11y, prestanda,
+SEO och best practices per PR.
+
+### VARFÖR
+Automatisk kvalitetsmätning — inga regressioner slinker in obemärkta.
+Sätter budget: PR fails om accessibility-score sjunker under 90.
+
+### HUR
+
+**Steg A — Installera:**
+
+```bash
+cd client && npm install --save-dev @lhci/cli
+```
+
+**Steg B — Skapa `client/lighthouserc.json`:**
+
+```json
+{
+  "ci": {
+    "collect": {
+      "url": ["http://localhost:5173"],
+      "startServerCommand": "npm run preview",
+      "numberOfRuns": 3
+    },
+    "assert": {
+      "assertions": {
+        "categories:accessibility": ["error", { "minScore": 0.9 }],
+        "categories:performance": ["warn", { "minScore": 0.8 }],
+        "categories:best-practices": ["warn", { "minScore": 0.9 }],
+        "categories:seo": ["warn", { "minScore": 0.8 }]
+      }
+    }
+  }
+}
+```
+
+**Steg C — Lägg till i `.github/workflows/ci.yml`:**
+
+```yaml
+      - name: Bygg for Lighthouse
+        run: npm run build
+
+      - name: Lighthouse CI
+        run: npx lhci autorun
+```
+
+### VERIFIERA
+- Lokalt: `cd client && npx lhci autorun` → rapport i konsolen
+- I CI: PR-checks visar Lighthouse-score
+
+---
+
+## Steg 9: Snyk CLI för sårbarhetsscanning
+
+**Tid:** 15 min
+**Prioritet:** Rekommenderad
+
+### VAD
+Registrera gratis Snyk-konto + installera CLI + lägg till i CI.
+
+### VARFÖR
+`npm audit` är bra men Snyk har bättre sårbarhetsdatabas och föreslår
+konkreta fix-versioner. **Gratis för ensam utvecklare / publikt repo**:
+200 open-source-tester/månad, obegränsat för egna repon.
+
+### HUR
+
+**Steg A — Registrera konto och installera:**
+
+1. Skapa gratis konto på https://snyk.io
+2. `npm install -g snyk`
+3. `snyk auth` (öppnar webbläsare för login)
+
+**Steg B — Testa lokalt:**
+
+```bash
+cd client && snyk test --severity-threshold=high
+```
+
+Visar sårbara paket + fix-förslag.
+
+**Steg C — Lägg till i CI (`.github/workflows/ci.yml`):**
+
+```yaml
+      - name: Snyk sårbarhets-scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          # SNYK_TOKEN sparas som repository secret i GitHub-installningar
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+```
+
+**Steg D — Lägg SNYK_TOKEN som secret:**
+GitHub repo → Settings → Secrets → Actions → New secret → SNYK_TOKEN.
+Token hämtas från snyk.io → Account Settings.
+
+### VERIFIERA
+- `snyk test` lokalt → rapport med sårbara paket och fix-versioner
+- I CI: PR-checks visar Snyk-status
+
+---
+
+## Steg 10: Sentry — framtida-påminnelse (installera först vid prod-deploy)
+
+**Tid:** 0 min nu — 30 min när det behövs
+**Prioritet:** Rekommenderad (framtida)
+
+### VAD
+Sentry är strukturerad felövervakning i produktion. Fångar runtime-fel som
+händer hos användare + skickar stack traces + kontext till en dashboard.
+
+### VARFÖR INTE NU?
+Sentry blir meningsfullt när:
+- Backend finns (v.5-8)
+- Appen är deployad till Vercel/Railway
+- Riktiga användare kör den
+
+I utvecklingsläge räcker `ErrorBoundary` + `console.error` — Sentry lägger
+bara till overhead och kräver kontrouppsättning.
+
+### NÄR SKA DET AKTIVERAS?
+Efter första produktions-deploy. Lägg TODO i ROADMAP under Fas 3.
+
+### HUR (när dagen kommer)
+
+```bash
+cd client && npm install @sentry/react
+```
+
+I `main.tsx`:
+
+```tsx
+import * as Sentry from "@sentry/react"
+
+// Initialiseras bara i produktion — utvecklingslage anvander ErrorBoundary + console
+if (import.meta.env.PROD) {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    environment: import.meta.env.MODE,
+    // Skickar bara 10 % av transaktionerna for att halla kostnaden nere
+    tracesSampleRate: 0.1,
+  })
+}
+```
+
+`DSN` (Data Source Name) skapas i Sentry-dashboarden. Läggs i `.env`
+som `VITE_SENTRY_DSN` — aldrig committas.
+
+### KOMMANDE PÅMINNELSE
+Lägg till TODO i `ROADMAP.md` under "Fas 3 — Avancerat":
+`- Sentry när prod-deploy sker (felövervakning + source maps upload)`
+
+---
+
 ## Sammanfattning
 
 | # | Steg | Tid | Prioritet |
@@ -460,8 +762,13 @@ Lägg till en TODO i `ROADMAP.md` under "Fas 2 — Smartare funktioner":
 | 3 | useCallback för handlers till memo-barn | 15 min | Rekommenderad |
 | 4 | lazy() + Suspense för Members/Calendar/Services/DesignPreview | 25 min | Viktig |
 | 5 | DOMPurify — bara påminnelse i ROADMAP | 0 min | Rekommenderad (framtida) |
+| 6 | ErrorBase-klass-mönster (`lib/errors.ts`) | 20 min | Viktig |
+| 7 | Semgrep SAST i CI | 15 min | Rekommenderad |
+| 8 | Lighthouse CI (a11y + prestanda budget) | 20 min | Rekommenderad |
+| 9 | Snyk CLI för sårbarhetsscanning | 15 min | Rekommenderad |
+| 10 | Sentry — bara påminnelse i ROADMAP | 0 min | Rekommenderad (framtida) |
 
-**Total tid:** ungefär 90 min, uppdelat i 4-5 sessioner.
+**Total tid:** ungefär 160 min, uppdelat i 6-7 sessioner.
 
 ---
 
@@ -479,6 +786,17 @@ Lägg till en TODO i `ROADMAP.md` under "Fas 2 — Smartare funktioner":
 
 **Session 4 — Framtidssäkring (5 min)**
 - Steg 5: Lägg TODO för DOMPurify i ROADMAP.md
+- Steg 10: Lägg TODO för Sentry i ROADMAP.md
+
+**Session 5 — Felhantering (20 min)**
+- Steg 6: ErrorBase-klass-mönster
+
+**Session 6 — Säkerhet i CI (30 min)**
+- Steg 7: Semgrep
+- Steg 9: Snyk
+
+**Session 7 — Kvalitetsmätning (20 min)**
+- Steg 8: Lighthouse CI
 
 ---
 

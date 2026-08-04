@@ -6,7 +6,7 @@
 // Används av: Members.tsx
 
 import { useState, useEffect, useRef } from "react"
-import { X, Upload, Camera } from "lucide-react"
+import { X, Upload, Camera, ChevronDown, ChevronUp } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { FocusTrap } from "focus-trap-react"
 import type { MemberCategory, NewMemberData } from "../domain/member"
@@ -47,6 +47,9 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
   // Håller felmeddelanden per fält från valideringen
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  // Sant när de valfria fälten visas — vid redigering visas de direkt
+  const [showMoreFields, setShowMoreFields] = useState(isEdit)
+
   // Referens till det dolda fil-fältet (öppnas via Välj bild-knappen)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -85,6 +88,19 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
       for (const issue of result.error.issues) {
         const field = String(issue.path[0])
         if (!fieldErrors[field]) fieldErrors[field] = issue.message
+      }
+      // Expanderar de valfria fälten om felet ligger på ett dolt fält (så felet syns)
+      const optionalFields = [
+        "email",
+        "address",
+        "familySize",
+        "birthday",
+        "category",
+        "photoUrl",
+        "notes",
+      ]
+      if (Object.keys(fieldErrors).some((f) => optionalFields.includes(f))) {
+        setShowMoreFields(true)
       }
       setErrors(fieldErrors)
       return
@@ -139,7 +155,7 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
               className="p-1 rounded-full row-hover"
               aria-label={t("form.close")}
             >
-              <X size={20} className="text-faint" />
+              <X size={20} className="text-soft" />
             </button>
           </div>
 
@@ -162,6 +178,7 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
               <label className="field-label">{t("form.phone")}</label>
               <input
                 type="tel"
+                inputMode="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder={t("form.phPhone")}
@@ -170,138 +187,155 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
               {errors["phone"] && <p className="field-error">{errors["phone"]}</p>}
             </div>
 
-            {/* E-post-fält */}
-            <div className="mb-4">
-              <label className="field-label">{t("form.email")}</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t("form.phEmail")}
-                className="field"
-              />
-              {errors["email"] && <p className="field-error">{errors["email"]}</p>}
-            </div>
+            {/* Visa/dölj valfria fält — gör det snabbt att lägga till med bara namn + telefon */}
+            <button
+              type="button"
+              onClick={() => setShowMoreFields((v) => !v)}
+              aria-expanded={showMoreFields}
+              className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-accent hover:underline"
+            >
+              {showMoreFields ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              {showMoreFields ? t("form.hideMore") : t("form.showMore")}
+            </button>
 
-            {/* Adress-fält */}
-            <div className="mb-4">
-              <label className="field-label">{t("form.address")}</label>
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder={t("form.phAddress")}
-                className="field"
-              />
-              {errors["address"] && <p className="field-error">{errors["address"]}</p>}
-            </div>
-
-            {/* Familjestorlek och födelsedag bredvid varandra */}
-            <div className="flex gap-3 mb-4">
-              <div className="flex-1">
-                <label className="field-label">{t("form.familySize")}</label>
-                <input
-                  type="number"
-                  min={1}
-                  value={familySize}
-                  onChange={(e) => setFamilySize(e.target.value)}
-                  className="field"
-                />
-                {errors["familySize"] && <p className="field-error">{errors["familySize"]}</p>}
-              </div>
-              <div className="flex-1">
-                <label className="field-label">{t("form.birthday")}</label>
-                <input
-                  type="text"
-                  value={birthday}
-                  onChange={(e) => setBirthday(e.target.value)}
-                  placeholder={t("form.phBirthday")}
-                  className="field"
-                />
-                {errors["birthday"] && <p className="field-error">{errors["birthday"]}</p>}
-              </div>
-            </div>
-
-            {/* Kategori-dropdown */}
-            <div className="mb-4">
-              <label className="field-label">{t("form.category")}</label>
-              <Dropdown
-                value={category}
-                onChange={(value) => setCategory(value as MemberCategory)}
-                ariaLabel={t("form.category")}
-                options={categoryOptions.map((value) => ({
-                  value,
-                  label: t("members.filter." + value),
-                }))}
-              />
-            </div>
-
-            {/* Profilbild — välj fil eller klistra in en länk (annars visas initialer) */}
-            <div className="mb-4">
-              <label className="field-label">{t("form.photoUrl")}</label>
-              <div className="flex items-center gap-3 mb-2">
-                {/* Förhandsvisning: bilden om den finns, annars initialer */}
-                <Avatar name={name} photoUrl={photoUrl.trim() || undefined} size="lg" />
-                <div className="flex flex-col items-start gap-1">
-                  {/* Ta foto — öppnar kameran på mobil/surfplatta */}
-                  <button
-                    type="button"
-                    onClick={() => cameraInputRef.current?.click()}
-                    className="flex items-center gap-2 px-3 py-1.5 btn-secondary text-soft text-sm"
-                  >
-                    <Camera size={14} />
-                    {t("form.takePhoto")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-2 px-3 py-1.5 btn-secondary text-soft text-sm"
-                  >
-                    <Upload size={14} />
-                    {t("form.choosePhoto")}
-                  </button>
-                  {photoUrl && (
-                    <button
-                      type="button"
-                      onClick={() => setPhotoUrl("")}
-                      className="text-xs text-red-600 hover:underline dark:text-red-400"
-                    >
-                      {t("form.removePhoto")}
-                    </button>
-                  )}
+            {showMoreFields && (
+              <>
+                {/* E-post-fält */}
+                <div className="mb-4">
+                  <label className="field-label">{t("form.email")}</label>
+                  <input
+                    type="email"
+                    inputMode="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t("form.phEmail")}
+                    className="field"
+                  />
+                  {errors["email"] && <p className="field-error">{errors["email"]}</p>}
                 </div>
-              </div>
-              {/* Dolt fil-fält — öppnas av Välj bild-knappen */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFile}
-                className="hidden"
-              />
-              {/* Dolt kamera-fält — capture öppnar kameran på mobil/surfplatta */}
-              <input
-                ref={cameraInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handleFile}
-                className="hidden"
-              />
-              {errors["photoUrl"] && <p className="field-error">{errors["photoUrl"]}</p>}
-            </div>
 
-            {/* Anteckningar — valfritt fält */}
-            <div className="mb-6">
-              <label className="field-label">{t("form.notesOptional")}</label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder={t("form.phNotes")}
-                rows={2}
-                className="field resize-none"
-              />
-            </div>
+                {/* Adress-fält */}
+                <div className="mb-4">
+                  <label className="field-label">{t("form.address")}</label>
+                  <input
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder={t("form.phAddress")}
+                    className="field"
+                  />
+                  {errors["address"] && <p className="field-error">{errors["address"]}</p>}
+                </div>
+
+                {/* Familjestorlek och födelsedag bredvid varandra */}
+                <div className="flex gap-3 mb-4">
+                  <div className="flex-1">
+                    <label className="field-label">{t("form.familySize")}</label>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      value={familySize}
+                      onChange={(e) => setFamilySize(e.target.value)}
+                      className="field"
+                    />
+                    {errors["familySize"] && <p className="field-error">{errors["familySize"]}</p>}
+                  </div>
+                  <div className="flex-1">
+                    <label className="field-label">{t("form.birthday")}</label>
+                    <input
+                      type="text"
+                      value={birthday}
+                      onChange={(e) => setBirthday(e.target.value)}
+                      placeholder={t("form.phBirthday")}
+                      className="field"
+                    />
+                    {errors["birthday"] && <p className="field-error">{errors["birthday"]}</p>}
+                  </div>
+                </div>
+
+                {/* Kategori-dropdown */}
+                <div className="mb-4">
+                  <label className="field-label">{t("form.category")}</label>
+                  <Dropdown
+                    value={category}
+                    onChange={(value) => setCategory(value as MemberCategory)}
+                    ariaLabel={t("form.category")}
+                    options={categoryOptions.map((value) => ({
+                      value,
+                      label: t("members.filter." + value),
+                    }))}
+                  />
+                </div>
+
+                {/* Profilbild — välj fil eller klistra in en länk (annars visas initialer) */}
+                <div className="mb-4">
+                  <label className="field-label">{t("form.photoUrl")}</label>
+                  <div className="flex items-center gap-3 mb-2">
+                    {/* Förhandsvisning: bilden om den finns, annars initialer */}
+                    <Avatar name={name} photoUrl={photoUrl.trim() || undefined} size="lg" />
+                    <div className="flex flex-col items-start gap-1">
+                      {/* Ta foto — öppnar kameran på mobil/surfplatta */}
+                      <button
+                        type="button"
+                        onClick={() => cameraInputRef.current?.click()}
+                        className="flex items-center gap-2 px-3 py-1.5 btn-secondary text-soft text-sm"
+                      >
+                        <Camera size={14} />
+                        {t("form.takePhoto")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex items-center gap-2 px-3 py-1.5 btn-secondary text-soft text-sm"
+                      >
+                        <Upload size={14} />
+                        {t("form.choosePhoto")}
+                      </button>
+                      {photoUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setPhotoUrl("")}
+                          className="text-xs text-red-600 hover:underline dark:text-red-400"
+                        >
+                          {t("form.removePhoto")}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  {/* Dolt fil-fält — öppnas av Välj bild-knappen */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFile}
+                    className="hidden"
+                  />
+                  {/* Dolt kamera-fält — capture öppnar kameran på mobil/surfplatta */}
+                  <input
+                    ref={cameraInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleFile}
+                    className="hidden"
+                  />
+                  {errors["photoUrl"] && <p className="field-error">{errors["photoUrl"]}</p>}
+                </div>
+
+                {/* Anteckningar — valfritt fält */}
+                <div className="mb-6">
+                  <label className="field-label">{t("form.notesOptional")}</label>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder={t("form.phNotes")}
+                    rows={2}
+                    className="field resize-none"
+                  />
+                </div>
+              </>
+            )}
 
             {/* Knappar */}
             <div className="flex gap-2">

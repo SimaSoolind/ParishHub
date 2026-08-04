@@ -13,12 +13,12 @@ Kopieras direkt in i CV, LinkedIn eller LIA-portfölj.
 
 ## 🎨 Frontend-utveckling
 
-- Byggde en fullstack-app-frontend med React 18 + Vite + TypeScript i monorepo-struktur
+- Byggde en fullstack-app-frontend med React 19 + Vite + TypeScript i monorepo-struktur
 - Implementerade svensk lokalisering med date-fns för svenska datum-format
 - Byggde återanvändbara UI-komponenter (StatCard, Badge, MemberCard, EventCard) enligt DRY-principen
 - Integrerade Tailwind CSS v4 för konsekvent design och snabb prototypning
 - Implementerade tillgänglighet (a11y) med aria-labels och semantisk HTML
-- Byggde responsiv UI med anpassat mörkt/ljust läge-stöd (planerat)
+- Byggde responsiv UI med mörkt och ljust läge (data-theme-toggle, semantiska Tailwind-klasser, minns valet i localStorage)
 - Konfigurerade React Router v7 med nested routes och Layout-komponent
 
 ## 🔒 Säkerhet & Validering
@@ -45,12 +45,12 @@ Kopieras direkt in i CV, LinkedIn eller LIA-portfölj.
 - Live-hämtning av koptisk-ortodoxa högtider från coptic.io API
 - @tanstack/react-query för professionell datahämtning med caching
 - Förberedde för Google Calendar-integration (backend v.7-8)
-- Förberedde för Deepgram Nova-2 speech-to-text via WebSocket (backend v.8)
+- Förberedde för Speechmatics speech-to-text via WebSocket (backend v.8)
 - Förberedde för DeepL för arabisk→svensk översättning
 
 ## 🧪 Formulär & Validering
 
-- Byggde formulär med react-hook-form + Zod-resolver för minimal boilerplate
+- Byggde formulär med kontrollerade komponenter och Zod-validering (safeParse) för säker input
 - Full CRUD-funktionalitet (Create, Read, Update, Delete) för events
 - E-post-validering med format-kontroll och case-normalisering
 - Telefon-validering med regex för internationella format
@@ -68,7 +68,7 @@ Kopieras direkt in i CV, LinkedIn eller LIA-portfölj.
 
 - **Frontend:** React, Vite, TypeScript, Tailwind CSS v4, React Router v7
 - **State:** React hooks (useState, useEffect, useMemo)
-- **Data:** @tanstack/react-query, Zod, react-hook-form
+- **Data:** @tanstack/react-query, Zod
 - **UI:** lucide-react, react-big-calendar, framer-motion, recharts
 - **Datum:** date-fns med svensk locale
 - **Utveckling:** Git, GitHub, VS Code, npm
@@ -90,8 +90,17 @@ Kopieras direkt in i CV, LinkedIn eller LIA-portfölj.
 |-------|-----------|
 | 22 juli 2026 | Första ParishHub-sidan igång — grundstruktur för monorepo |
 | 23 juli 2026 | Dashboard komplett med statistikkort, födelsedagslista, prioritetslista |
-| 24 juli 2026 | Medlemmar-sidan + Kalender med full CRUD, coptic.io API, Zod, React Query |
-| 25 juli 2026 | AddMemberModal med enterprise-nivå säkerhet (Zod, regex, DoS-skydd, a11y) |
+| 25 juli 2026 | Dashboard klar med custom hooks (useDateTime), Badge, PriorityList och statusMap-mönster |
+| 28 juli 2026 | Kalender med full CRUD, coptic.io API-integration, react-query, Zod, egen CalendarToolbar |
+| 30 juli 2026 | Medlems-CRUD, Gudstjänst-modul med närvaro, ErrorBoundary, säkerhet, första tester och CI-pipeline |
+| 3 augusti 2026 | Tvåspråkighet: hela appen migrerad till svenska + arabiska (i18next + RTL + Cairo-font) |
+| 3 augusti 2026 | Mörkt läge på hela appen — semantiska DRY-klasser, egen Dropdown (native select gick inte att styla) |
+| 3 augusti 2026 | Familjekoppling (familyId) + WhatsApp-integration (buildWhatsAppLink, GroupMessageModal, mallar) |
+| 3 augusti 2026 | Avatar-komponent (initialer i färgcirkel) + profilbild via kamera eller filuppladdning (base64) |
+| 3 augusti 2026 | Clean Architecture på hela appen: domain/repositories/, data/mock/, use-cases/, presentation-hooks |
+| 3 augusti 2026 | Maxad TypeScript (5 extra strict-flaggor) — 57 av 58 typfel åtgärdade, äkta latenta buggar hittade |
+| 3 augusti 2026 | WCAG-plan implementerad: semantiska taggar, focus-trap i modaler, Skeleton, toast (sonner), axe-core, focus-visible |
+| 3 augusti 2026 | Prestanda: React.memo, useCallback, lazy() + Suspense med code-splitting per route, path aliases |
 
 ---
 
@@ -101,7 +110,7 @@ Kopieras direkt in i CV, LinkedIn eller LIA-portfölj.
 > "Byggde fullstack Kyrko-app med React, TypeScript, Zod-validering och externt API"
 
 **Mellanlång version (LinkedIn about):**
-> "Fullstack-utvecklare med säkerhetsinriktning. Bygger ParishHub — ett digitalt system för kyrkoförvaltning med React, TypeScript, Zod-validering, live-API från coptic.io och planerad AI-tolkning via Deepgram. Fokus på ren kod, DRY-principen och a11y."
+> "Fullstack-utvecklare med säkerhetsinriktning. Bygger ParishHub — ett digitalt system för kyrkoförvaltning med React, TypeScript, Zod-validering, live-API från coptic.io och planerad AI-tolkning via Speechmatics. Fokus på ren kod, DRY-principen och a11y."
 
 **Lång version (CV-sektion):**
 > Se punkterna ovan — välj 5-8 relevanta för jobbet.
@@ -114,7 +123,7 @@ När följande blir klart — uppdatera denna fil:
 - Backend-utveckling (Express, REST API)
 - Databas-arkitektur (PostgreSQL, Prisma)
 - Autentisering (JWT, bcrypt, refresh tokens)
-- Realtids-kommunikation (WebSocket, Deepgram)
+- Realtids-kommunikation (WebSocket, Speechmatics)
 - Kryptering (crypto för anteckningar)
 - Deployment (Vercel, Railway)
 - Testing (om vi bygger tester)

@@ -11,6 +11,7 @@ export default {
     members: "Medlemmar",
     calendar: "Kalender",
     services: "Gudstjänster",
+    mobile: "Huvudnavigering",
   },
   greeting: {
     morning: "God morgon",
@@ -64,6 +65,8 @@ export default {
     updated: "Uppdaterat",
     removed: "Borttaget",
     saved: "Sparat",
+    errorGeneric: "Något gick fel. Försök igen.",
+    errorNetwork: "Ingen anslutning. Kontrollera nätet.",
   },
   a11y: {
     statsRegion: "Statistik",
@@ -73,6 +76,7 @@ export default {
     serviceList: "Gudstjänstlista",
     toolbar: "Verktygsrad",
     calendarRegion: "Kalender",
+    fontScale: "Textstorlek {{percent}} procent",
   },
   theme: {
     toDark: "Växla till mörkt läge",
@@ -91,6 +95,8 @@ export default {
     title: "Titel",
     date: "Datum",
     notesOptional: "Anteckningar (frivilligt)",
+    showMore: "Visa fler fält",
+    hideMore: "Dölj fler fält",
     save: "Spara",
     saveEdit: "Spara ändring",
     cancel: "Avbryt",
@@ -187,6 +193,7 @@ export default {
     past: "Tidigare gudstjänster",
     marked: "Avprickad ({{n}} närvarande)",
     notMarked: "Ej avprickad",
+    delete: "Radera gudstjänst",
   },
   serviceForm: {
     title: "Ny gudstjänst",

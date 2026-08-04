@@ -1,8 +1,6 @@
 # Rapport & Handlingsplan: Realtids-AI-tolkning i ParishHub
 
-> Not: Denna rapport rekommenderar Speechmatics för taligenkänning (STT).
-> Projektets övriga dokumentation (CLAUDE.md, README) anger idag Deepgram Nova-2.
-> Beslut om leverantör är ännu inte fastställt — se avsnitt 7.
+> Beslut: Speechmatics valdes 2026-08-03 för dialekter och koptiska inslag. Se ROADMAP milstolpar och CHANGELOG 0.4.0.
 
 ---
 

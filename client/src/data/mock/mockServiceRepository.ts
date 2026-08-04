@@ -30,6 +30,12 @@ export const mockServiceRepository: ServiceRepository = {
     return updated
   },
 
+  // Tar bort en gudstjänst och dess tillhörande närvaro-poster (ingen rest lämnas kvar)
+  async remove(id) {
+    services = services.filter((s) => s.id !== id)
+    attendance = attendance.filter((a) => a.serviceId !== id)
+  },
+
   async getAttendance() {
     return [...attendance]
   },

@@ -55,11 +55,11 @@ Inkluderar AI-tolkning live på svenska och arabiska under gudstjänsten.
 - **Node.js + Express + TypeScript** — REST API
 - **PostgreSQL via Prisma ORM** — relationsdatabas
 - **JWT + bcrypt** — säker inloggning
-- **Deepgram Nova-2** — live speech-to-text
+- **Speechmatics** — live speech-to-text
 - **DeepL** — arabisk→svensk översättning
 
-### Varför Deepgram + DeepL?
-Deepgram är specialiserat på taligenkänning (speech-to-text). DeepL används för
+### Varför Speechmatics + DeepL?
+Speechmatics är specialiserat på taligenkänning (speech-to-text). DeepL används för
 själva översättningen från arabiska till svenska. Båda tjänsterna har hög precision
 och stödjer de språk som behövs.
 
@@ -619,7 +619,7 @@ Appen följer projektets säkerhetsregler (se CLAUDE.md och docs/SECURITY.md):
 ### Lång sikt (v.5-8)
 - PostgreSQL + Prisma
 - JWT-inloggning för prästen
-- Deepgram + WebSocket för AI-tolkning live
+- Speechmatics + WebSocket för AI-tolkning live
 - WhatsApp Business API via backend — äkta grupputskick (skicka till alla valda på en gång, automatiskt)
 
 ### Publiceringsfas

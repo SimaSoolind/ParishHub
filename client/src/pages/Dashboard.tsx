@@ -31,7 +31,7 @@ export function Dashboard() {
   return (
     <>
       <header>
-        <h1 className="text-3xl font-bold text-strong mb-2">
+        <h1 className="text-4xl font-serif font-bold text-strong mb-2">
           {t("dashboard.hello", { greeting: t("greeting." + greetingKey) })}
         </h1>
         <p className="text-soft mb-6">{date}</p>
