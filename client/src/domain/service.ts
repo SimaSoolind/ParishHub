@@ -18,6 +18,7 @@ export type Service = {
   notes?: string | undefined
   feast?: string | undefined // Högtid (t.ex. Fastan, Jul, Påsk) — för planering
   bibleText?: string | undefined // Bibeltexter kopplade till gudstjänsten
+  streamUrl?: string | undefined // YouTube-länk för live-streaming av gudstjänsten
 }
 
 // Närvaro för EN medlem i EN gudstjänst (många-till-många-relation)

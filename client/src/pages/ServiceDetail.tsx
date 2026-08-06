@@ -10,6 +10,7 @@ import { ArrowLeft, Calendar } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useServices } from "../hooks/useServices"
 import { PlanningPanel } from "../components/PlanningPanel"
+import { StreamingPanel } from "../components/StreamingPanel"
 import { NotesPanel } from "../components/NotesPanel"
 import { Skeleton } from "../components/Skeleton"
 import { getWeekday } from "../utils/dateUtils"
@@ -53,6 +54,10 @@ export function ServiceDetail() {
           </header>
 
           <PlanningPanel
+            service={service}
+            onSave={(changes) => updateService(service.id, changes)}
+          />
+          <StreamingPanel
             service={service}
             onSave={(changes) => updateService(service.id, changes)}
           />

@@ -39,6 +39,12 @@ export function EventModal({ event, onClose, onEdit, onDelete }: Props) {
   // Kategori-texten i valt språk — faller tillbaka till råvärdet om nyckeln saknas
   const categoryLabel = t("eventCategory." + event.category, { defaultValue: event.category })
 
+  // Läs-endast-text beror på källa: koptiska högtider vs synkade händelser (gudstjänst/sakrament)
+  const readonlyMessageKey =
+    event.category === "feast" || event.category === "fast"
+      ? "calendar.fromCopticCalendar"
+      : "calendar.readonlySynced"
+
   // Stänger modalen när Escape trycks (tillgänglighet)
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -91,7 +97,7 @@ export function EventModal({ event, onClose, onEdit, onDelete }: Props) {
 
           {/* Skrivskyddade event (koptiska högtider) kan inte ändras */}
           {event.isReadOnly ? (
-            <p className="text-xs text-faint italic mt-5">{t("calendar.fromCopticCalendar")}</p>
+            <p className="text-xs text-faint italic mt-5">{t(readonlyMessageKey)}</p>
           ) : (
             <DeleteEditActions name={event.title} onDelete={onDelete} onEdit={onEdit} />
           )}

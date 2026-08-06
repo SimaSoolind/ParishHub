@@ -8,12 +8,12 @@
 import { useState, useCallback } from "react"
 import { Search, Plus, Users } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { useNavigate } from "react-router-dom"
 import { AddButton } from "../components/AddButton"
 import { toast } from "sonner"
 import { logError, getErrorMessageKey } from "@lib/errorHandler"
 import { MemberCard } from "@components/MemberCard"
 import { AddMemberModal } from "@components/AddMemberModal"
-import { MemberProfileModal } from "@components/MemberProfileModal"
 import { GroupMessageModal } from "@components/GroupMessageModal"
 import { Skeleton } from "@components/Skeleton"
 import { EmptyState } from "@components/EmptyState"
@@ -21,7 +21,6 @@ import { useMembers } from "@hooks/useMembers"
 import { useMemberSearch } from "@hooks/useMemberSearch"
 import type { FilterCategory } from "@hooks/useMemberSearch"
 import type { Member, NewMemberData } from "@domain/member"
-import { resolveFamilyId } from "@/use-cases/family"
 
 // Filter-knapparnas värden — texten översätts via t("members.filter." + value)
 const filterOptions: FilterCategory[] = ["all", "adult", "youth", "leader", "other"]
@@ -31,18 +30,14 @@ const filterOptions: FilterCategory[] = ["all", "adult", "youth", "leader", "oth
 // Tar inga props och returnerar sidan som JSX
 export function Members() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
 
-  // Medlemmar och CRUD-funktioner kommer från hooken (via repositoryt)
-  const { members, loading, addMember, updateMember, removeMember } = useMembers()
+  // Medlemmar och funktioner kommer från hooken (via repositoryt)
+  // Redigera/radera/familj bor numera på medlems-detaljsidan
+  const { members, loading, addMember } = useMembers()
 
   // Styr om Ny-medlem-modalen är öppen
   const [addModalOpen, setAddModalOpen] = useState(false)
-
-  // Håller medlemmen som redigeras — null när ingen redigeras
-  const [editingMember, setEditingMember] = useState<Member | null>(null)
-
-  // Håller medlemmen vars profil visas — null när ingen är vald
-  const [selectedMember, setSelectedMember] = useState<Member | null>(null)
 
   // Grupputskick: läge på/av, valda medlemmars id och om utskicks-modalen är öppen
   const [selectionMode, setSelectionMode] = useState(false)
@@ -66,61 +61,19 @@ export function Members() {
     }
   }
 
-  // Körs när prästen sparar en ändring — uppdaterar medlemmen med samma id
-  const handleUpdateMember = async (updated: NewMemberData) => {
-    if (!editingMember) return
-    try {
-      await updateMember(editingMember.id, updated)
-      setEditingMember(null)
-      toast.success(t("common.updated"))
-    } catch (error) {
-      logError("Members.handleUpdateMember", error)
-      toast.error(t(getErrorMessageKey(error)))
-    }
-  }
-
-  // Tar bort medlemmen med angivet id
-  const handleDeleteMember = async (id: string) => {
-    try {
-      await removeMember(id)
-      toast.success(t("common.removed"))
-    } catch (error) {
-      logError("Members.handleDeleteMember", error)
-      toast.error(t(getErrorMessageKey(error)))
-    }
-  }
-
-  // Kopplar den valda medlemmen och en annan medlem till samma familj
-  // Använder befintlig familyId om någon finns, annars skapas en ny kod
-  const handleLinkFamily = (otherId: string) => {
-    if (!selectedMember) return
-    const other = members.find((m) => m.id === otherId)
-    const familyId = resolveFamilyId(selectedMember.familyId, other?.familyId)
-
-    // Sätter samma familyId på båda medlemmarna via repositoryt
-    updateMember(selectedMember.id, { familyId })
-    updateMember(otherId, { familyId })
-    // Uppdaterar profilen så familjen syns direkt
-    setSelectedMember({ ...selectedMember, familyId })
-  }
-
-  // Lossar den valda medlemmen ur sin familj (nollställer familyId)
-  const handleUnlinkFamily = () => {
-    if (!selectedMember) return
-    updateMember(selectedMember.id, { familyId: undefined })
-    setSelectedMember({ ...selectedMember, familyId: undefined })
-  }
-
   // Slår på/av grupputskick-läge och nollställer valen
   const toggleSelectionMode = () => {
     setSelectionMode((prev) => !prev)
     setSelectedIds([])
   }
 
-  // Öppnar medlemmens profil — stabil referens så memo:ade MemberCard slipper rendera om
-  const handleSelectMember = useCallback((member: Member) => {
-    setSelectedMember(member)
-  }, [])
+  // Öppnar medlemmens detaljsida — stabil referens så memo:ade MemberCard slipper rendera om
+  const handleSelectMember = useCallback(
+    (member: Member) => {
+      navigate("/medlemmar/" + member.id)
+    },
+    [navigate]
+  )
 
   // Bockar av eller på en medlem i grupputskicket
   // useCallback ger stabil referens till memo:ade MemberCard
@@ -242,51 +195,9 @@ export function Members() {
         )}
       </div>
 
-      {/* Profil-modal visas när en medlem klickats */}
-      {/* key gör att modalen nollställs när man byter till en annan medlem */}
-      {selectedMember && (
-        <MemberProfileModal
-          key={selectedMember.id}
-          member={selectedMember}
-          allMembers={members}
-          onClose={() => setSelectedMember(null)}
-          onEdit={() => {
-            setEditingMember(selectedMember)
-            setSelectedMember(null)
-          }}
-          onDelete={() => {
-            handleDeleteMember(selectedMember.id)
-            setSelectedMember(null)
-          }}
-          onOpenMember={(m) => setSelectedMember(m)}
-          onLinkFamily={handleLinkFamily}
-          onUnlinkFamily={handleUnlinkFamily}
-        />
-      )}
-
       {/* Ny-medlem-modal visas när Ny-knappen klickats */}
       {addModalOpen && (
         <AddMemberModal onSave={handleAddMember} onClose={() => setAddModalOpen(false)} />
-      )}
-
-      {/* Redigera-modal visas när en medlem redigeras — förifylld med värdena */}
-      {editingMember && (
-        <AddMemberModal
-          isEdit
-          initialData={{
-            name: editingMember.name,
-            phone: editingMember.phone,
-            email: editingMember.email,
-            address: editingMember.address,
-            familySize: editingMember.familySize,
-            birthday: editingMember.birthday,
-            category: editingMember.category,
-            notes: editingMember.notes,
-            photoUrl: editingMember.photoUrl,
-          }}
-          onSave={handleUpdateMember}
-          onClose={() => setEditingMember(null)}
-        />
       )}
 
       {/* Grupputskick-modal — WhatsApp till varje vald medlem */}

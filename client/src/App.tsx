@@ -13,12 +13,16 @@ import { Dashboard } from "./pages/Dashboard"
 // Minskar startbundlen och förbättrar Time-to-Interactive
 // Members/Calendar/Services har named exports — därför .then(m => ({ default: ... }))
 const Members = lazy(() => import("./pages/Members").then((m) => ({ default: m.Members })))
+const MemberDetail = lazy(() =>
+  import("./pages/MemberDetail").then((m) => ({ default: m.MemberDetail }))
+)
 const Calendar = lazy(() => import("./pages/Calendar").then((m) => ({ default: m.Calendar })))
 const Services = lazy(() => import("./pages/Services").then((m) => ({ default: m.Services })))
 const ServiceDetail = lazy(() =>
   import("./pages/ServiceDetail").then((m) => ({ default: m.ServiceDetail }))
 )
 const Sermons = lazy(() => import("./pages/Sermons").then((m) => ({ default: m.Sermons })))
+const Sacraments = lazy(() => import("./pages/Sacraments").then((m) => ({ default: m.Sacraments })))
 const DesignPreview = lazy(() => import("./design/DesignPreview"))
 
 // Sätter upp routing: Layout som ram med tre sidor under sig
@@ -36,10 +40,12 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="medlemmar" element={<Members />} />
+            <Route path="medlemmar/:id" element={<MemberDetail />} />
             <Route path="kalender" element={<Calendar />} />
             <Route path="gudstjanster" element={<Services />} />
             <Route path="gudstjanster/:id" element={<ServiceDetail />} />
             <Route path="predikningar" element={<Sermons />} />
+            <Route path="sacraments" element={<Sacraments />} />
           </Route>
           {/* /design ligger utanför Layout — behöver därför en egen Suspense */}
           <Route

@@ -6,7 +6,7 @@
 
 import { NavLink } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { Home, Users, Calendar as CalendarIcon, Church, BookOpen } from "lucide-react"
+import { Home, Users, Calendar as CalendarIcon, Church, BookOpen, ScrollText } from "lucide-react"
 
 // Fast ikon-navigation längst ned på mobil-skärmen
 // Tar inga props — aktiv route hämtas via NavLink
@@ -49,6 +49,10 @@ export function BottomNav() {
         <NavLink to="/predikningar" className={linkClassName}>
           <BookOpen size={22} aria-hidden="true" />
           <span className="mt-1">{t("nav.sermons")}</span>
+        </NavLink>
+        <NavLink to="/sacraments" className={linkClassName}>
+          <ScrollText size={22} aria-hidden="true" />
+          <span className="mt-1">{t("nav.sacraments")}</span>
         </NavLink>
       </div>
     </nav>

@@ -22,6 +22,10 @@ import { AddEventModal } from "../components/AddEventModal"
 import { CalendarToolbar } from "../components/CalendarToolbar"
 import { useEvents } from "../hooks/useEvents"
 import { useCopticCelebrations } from "../hooks/useCopticCelebrations"
+import { useServices } from "../hooks/useServices"
+import { useAllSacraments } from "../hooks/useAllSacraments"
+import { useMembers } from "../hooks/useMembers"
+import { serviceToCalendarEvent, sacramentToCalendarEvent } from "../use-cases/calendarSync"
 import type { CalendarEvent, NewEventData } from "../domain/event"
 
 // Localizer med date-fns för datum-hantering på svenska
@@ -126,12 +130,22 @@ export function Calendar() {
     setSelectedEvent(null)
   }
 
-  // Hämtar koptiska högtider från API:et (skrivskyddade)
+  // Koptiska högtider från API:et (skrivskyddade)
   const copticEvents = useCopticCelebrations()
 
-  // Slår ihop egna event med de koptiska högtiderna för visning
-  // Bara egna event hanteras via repositoryt — högtiderna kommer från API:et
-  const shownEvents = [...events, ...copticEvents]
+  // Gudstjänster och sakrament synkas in i kalendern (skrivskyddade — ändras på sina egna sidor)
+  const { services } = useServices()
+  const { sacraments } = useAllSacraments()
+  const { members } = useMembers()
+  const nameById = new Map(members.map((m) => [m.id, m.name]))
+
+  const serviceEvents = services.map(serviceToCalendarEvent)
+  const sacramentEvents = sacraments.map((s) =>
+    sacramentToCalendarEvent(s, t("sacraments.type." + s.type), nameById.get(s.memberId) ?? "—")
+  )
+
+  // Slår ihop alla källor för visning; bara egna event hanteras via repositoryt
+  const shownEvents = [...events, ...copticEvents, ...serviceEvents, ...sacramentEvents]
 
   return (
     <>
@@ -169,11 +183,18 @@ export function Calendar() {
           components={{ toolbar: CalendarToolbar }}
           // eventPropGetter körs för varje event och bestämmer dess utseende
           // Koptiska högtider (isReadOnly) får kopparfärg, egna event standardfärg
-          eventPropGetter={(event: CalendarEvent) =>
-            event.isReadOnly
-              ? { style: { backgroundColor: "#C4956A", borderColor: "#C4956A" } }
-              : {}
-          }
+          eventPropGetter={(event: CalendarEvent) => {
+            // Färg per källa: gudstjänst (grön), sakrament (lila), koptisk högtid (koppar)
+            const bg =
+              event.category === "service"
+                ? "#3D6B3B"
+                : event.category === "sacrament"
+                  ? "#5A4A7A"
+                  : event.isReadOnly
+                    ? "#C4956A"
+                    : ""
+            return bg ? { style: { backgroundColor: bg, borderColor: bg } } : {}
+          }}
         />
       </div>
 

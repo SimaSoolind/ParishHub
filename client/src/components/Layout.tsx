@@ -57,6 +57,9 @@ export function Layout() {
               <Link to="/predikningar" className="hover-accent">
                 {t("nav.sermons")}
               </Link>
+              <Link to="/sacraments" className="hover-accent">
+                {t("nav.sacraments")}
+              </Link>
             </nav>
 
             {/* Språkväxlare — byter mellan svenska och arabiska */}
