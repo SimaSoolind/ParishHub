@@ -841,6 +841,81 @@ Uppdatera `ROADMAP.md` under Fas 3 med:
 
 ---
 
+## Steg 12: TypeDoc för auto-genererad API-dokumentation (framtida)
+
+**Tid:** 30 min (när tiden kommer)
+**Prioritet:** Rekommenderad — aktiveras när projektet växer
+
+### VAD
+Sätt upp TypeDoc för att auto-generera API-dokumentation från TypeScript-
+typer + TSDoc-kommentarer. Ger docs som **aldrig ruttnar** eftersom de
+byggs om varje gång koden ändras.
+
+### VARFÖR
+Nuvarande docs (README, DESIGN, AI-TOLKNING) är handskrivna — de blir
+föråldrade när koden ändras. TypeDoc läser koden direkt: `client/src/`
+och `server/src/`, och genererar HTML-sidor med alla typer, interfaces,
+klasser och funktioner. Uppdateras automatiskt vid varje `npm run docs`.
+
+Extra värde för LIA/redovisning: professionell API-dokumentation utan
+extra skrivarbete.
+
+### HUR
+
+Installera:
+
+```bash
+cd client && npm install --save-dev typedoc typedoc-plugin-markdown
+```
+
+Skapa `client/typedoc.json`:
+
+```json
+{
+  "entryPoints": ["src/domain", "src/hooks", "src/lib"],
+  "out": "docs/api",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "readme": "none"
+}
+```
+
+Lägg till npm-script i `client/package.json`:
+
+```json
+"docs": "typedoc"
+```
+
+Kör:
+
+```bash
+npm run docs
+open docs/api/index.html
+```
+
+Skriv TSDoc-kommentarer i koden (exempel `useMembers.ts`):
+
+```ts
+/**
+ * Hamtar medlemmar via repository-monstret.
+ * Anvands av: Members.tsx, Dashboard.tsx
+ *
+ * @returns loading, error och members-lista
+ */
+export function useMembers() { ... }
+```
+
+### VERIFIERA
+1. `npm run docs` → mappen `docs/api/` genereras
+2. Öppna `docs/api/index.html` → se hela API:t dokumenterat
+3. Ändra en TSDoc-kommentar → kör om → sidan uppdateras
+
+### KOMMANDE PÅMINNELSE
+Lägg till TODO i `ROADMAP.md` under "Fas 3 — Avancerat":
+`- TypeDoc för auto-genererad API-dokumentation (när projektet växer)`
+
+---
+
 ## Sammanfattning
 
 | # | Steg | Tid | Prioritet |

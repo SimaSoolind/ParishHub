@@ -18,10 +18,10 @@
 | Del | Status | Kommentar |
 |-----|--------|-----------|
 | Frontend (client/) | 🔵 70% | Dashboard, Medlemmar (CRUD+familj+WhatsApp), Kalender, Gudstjänster+närvaro klara |
-| Backend (server/) | ⚪ 0% | Startar vecka 3-4 av studieplan |
-| Databas (PostgreSQL) | ⚪ 0% | Startar vecka 5-6 |
-| Auth (JWT) | ⚪ 0% | Startar vecka 7 |
-| AI-tolkning (Speechmatics) | ⚪ 0% | Startar vecka 8 |
+| Backend (server/) | ⚪ 0% | Startar vecka 7-14 (15-20 h/vecka) |
+| Databas (PostgreSQL) | ⚪ 0% | Startar vecka 7-9 |
+| Auth (JWT) | ⚪ 0% | Startar vecka 10-11 |
+| AI-tolkning (Speechmatics) | ⚪ 0% | Startar vecka 12-14 |
 | Publicering | ⚪ 0% | Efter LIA |
 
 ---
@@ -30,7 +30,7 @@
 
 ---
 
-### 1. 🔐 Inloggning & Säkerhet — ⚪ KVAR (vecka 7)
+### 1. 🔐 Inloggning & Säkerhet — ⚪ KVAR (vecka 10-11)
 
 **Vad:** Prästen loggar in säkert med 2FA
 
@@ -62,7 +62,7 @@
 - ✅ Adress + anteckningar per medlem
 - ✅ Profil-modal (klick på medlem)
 - ✅ Grupputskick (bocka flera → WhatsApp)
-- ⚪ Ladda upp profilbild
+- ✅ Ladda upp profilbild (kamera + fil, base64)
 
 **Beroenden:** Backend för att spara/hämta permanent
 
@@ -183,7 +183,7 @@
 
 ---
 
-### 10. 🔒 Krypterade Privata Anteckningar — ⚪ KVAR (vecka 7-8)
+### 10. 🔒 Krypterade Privata Anteckningar — ⚪ KVAR (vecka 10-11)
 
 **Vad:** Prästens privata minnesanteckningar per person
 
@@ -212,21 +212,21 @@
 
 ---
 
-### 12. 🤖 AI-tolkning av Gudstjänsten Live — ⚪ KVAR (vecka 8)
+### 12. 🤖 Live-tolkning under gudstjänst — ⚪ KVAR (frontend v.1-6, backend v.12-14)
 
-**Vad:** Live-tolkning på skärm under gudstjänst
+**Vad:** AI-tolkning: AR ↔ SV (bidirektionell). Koptiska liturgiska fraser
+via keyterms. Framtida: fler språk.
 
-**Delfunktioner:**
-- ⚪ Prästen startar via kyrkoappen
-- ⚪ Mikrofonen fångar prästens tal
-- ⚪ Speechmatics konverterar tal → arabisk text (realtid)
-- ⚪ DeepL översätter arabiska → svenska
-- ⚪ Text visas på kyrkans skärm (BÅDA språk)
-- ⚪ WebSocket för snabb överföring
-- ⚪ OBS Studio-integration för YouTube-sändning
-- ⚪ Predikan sparas i arkiv efteråt
+**Vision:** Församlingen ska följa predikan i realtid på båda språk via
+projektor + YouTube. Kärnfunktion för mångspråkiga församlingar.
 
-**Beroenden:** Backend + WebSocket + Speechmatics + DeepL
+Se `docs/AI-TOLKNING.md` för fullständig teknisk plan (Deep Research-spec).
+Startpunkt: `docs/POC-VECKA-1.md`.
+
+> **Alla tasks (v1/v1.5/v2/v3) finns i `docs/BACKLOG.md` under "AI-tolkning" + "AI-backend".**
+> Denna sektion beskriver bara VAD funktionen är — inte HUR den byggs.
+
+**Beroenden:** Frontend (v.1-6) klart FÖRE backend byggs. Backend = Speechmatics + DeepL + WebSocket-server + hymn-databas.
 
 ---
 
@@ -253,7 +253,7 @@
 - ⚪ Koppling till Google Calendar
 - ⚪ Automatisk GDPR-rensning
 
-#### 🔒 Backend-säkerhet checklista (aktiveras Fas 3, vecka 5-7)
+#### 🔒 Backend-säkerhet checklista (aktiveras Fas 3, vecka 7-14)
 
 Konkreta säkerhetsuppgifter som MÅSTE göras när backend byggs.
 Full beskrivning i `docs/SECURITY.md`.
@@ -310,7 +310,7 @@ Se `docs/SECURITY.md` för fullständiga kod-exempel och motiveringar.
 
 ## 🎯 NÄSTA 3 STEG
 
-1. **⏳ Backend** — Express + Prisma så data sparas permanent (v.3-6)
+1. **⏳ Backend** — Express + Prisma så data sparas permanent (v.7-14)
 2. **⏳ Historikkort med graf** (Recharts, redan installerat)
 3. **⏳ Fas 2** — automatiska påminnelser, bönelista, uppföljningsdatum
 
@@ -342,8 +342,13 @@ Se `docs/SECURITY.md` för fullständiga kod-exempel och motiveringar.
 - ✅ **3 augusti 2026** — Mörkt läge på hela appen (tema-knapp + DRY färgklasser)
 - ✅ **3 augusti 2026** — Fas 1 komplett (mörkt läge, flerspråkighet, profilbilder, kortnoteringar)
 - ✅ **3 augusti 2026** — Clean Architecture på alla sidor (domän · repository · hook)
-- ⏳ **Nästa milstolpe:** Första riktiga API-anropet (backend, v.3-4)
+- ⏳ **Nästa milstolpe:** Första riktiga API-anropet (backend, v.7-14)
 
 ---
 
 *Uppdaterad av Sima. En sak i taget. En dag i taget. 💜✝*
+
+---
+
+> **Se `docs/BACKLOG.md` för fullständig checklista över allt som är kvar att göra.**
+> BACKLOG-filen är den enda samlade "single source of truth" för scope och tasks.

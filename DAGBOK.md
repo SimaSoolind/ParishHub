@@ -571,6 +571,75 @@ istället för att gissa.
 
 ---
 
+### 🗓 Onsdag 5 augusti 2026 — Dag 14
+
+**⏱ Tid:**
+**🎯 Mål för dagen:** Bli klar med dashboarden mot riktig data (frontend-först).
+
+**✅ Vad som gjordes:**
+- Granskade dokumentationen (ROADMAP → BACKLOG → detaljfiler) — hittade 6 motsägelser att rätta
+- Dashboard kopplad till riktig data via use-case + hook (bort med hårdkodade 47/38/5)
+- Två nya widgets: Kommande gudstjänster (klickbara) + Senaste kontakter
+- Veckonärvaro-graf med Recharts (tema-reaktiv, a11y via role=img + sammanfattning)
+- Kontaktknappar Ring/Mejla/WhatsApp på varje kontakt (återanvänder lib/whatsapp)
+- Frånvaro-regel: "Att kontakta" genereras automatiskt från närvaro (ej närvarat 4 veckor)
+- DRY-städning: .date-box-klass, delad contactStatus, formatShortDate, ContactActions
+- 22 tester gröna, tsc + ESLint + bygge rent
+
+**🎓 Lärdomar:**
+- Ren logik i use-cases gör allt testbart utan React
+- Recharts blir tema-reaktiv via currentColor + befintliga temaklasser (inte JS-tema)
+- Vites HMR klarar inte när en export försvinner — kräver full omladdning
+
+**⚠️ Utmaningar:**
+- HMR-cachen hängde sig efter att en export togs bort (löstes med hård-omladdning)
+- Axe visade två a11y-fel som inte fanns i koden — troligen gamla logg-rader i konsolen
+
+**📝 Reflektion:**
+Dashboarden gick från statiska siffror till en levande vy som svarar på frågor: vem kommer,
+vem saknas, vem behöver kontaktas. Frånvaro-regeln knyter ihop hela flödet
+närvaro → påminnelse → kontakt. Ren arkitektur (use-cases → hook → sida) gjorde varje steg litet.
+
+**➡️ Nästa steg:**
+- Fixa dokumentations-motsägelserna (backend-vecka m.m.)
+- Steg C: snooza/klar + "dagens X kontakter"
+- Fortsätta resten av frontend mot mockdata
+
+---
+
+### 🗓 Torsdag 6 augusti 2026 — Dag 15
+
+**⏱ Tid:**
+**🎯 Mål för dagen:** Bygga vidare på dashboarden och starta Modul 2 (Gudstjänst-sidan).
+
+**✅ Vad som gjordes:**
+- Steg C: "Att kontakta" blev en arbetslista (Klar/Snooza + dagens X, sorterad efter frånvaro)
+- Flyttade närvaro-avprickningen till Dashboard (eget Närvaro-kort)
+- DRY-städning: bröt ut AddButton, ModalCloseButton, DeleteEditActions och Chip (7 modaler + 3 sidor)
+- Strukturerade om Gudstjänst-sidan: klick → egen detaljsida (planering), ingen närvaro där
+- Ny modul: Noteringar per gudstjänst (typ + privat/offentlig + sök) via Clean Architecture
+- Planering-panel: högtid + bibeltexter på gudstjänsten
+- Predikobibliotek: ny Predikningar-sida med metadata, sök och filter (5:e nav-fliken)
+- 30 tester gröna, tsc + lint + bygge rent hela vägen
+
+**🎓 Lärdomar:**
+- Tydlig ansvarsdelning (Dashboard = närvaro, Gudstjänst = planering) gör appen lättare att navigera
+- Att bryta ut återkommande knappar tidigt sparar mycket dubblering senare
+- Samma mönster (domän → repository → hook → sida) gör varje ny modul snabb att bygga
+
+**⚠️ Utmaningar:**
+- Stor omstrukturering i flera faser — löstes genom att verifiera (tsc/lint/tester) efter varje steg
+
+**📝 Reflektion:**
+Appen känns nu som en riktig produkt med fem tydliga delar. Modul 2 har fått planering, noteringar
+och ett predikobibliotek. Arkitekturen håller — nya moduler byggs på samma säkra mönster.
+
+**➡️ Nästa steg:**
+- Fler Modul 2-bitar (streaming, publicera för medlemmar) eller närma sig backend
+- Fixa dokumentations-motsägelserna (backend-vecka m.m.)
+
+---
+
 ## 📋 Mall för nya dagar
 
 Kopiera detta block och klistra in högst upp under "Dag-för-dag":
@@ -619,6 +688,8 @@ Kopiera detta block och klistra in högst upp under "Dag-för-dag":
 - [x] Kodstruktur + prestanda-optimering (aliases, memo, code-splitting) — **3 augusti 2026** ✅
 - [x] UX/design-pass (mobilnav, färgblind-badges, EmptyState, felhantering, radera-gudstjänst, rubrik-typsnitt) — **4 augusti 2026** ✅
 - [x] Fullständig dokumentations-städ + WCAG-kontrast räknad + 3 att-göra-listor för UX/kod/design — **3 augusti 2026** ✅
+- [x] Dashboard komplett: statistik, widgets, närvarograf, kontaktkanaler och automatiska frånvaro-påminnelser — **5 augusti 2026** ✅
+- [x] Modul 2 (Gudstjänst): planering, noteringar per gudstjänst & sökbart predikobibliotek — **6 augusti 2026** ✅
 - [ ] Första Express-servern igång
 - [ ] Första databaskopplingen till PostgreSQL
 - [ ] Första JWT-inloggningen fungerar

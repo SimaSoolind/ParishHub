@@ -6,6 +6,17 @@ Digitalt system för kyrkoförvaltning — med AI-tolkning live på svenska och 
 En modern app som hjälper en präst att hantera hela sin församling digitalt.
 Ersätter papperslistor och gamla anteckningsböcker med säker, snabb kommunikation.
 
+## ✅ Byggda funktioner (frontend, mockdata)
+- **Medlemsregister** — sök, filter, CRUD, familjekoppling, profilbild, WhatsApp-utskick
+- **Kalender** — koptiska högtider/fastor + egna händelser (CRUD)
+- **Gudstjänster** — skapa, närvaro-avprickning, frånvaro-orsak, kontaktstatus, radera
+- **Dashboard** — statistik, veckans födelsedagar, prioriterad kontaktlista
+- **Tvåspråkighet** — svenska + arabiska med RTL
+- **Mörkt/ljust läge** + inställbar textstorlek (WCAG 1.4.4)
+- **Tillgänglighet** — semantik, focus-trap i modaler, färgblind-säkra statusar, WCAG-kontrast
+
+> Allt använder mockdata tills backend byggs (vecka 5-6).
+
 ## 🗂 Monorepo-struktur
 
 ```
@@ -22,11 +33,15 @@ ParishHub/
 ## 🛠 Teknisk stack
 
 ### Frontend (client/)
-- React + Vite + TypeScript
-- React Router
-- Tailwind CSS v4
-- react-i18next (svenska + arabiska)
+- React 19 + Vite + TypeScript (strict)
+- React Router v7
+- Tailwind CSS v4 (mörkt/ljust läge)
+- react-i18next (svenska + arabiska, RTL)
 - @tanstack/react-query
+- Zod (runtime-validering), sonner (toast), lucide-react (ikoner)
+- react-big-calendar + date-fns (kalender), recharts (grafer)
+- focus-trap-react + @axe-core/react (WCAG-tillgänglighet)
+- Arkitektur: Clean Architecture (domain / data / hooks) med mockdata tills backend finns
 
 ### Backend (server/)
 - Node.js + Express + TypeScript
@@ -83,11 +98,12 @@ Frontenden körs på http://localhost:5173
 
 ## ⚠️ Felhantering
 
-- Anpassade felklasser för olika feltyper (valideringsfel, autentiseringsfel, not-found)
-- Centraliserad felhantering i backend med en global error-handler
-- React Error Boundaries för att fånga UI-fel
-- Strukturerad loggning (se dokumentation i `docs/`)
-- Användbara felmeddelanden till användaren — aldrig stack traces
+- **Typade felklasser i frontend** (`client/src/lib/errors.ts`): `AppError`, `ValidationError`, `NetworkError`, `AuthError`
+- `getErrorMessageKey()` väljer rätt användarmeddelande per feltyp (visas som toast)
+- `safeFetch` (`lib/api.ts`) kastar `NetworkError` och validerar svar med Zod
+- React Error Boundaries fångar UI-fel så en kraschad vy inte sänker hela appen
+- Central loggning (`lib/errorHandler.ts`) — användaren ser aldrig stack traces
+- Backend får en egen global error-handler när den byggs
 
 ## 🧩 TypeScript-konfiguration
 
@@ -109,7 +125,7 @@ Frontenden körs på http://localhost:5173
 - **jsdom** som browsermiljö i tester
 - Nuvarande tester: `ErrorBoundary.test.tsx`, `attendance.test.ts`, `family.test.ts`, `dateUtils.test.ts`
 - Kör tester lokalt: `cd client && npm run test`
-- CI kör lint + tsc + tester + npm audit automatiskt via GitHub Actions (`.github/workflows/ci.yml`)
+- CI (GitHub Actions, `.github/workflows/ci.yml`) kör: tsc + lint + tester + npm audit, samt **Semgrep** (SAST), **Lighthouse** (a11y/prestanda) och **Snyk** (sårbara paket)
 - Backend-tester läggs till när backend byggs (vecka 5-6)
 
 ## 📖 Vidare läsning
@@ -117,14 +133,15 @@ Frontenden körs på http://localhost:5173
 - [CLAUDE.md](./CLAUDE.md) — Projektregler och kodstandard
 - [ROADMAP.md](./ROADMAP.md) — Alla funktioner, status per funktion + faser
 - [docs/DESIGN.md](./docs/DESIGN.md) — Designsystem (färger, typografi, komponenter, skärmar)
+- [docs/FARG-OCH-DESIGN-ATT-GORA.md](./docs/FARG-OCH-DESIGN-ATT-GORA.md) — Färg & design — att-göra-lista (WCAG, mobilnav m.m.)
 - [docs/REDOVISNING.md](./docs/REDOVISNING.md) — Offentlig redovisning för lärare och LIA
 - [docs/SECURITY.md](./docs/SECURITY.md) — Säkerhetschecklista (backend + frontend)
 - [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) — Systemarkitektur
 - [docs/AI-TOLKNING-RAPPORT.md](./docs/AI-TOLKNING-RAPPORT.md) — Rapport & handlingsplan för realtids-AI-tolkning (WebSocket, STT, DeepL)
 - [docs/API.md](./docs/API.md) — API-dokumentation
 - [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) — Vanliga fel och lösningar
-- [docs/UX-A11Y-INSTRUKTION.md](./docs/UX-A11Y-INSTRUKTION.md) — 9-stegs plan för WCAG-tillgänglighet
-- [docs/KODSTRUKTUR-INSTRUKTION.md](./docs/KODSTRUKTUR-INSTRUKTION.md) — 5-stegs plan för prestanda och kodstruktur
+- [docs/UX-A11Y-INSTRUKTION.md](./docs/UX-A11Y-INSTRUKTION.md) — 10-stegs plan för WCAG-tillgänglighet
+- [docs/KODSTRUKTUR-INSTRUKTION.md](./docs/KODSTRUKTUR-INSTRUKTION.md) — 10-stegs plan för prestanda, kodstruktur och CI-härdning
 - [docs/MALL-SETUP.md](./docs/MALL-SETUP.md) — Mall för nya projekt-tillägg
 - [CHANGELOG.md](./CHANGELOG.md) — Ändringslogg
 

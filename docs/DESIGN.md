@@ -15,8 +15,9 @@ Temat heter **"Varm Olivsten"** med kopparaccent.
 
 ## 1. Färgpalett — "Varm Olivsten"
 
-Färger definieras som CSS-variabler (tokens) med ett värde för ljust och ett
-för mörkt läge. Accenten är **koppar**.
+Tabellen nedan är **prototypens** referens-palett (CSS-variabler, ett värde för ljust
+och ett för mörkt). Den **riktiga appen** implementerar färgerna med Tailwind — se **1b**.
+Accenten är **koppar**.
 
 | Token | Ljust | Mörkt | Används till |
 |-------|-------|-------|--------------|
@@ -36,6 +37,37 @@ för mörkt läge. Accenten är **koppar**.
 
 **Mönster för genomskinlighet:** färg + `22` (bakgrund), `33`/`44` (kant) som hex-alpha,
 t.ex. `background: var(--green)22`.
+
+---
+
+### 1b. Riktig implementation i appen (Tailwind) — synkad 4 aug 2026
+
+Prototypens tokens ovan är **referens för den avsedda paletten**. Den **riktiga appen**
+använder Tailwind CSS med semantiska klasser samlade i `client/src/index.css` (DRY).
+Färgerna uttrycks som Tailwind-klasser, inte som CSS-variabler.
+
+- **Neutraler:** Tailwind `stone` (bakgrund `stone-100`/`stone-900`, ytor `white`/`stone-800`)
+- **Accent (koppar):** `amber` — `amber-800` (ljus) / `amber-500` (mörk)
+- **Status:** `red`, `green`, `blue`, `amber`
+- **Extra:** `pink`/`purple` för avatarer och event-kategorier (dop/bröllop) — inte statusar
+
+Semantiska klasser i `index.css`:
+
+| Klass | Ljust | Mörkt | Används till |
+|-------|-------|-------|--------------|
+| `.text-strong` | stone-800 | stone-100 | Rubriker, stark text |
+| `.text-soft` | stone-600 | stone-300 | Brödtext, sekundär text |
+| `.text-faint` | `#726a60` | stone-400 | Dämpad text (datum, undertext) |
+| `.text-accent` | amber-800 | amber-500 | Koppar-accent (ikoner, aktiva rubriker) |
+| `.surface` | white + stone-200-kant | stone-800 + stone-700-kant | Kort, paneler, header |
+
+**Mörkt läge:** Tailwinds `dark:`-varianter via `data-theme="dark"` på `<html>` (egen
+`@custom-variant`), inte CSS-variabler.
+
+**WCAG-kontrast (verifierad):** `.text-faint` mörkades till `#726a60` för att klara 4.5:1 på
+både vita kort och beige sida. Status-badges använder mörk text på ljus botten i ljust läge
+(`text-800` på `bg-100`) och ljus text på mörk botten i mörkt läge (`text-300` på `bg-950`) —
+båda klarar WCAG AA. Prototypens mörkt-läges-röd (#A05858, underkänd) används INTE i appen.
 
 ---
 
@@ -103,9 +135,9 @@ AI-tolkningen (skärm 5 och 9) beskrivs tekniskt i
 
 ## 6. Ljust och mörkt läge
 
-- Styrs via `data-theme="light"` / `data-theme="dark"` på rot-elementet.
-- Alla färger kommer från tokens, så hela appen byter läge på ett ställe.
-- Standardläge i prototypen är mörkt.
+- Styrs via `data-theme="dark"` på rot-elementet (`<html>`).
+- Riktiga appen: Tailwinds `dark:`-varianter (egen `@custom-variant`) — inte CSS-variabler.
+- Prototypen: byter tokens; standardläge mörkt.
 
 ---
 
@@ -113,3 +145,56 @@ AI-tolkningen (skärm 5 och 9) beskrivs tekniskt i
 
 - Prästen heter **Fader Korollos** (koptisk-ortodox präst).
 - Roller i planeringen: **präst** (kopparfärgad) och **diakon** (blå).
+
+---
+
+## 8. Bakgrundsbild-anpassning per kyrka (SaaS multi-tenant)
+
+Projektor- och YouTube-vyer får en anpassningsbar bakgrundsbild som
+konfigureras per församling. Detta är en SaaS multi-tenant-funktion —
+varje kyrka har sin egen "kyrko-profil" med bakgrund + logo + färgtema.
+
+### Bas-standarder (Simas team levererar)
+
+Färdiga bakgrunder per kyrko-tradition — 10–15 st per stil:
+
+- **Koptisk stil** — ikoner, koptiska mönster, öken-toner
+- **Grekisk stil** — bysantinska ikoner, blå-vita mönster
+- **Rysk stil** — löktorn-siluetter, guld-röda toner
+- **Syriansk stil** — geometriska mönster, jord-toner
+
+### Kyrko-upload
+
+Varje församling kan ladda upp egen bakgrund via admin-UI:
+
+- Foto på egen kyrka
+- Egen ikon eller helgonbild
+- Församlingens logo
+
+### Overlay + läsbarhet
+
+- **Semi-transparent mörk overlay:** `rgba(0, 0, 0, 0.4)` läggs på automatiskt
+- **Textskugga:** `text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8)` på transkriptioner
+- **Auto-validering vid upload:** varning om bilden är för ljus (medelluminans > 0.6)
+
+### Storleks-krav
+
+- Minst 1920×1080 (Full HD) för moderna projektorer
+- Rekommenderat 3840×2160 (4K)
+- Max filstorlek 2 MB efter komprimering
+
+### Liturgiska säsonger
+
+Automatiskt byte av bakgrund per kyrkoår:
+
+- **Vardag** — mörk olivsten (nuvarande standardtema)
+- **Fasta** — mörk violett (kopplas till fasta-högtider i koptisk kalender)
+- **Jul** — varm gyllene (advent + jul)
+- **Påsk** — ljus vit (påsk-veckan)
+
+Församlingen kan välja mellan automatisk säsong eller manuellt fast tema.
+
+### Konfiguration
+
+Sparas i församlingens `parish_profile`-tabell (multi-tenant-design).
+Varje kyrka har egen konfiguration utan att påverka andra församlingar.

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <title>PoC — AI-tolkning ParishHub</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+      background: #f5efe6;
+      color: #1a1c18;
+    }
+    h1 { color: #8b5e3c; }
+    button {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+      background: #8b5e3c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+    }
+    button:disabled { background: #999; cursor: not-allowed; }
+    .row {
+      margin: 0.5rem 0;
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 1.1rem;
+    }
+    .ar {
+      background: #fff;
+      direction: rtl;
+      text-align: right;
+      font-family: "Cairo", "Segoe UI Arabic", serif;
+    }
+    .sv {
+      background: #e8f0f8;
+      color: #1a2a4a;
+    }
+    #status { margin-top: 1rem; font-size: 0.9rem; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Live-tolkning PoC</h1>
+  <p>Klicka <b>Starta tolkning</b>, godkann mikrofontillstand, prata arabiska.</p>
+  <button id="start">Starta tolkning</button>
+  <div id="status"></div>
+  <div id="output"></div>
+
+  <script type="module">
+    // Enkel PoC-frontend — tar mikrofon-ljud, skickar till backend via WSS,
+    // visar arabisk och svensk text nar den kommer tillbaka
+    const startBtn = document.getElementById("start")
+    const output = document.getElementById("output")
+    const status = document.getElementById("status")
+
+    startBtn.addEventListener("click", async () => {
+      startBtn.disabled = true
+      status.textContent = "Ansluter..."
+
+      // Skapar WebSocket-koppling till backend
+      const ws = new WebSocket(`ws://${location.host}`)
+      ws.binaryType = "arraybuffer"
+
+      // Nar servern skickar tillbaka { ar, sv } — visa i sidan
+      ws.onmessage = (event) => {
+        const { ar, sv } = JSON.parse(event.data)
+        output.insertAdjacentHTML(
+          "afterbegin",
+          `<div class="row ar">${ar}</div><div class="row sv">${sv}</div>`
+        )
+      }
+
+      ws.onerror = () => { status.textContent = "Fel vid anslutning" }
+      ws.onclose = () => { status.textContent = "Anslutning stangd" }
+
+      // Vantar tills WebSocket ar oppen innan mikrofonen startar
+      await new Promise((resolve) => (ws.onopen = resolve))
+      status.textContent = "Ansluten. Ber om mikrofontillstand..."
+
+      // Ber om mikrofontillstand + starta ljudstromning
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { sampleRate: 16000, channelCount: 1 },
+      })
+      const ctx = new AudioContext({ sampleRate: 16000 })
+      const source = ctx.createMediaStreamSource(stream)
+      const processor = ctx.createScriptProcessor(4096, 1, 1)
+
+      // Konverterar Float32 till Int16 PCM och skickar som binart
+      // Speechmatics vantar Int16 PCM 16 kHz mono
+      processor.onaudioprocess = (e) => {
+        const input = e.inputBuffer.getChannelData(0)
+        const pcm = new Int16Array(input.length)
+        for (let i = 0; i < input.length; i++) {
+          const s = Math.max(-1, Math.min(1, input[i]))
+          pcm[i] = s < 0 ? s * 0x8000 : s * 0x7fff
+        }
+        if (ws.readyState === WebSocket.OPEN) ws.send(pcm.buffer)
+      }
+
+      source.connect(processor)
+      processor.connect(ctx.destination)
+      status.textContent = "Live! Prata arabiska i mikrofonen."
+    })
+  </script>
+</body>
+</html>

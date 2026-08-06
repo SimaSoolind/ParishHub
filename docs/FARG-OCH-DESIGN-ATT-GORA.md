@@ -123,7 +123,7 @@ klarar även AAA — det är väldigt bra.
 
 ---
 
-## Steg 1: Testa och mörka koppar-accent
+## Steg 1: Testa och mörka koppar-accent ✅ OK (accent klarar AA; AAA-polish valfri) — 4 aug 2026
 
 **Tid:** 30 min
 **Prioritet:** Viktig
@@ -409,7 +409,7 @@ common: {
 
 ---
 
-## Steg 5: Mörka text-muted för WCAG AAA
+## Steg 5: Mörka text-muted för WCAG AAA ✅ KLAR (text-faint → #726a60, text-soft → stone-600) — 4 aug 2026
 
 **Tid:** 15 min
 **Prioritet:** Viktig
@@ -752,7 +752,7 @@ kod-exempel och verifieringsmetoder.
 
 ---
 
-## Steg 11: Reducera antal statusfärger
+## Steg 11: Reducera antal statusfärger ⏭️ INAKTUELL (status-paletten redan 4 färger; purple/pink = avatarer/kategorier)
 
 **Tid:** 30 min
 **Prioritet:** Rekommenderad
@@ -894,7 +894,7 @@ function App() {
 
 ---
 
-## Steg 13: Synka DESIGN.md med index.css-tokens
+## Steg 13: Synka DESIGN.md med index.css-tokens ✅ KLAR (4 aug 2026)
 
 **Tid:** 15 min
 **Prioritet:** Kosmetisk
@@ -1002,7 +1002,7 @@ att förlora ifyllda värden (state behålls mellan steg).
 
 ---
 
-## Steg 15: Fixa mörkt-läge-fails (röd + fyra varningar)
+## Steg 15: Fixa mörkt-läge-fails (röd + fyra varningar) ⏭️ INAKTUELL (appen använder text-300/bg-950 → klarar WCAG; #A05858 finns ej i appen)
 
 **Tid:** 30 min
 **Prioritet:** **Kritisk** (WCAG-fail på röd)
@@ -1116,21 +1116,21 @@ utan full migration). shadcn är designat för det.
 
 | # | Steg | Etikett | Tid | Prioritet |
 |---|---|---|---|---|
-| 1 | Testa och mörka koppar-accent | [FÄRG] | 30 min | Viktig |
+| 1 | Testa och mörka koppar-accent | [FÄRG] | 30 min | ✅ OK (AA) |
 | 2 | Bottennavigering för mobil | [FUNKTION] | 45 min | ✅ KLAR |
 | 3 | Färgblindhet — ikon + text på status | [FÄRG] | 30 min | ✅ KLAR |
 | 4 | Toast-notiser — komplettera | [FUNKTION] | 20 min | ✅ KLAR |
-| 5 | Mörka text-muted för AAA | [FÄRG] | 15 min | Viktig |
+| 5 | Mörka text-muted för AAA | [FÄRG] | 15 min | ✅ KLAR |
 | 6 | Tomma tillstånd (EmptyState) | [FUNKTION] | 30 min | ✅ KLAR |
 | 7 | Tydligare kort-kanter | [FÄRG] | 20 min | Viktig |
 | 8 | Formulär — expanderbara valfria fält | [FUNKTION] | 30 min | ✅ KLAR |
 | 9 | Visuell hierarki — rubriker + knappar | [FÄRG] | 30 min × 4 | ✅ KLAR |
 | 10 | Focus-trap (se UX-A11Y) | [FUNKTION] | Klart | Kritisk |
-| 11 | Reducera antal statusfärger | [FÄRG] | 30 min | Rekommenderad |
+| 11 | Reducera antal statusfärger | [FÄRG] | 30 min | ⏭️ INAKTUELL |
 | 12 | Interaktiv onboarding | [FUNKTION] | 60 min | Medel |
-| 13 | Synka DESIGN.md med index.css | [FÄRG] | 15 min | Kosmetisk |
+| 13 | Synka DESIGN.md med index.css | [FÄRG] | 15 min | ✅ KLAR |
 | 14 | Steg-för-steg-flöden i modaler | [FUNKTION] | 45 min × modal | ⏭️ ONÖDIG |
-| 15 | Fixa mörkt-läge-fails (röd + 4 varningar) | [FÄRG] | 30 min | **Kritisk** |
+| 15 | Fixa mörkt-läge-fails (röd + 4 varningar) | [FÄRG] | 30 min | ⏭️ INAKTUELL |
 | 16 | shadcn/ui — utvärdera + hoppa | [FÄRG]/[FUNKTION] | 0 min | Beslut |
 
 **Total tid:** cirka 10-11 arbetstimmar, uppdelat i 7-14 sessioner.

@@ -287,7 +287,68 @@ så kända sårbarheter fångas automatiskt.
 
 ---
 
-## 12. Säker filuppladdning
+## 12. Predikan-lagring (AI-tolkning)
+
+Live-tolkade predikningar kan sparas krypterat efter explicit samtycke
+från prästen. Detta är en aktiv opt-in — inget sparas som standard.
+
+### Krav
+
+- **Samtycke från präst** (GDPR art. 6.1(a)) — signeras en gång vid onboarding
+- **Krypterat i vila:** AES-256 via Postgres `pgcrypto`
+- **Retention:** 5 år standard, konfigurerbart per församling (1-10 år)
+- **Ingen delning med tredje part** utan explicit samtycke
+- **Audit-logg:** vem startade session + vem läst arkiv, när, från vilken IP
+
+### Rättigheter (GDPR)
+
+- **Rätt att radera specifik predikan** — via admin-UI
+- **Rätt att bli glömd** — knapp "Radera all min data" raderar allt permanent
+- **Rätt till dataportabilitet** — export till PDF eller JSON på begäran
+
+### Kryptering — exempel (pgcrypto)
+
+```sql
+-- Aktivera pgcrypto-tillägget en gång per databas
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- Kryptera vid INSERT (nyckeln kommer fran server .env, inte databasen)
+INSERT INTO sermons (id, church_id, encrypted_content)
+VALUES (
+  gen_random_uuid(),
+  $1,
+  pgp_sym_encrypt($2, $3)  -- $3 = SERMON_ENCRYPTION_KEY fran .env
+);
+
+-- Dekryptera vid SELECT (endast prasten far dekrypterings-nyckeln)
+SELECT id, pgp_sym_decrypt(encrypted_content::bytea, $1) AS content
+FROM sermons
+WHERE church_id = $2 AND deleted_at IS NULL;
+```
+
+### Nyckelhantering
+
+- `SERMON_ENCRYPTION_KEY` i `server/.env` — 256-bitars slumpmässig
+- Roteras vid varje major-release (kräver re-kryptering av arkivet)
+- Backup av krypterings-nyckel i separat vault (t.ex. 1Password)
+- Om nyckeln förloras är arkivet oåtkomligt (per design — säkerhet)
+
+### Automatisk radering
+
+Cron-jobb kör dagligen och raderar predikningar som passerat retention-perioden:
+
+```sql
+DELETE FROM sermons
+WHERE created_at < NOW() - INTERVAL '5 years'
+   OR (deleted_at IS NOT NULL AND deleted_at < NOW() - INTERVAL '30 days');
+```
+
+Soft-delete under 30 dagar innan permanent radering — ger präst tid
+att ångra oavsiktlig borttagning.
+
+---
+
+## 13. Säker filuppladdning
 
 Bilder (profilfoton) laddas upp i AddMemberModal. Just nu bara base64 i minnet
 med 1 MB storleksgräns och `accept="image/*"`. **När backend kommer** måste
@@ -340,3 +401,12 @@ async function validateImage(buffer: Buffer): Promise<boolean> {
 - [ ] Runtime-validering av API/WebSocket-svar (Zod)
 - [ ] React Error Boundaries runt sidor/kort
 - [ ] Filuppladdning: magic bytes-validering + sanera filnamn + antivirus
+
+---
+
+## Vidare säkerhetsdokumentation
+
+- **Rollbaserad åtkomst (RBAC):** se `docs/RBAC.md` för de tre rollerna (admin/präst/volontär) + behörighetsmatris
+- **Multi-kyrka-isolation:** se `docs/MULTI-KYRKA.md` för tenant-isolation via `churchId`
+- **Sakraments-hantering:** se `docs/SAKRAMENT.md` för GDPR art. 9 (särskilda kategorier — religiös övertygelse)
+- **Generell audit-logg:** implementeras enligt `docs/BACKLOG.md` sektion **Auth + Säkerhet**
