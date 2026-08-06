@@ -6,8 +6,9 @@
 // Används av: Services.tsx
 
 import { useState, useEffect } from "react"
-import { X, Check, UserX } from "lucide-react"
+import { Check, UserX } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { ModalCloseButton } from "./ModalCloseButton"
 import { FocusTrap } from "focus-trap-react"
 import type { Member } from "../domain/member"
 import type { Service, Attendance, AttendanceStatus, AbsenceReason } from "../domain/service"
@@ -160,13 +161,7 @@ export function AttendanceModal({
             <h2 id="modal-title" className="text-xl font-bold text-strong">
               {service.title}
             </h2>
-            <button
-              onClick={onClose}
-              className="p-1 rounded-full row-hover"
-              aria-label={t("form.close")}
-            >
-              <X size={20} className="text-soft" />
-            </button>
+            <ModalCloseButton onClose={onClose} />
           </div>
           <p className="text-sm text-faint mb-3">
             {t("attendance.summary", { present: presentCount, absent: absentCount })}

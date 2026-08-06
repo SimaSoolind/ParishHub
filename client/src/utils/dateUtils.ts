@@ -44,3 +44,13 @@ export function formatLongDate(date: Date): string {
   })
   return formatted.charAt(0).toUpperCase() + formatted.slice(1)
 }
+
+// Formaterar ett ISO-datum till kort svenskt format, t.ex. "4 aug"
+// Splittar strängen manuellt för att undvika tidszons-buggar (t.ex. Safari)
+// Tar ett datum som ISO-text ("YYYY-MM-DD")
+// Returnerar dag + kort månad utan punkt
+export function formatShortDate(dateString: string): string {
+  const [year, month, day] = dateString.split("-").map(Number) as [number, number, number]
+  const date = new Date(year, month - 1, day)
+  return date.toLocaleDateString("sv-SE", { day: "numeric", month: "short" }).replace(".", "")
+}

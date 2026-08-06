@@ -39,6 +39,12 @@ export function useServices() {
     setServices(await repository.getAll())
   }
 
+  // Uppdaterar valda fält på en gudstjänst (t.ex. planering) och läser om listan
+  const updateService = async (id: string, changes: Partial<NewServiceData>) => {
+    await repository.update(id, changes)
+    setServices(await repository.getAll())
+  }
+
   // Tar bort en gudstjänst och läser om listorna (även närvaron påverkas)
   const removeService = async (id: string) => {
     await repository.remove(id)
@@ -52,5 +58,14 @@ export function useServices() {
     setAttendance(await repository.getAttendance())
   }
 
-  return { services, attendance, loading, addService, saveNote, saveAttendance, removeService }
+  return {
+    services,
+    attendance,
+    loading,
+    addService,
+    saveNote,
+    updateService,
+    saveAttendance,
+    removeService,
+  }
 }

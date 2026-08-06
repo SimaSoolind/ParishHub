@@ -2,7 +2,7 @@
 // Undviker exakta lokal-strängar för att inte bli miljöberoende
 
 import { describe, it, expect } from "vitest"
-import { getDateBox, getWeekday } from "./dateUtils"
+import { getDateBox, getWeekday, formatShortDate } from "./dateUtils"
 
 describe("getDateBox", () => {
   it("plockar ut rätt dag ur ett ISO-datum", () => {
@@ -21,5 +21,13 @@ describe("getWeekday", () => {
     const weekday = getWeekday("2026-08-03")
     expect(weekday.length).toBeGreaterThan(0)
     expect(weekday.charAt(0)).toBe(weekday.charAt(0).toUpperCase())
+  })
+})
+
+describe("formatShortDate", () => {
+  it("innehåller dagen och saknar avslutande punkt", () => {
+    const short = formatShortDate("2026-08-04")
+    expect(short).toContain("4")
+    expect(short.endsWith(".")).toBe(false)
   })
 })

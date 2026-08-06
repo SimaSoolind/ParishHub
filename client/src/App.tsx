@@ -15,6 +15,10 @@ import { Dashboard } from "./pages/Dashboard"
 const Members = lazy(() => import("./pages/Members").then((m) => ({ default: m.Members })))
 const Calendar = lazy(() => import("./pages/Calendar").then((m) => ({ default: m.Calendar })))
 const Services = lazy(() => import("./pages/Services").then((m) => ({ default: m.Services })))
+const ServiceDetail = lazy(() =>
+  import("./pages/ServiceDetail").then((m) => ({ default: m.ServiceDetail }))
+)
+const Sermons = lazy(() => import("./pages/Sermons").then((m) => ({ default: m.Sermons })))
 const DesignPreview = lazy(() => import("./design/DesignPreview"))
 
 // Sätter upp routing: Layout som ram med tre sidor under sig
@@ -34,6 +38,8 @@ function App() {
             <Route path="medlemmar" element={<Members />} />
             <Route path="kalender" element={<Calendar />} />
             <Route path="gudstjanster" element={<Services />} />
+            <Route path="gudstjanster/:id" element={<ServiceDetail />} />
+            <Route path="predikningar" element={<Sermons />} />
           </Route>
           {/* /design ligger utanför Layout — behöver därför en egen Suspense */}
           <Route

@@ -12,4 +12,9 @@ export type Contact = {
   reason: string
   status: ContactStatus
   phone: string
+  // E-post för mejl-knappen (valfri — alla kontakter har inte e-post)
+  email?: string | undefined
+  // Datum då personen senast kontaktades (ISO "YYYY-MM-DD") — saknas om ingen kontakt skett
+  // Vem som kontaktade läggs till när inloggning finns (kräver användar-id)
+  lastContactedAt?: string
 }

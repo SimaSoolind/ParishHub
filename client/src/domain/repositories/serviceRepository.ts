@@ -9,6 +9,7 @@ export interface ServiceRepository {
   getAll(): Promise<Service[]>
   add(data: NewServiceData): Promise<Service>
   updateNote(id: string, note: string): Promise<Service>
+  update(id: string, changes: Partial<NewServiceData>): Promise<Service>
   remove(id: string): Promise<void>
 
   // Närvaro

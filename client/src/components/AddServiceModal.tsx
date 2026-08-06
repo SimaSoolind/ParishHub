@@ -5,8 +5,8 @@
 // Används av: Services.tsx
 
 import { useState, useEffect } from "react"
-import { X } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { ModalCloseButton } from "./ModalCloseButton"
 import { FocusTrap } from "focus-trap-react"
 import type { NewServiceData } from "../domain/service"
 import { newServiceSchema } from "../schemas/serviceSchema"
@@ -94,13 +94,7 @@ export function AddServiceModal({ onSave, onClose }: Props) {
             <h2 id="modal-title" className="text-xl font-bold text-strong">
               {t("serviceForm.title")}
             </h2>
-            <button
-              onClick={onClose}
-              className="p-1 rounded-full row-hover"
-              aria-label={t("form.close")}
-            >
-              <X size={20} className="text-soft" />
-            </button>
+            <ModalCloseButton onClose={onClose} />
           </div>
 
           <form onSubmit={handleSubmit}>

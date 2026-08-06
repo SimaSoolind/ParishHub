@@ -1,39 +1,34 @@
 // Services — visar lista över alla gudstjänster grupperade i kommande och tidigare
-// Klick på en gudstjänst öppnar närvaro-avprickningen (AttendanceModal)
+// Klick på en gudstjänst öppnar dess detaljsida (planering + noteringar)
+// Närvaro finns INTE här längre — den ligger på Dashboard
 //
 // Används av: App.tsx (sidan för URL "/gudstjanster")
-// Bygger på: useServices (data via repository) och AttendanceModal
-// Data: kommer från useServices — sidan vet INTE om det är mock eller databas
+// Bygger på: useServices (data via repository) och navigering till detaljsidan
 
 import { useState } from "react"
-import { Plus, Calendar, FileText, Trash2, Check, Clock } from "lucide-react"
+import { Calendar, FileText, Trash2, ChevronRight } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { logError, getErrorMessageKey } from "../lib/errorHandler"
+import { AddButton } from "../components/AddButton"
 import { AddServiceModal } from "../components/AddServiceModal"
-import { AttendanceModal } from "../components/AttendanceModal"
-import { Badge } from "../components/Badge"
 import { Skeleton } from "../components/Skeleton"
 import { EmptyState } from "../components/EmptyState"
 import { useServices } from "../hooks/useServices"
-import { useMembers } from "../hooks/useMembers"
-import type { Service, NewServiceData, Attendance } from "../domain/service"
+import type { Service, NewServiceData } from "../domain/service"
 import { getTodayString, getDateBox, getWeekday } from "../utils/dateUtils"
 
-// ServiceRow — en rad för en gudstjänst med datum-box, titel och status-badge
-// Tar emot service, presentCount (antal närvarande), isMarked (om avprickad) och onClick
+// ServiceRow — en rad för en gudstjänst med datum-box, titel samt öppna/radera
+// Tar emot service, onOpen (öppnar detaljsidan) och onDelete
 // Returnerar raden som JSX
 function ServiceRow({
   service,
-  presentCount,
-  isMarked,
-  onClick,
+  onOpen,
   onDelete,
 }: {
   service: Service
-  presentCount: number
-  isMarked: boolean
-  onClick: () => void
+  onOpen: () => void
   onDelete: () => void
 }) {
   const { t } = useTranslation()
@@ -45,11 +40,11 @@ function ServiceRow({
 
   return (
     <li
-      onClick={onClick}
+      onClick={onOpen}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault()
-          onClick()
+          onOpen()
         }
       }}
       role="button"
@@ -57,8 +52,8 @@ function ServiceRow({
       className="flex items-center justify-between py-3 border-b border-stone-200 dark:border-stone-700 last:border-b-0 cursor-pointer row-hover rounded-lg px-2 -mx-2 focus:outline-none focus:ring-2 focus:ring-amber-700"
     >
       <div className="flex items-center gap-3">
-        {/* Datum-box för snabb visuell skanning */}
-        <div className="flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex-shrink-0 dark:bg-amber-950 dark:border-amber-900 dark:text-amber-300">
+        {/* Datum-box för snabb visuell skanning (delad klass i index.css) */}
+        <div className="date-box">
           <span className="text-lg font-bold leading-none">{box.day}</span>
           <span className="text-xs font-semibold">{box.month}</span>
         </div>
@@ -79,10 +74,10 @@ function ServiceRow({
         </div>
       </div>
 
-      {/* Höger sida: status-badge + radera-knapp, eller bekräftelse-läge */}
+      {/* Höger sida: radera-knapp (eller bekräftelse) + chevron som visar att raden öppnar */}
       <div className="flex items-center gap-2 flex-shrink-0">
         {confirmingDelete ? (
-          // stopPropagation så klick och tangent inte öppnar närvaro-modalen bakom
+          // stopPropagation så klick och tangent inte öppnar detaljsidan bakom
           <div
             className="flex items-center gap-2"
             onClick={(e) => e.stopPropagation()}
@@ -106,18 +101,7 @@ function ServiceRow({
           </div>
         ) : (
           <>
-            {isMarked ? (
-              <Badge color="green">
-                <Check size={12} aria-hidden="true" />
-                {t("services.marked", { n: presentCount })}
-              </Badge>
-            ) : (
-              <Badge color="amber">
-                <Clock size={12} aria-hidden="true" />
-                {t("services.notMarked")}
-              </Badge>
-            )}
-            {/* Radera-knapp — stopPropagation så raden inte öppnar modalen */}
+            {/* Radera-knapp — stopPropagation så raden inte öppnar detaljsidan */}
             <button
               onClick={(e) => {
                 e.stopPropagation()
@@ -129,6 +113,7 @@ function ServiceRow({
             >
               <Trash2 size={16} />
             </button>
+            <ChevronRight size={18} className="text-faint" aria-hidden="true" />
           </>
         )}
       </div>
@@ -136,22 +121,16 @@ function ServiceRow({
   )
 }
 
-// Ritar gudstjänst-sidan: grupperad lista, Ny-gudstjänst-modal och närvaro-modal
+// Ritar gudstjänst-sidan: grupperad lista och Ny-gudstjänst-modal
 // Tar inga props och returnerar sidan som JSX
 export function Services() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
 
-  // Gudstjänster, närvaro och funktioner kommer från hooken (via repositoryt)
-  const { services, attendance, loading, addService, saveNote, saveAttendance, removeService } =
-    useServices()
-
-  // Medlemslistan (för närvaro-modalen) hämtas också via repository
-  const { members } = useMembers()
+  // Gudstjänster och funktioner kommer från hooken (via repositoryt)
+  const { services, loading, addService, removeService } = useServices()
 
   const [addModalOpen, setAddModalOpen] = useState(false)
-
-  // Gudstjänsten vars närvaro prickas av — null när modalen är stängd
-  const [selectedService, setSelectedService] = useState<Service | null>(null)
 
   const today = getTodayString()
 
@@ -163,12 +142,8 @@ export function Services() {
   // Tidigare gudstjänster — senast genomförda först
   const past = services.filter((s) => s.date < today).sort((a, b) => b.date.localeCompare(a.date))
 
-  // Räknar antal närvarande för en gudstjänst (läser från närvaro-listan)
-  const getPresentCount = (serviceId: string) =>
-    attendance.filter((a) => a.serviceId === serviceId && a.status === "present").length
-
-  // Sant om närvaron är avprickad (det finns minst en post för gudstjänsten)
-  const getIsMarked = (serviceId: string) => attendance.some((a) => a.serviceId === serviceId)
+  // Öppnar detaljsidan för en gudstjänst
+  const openService = (id: string) => navigate("/gudstjanster/" + id)
 
   // Körs när prästen sparar en ny gudstjänst — repositoryt skapar id:t
   const handleAddService = async (newService: NewServiceData) => {
@@ -177,37 +152,12 @@ export function Services() {
       setAddModalOpen(false)
       toast.success(t("common.added"))
     } catch (error) {
-      // Loggar internt och visar ett generellt fel — aldrig interna detaljer
       logError("Services.handleAddService", error)
       toast.error(t(getErrorMessageKey(error)))
     }
   }
 
-  // Sparar närvaron för den valda gudstjänsten
-  const handleSaveAttendance = async (records: Attendance[]) => {
-    if (!selectedService) return
-    try {
-      await saveAttendance(selectedService.id, records)
-      setSelectedService(null)
-      toast.success(t("common.saved"))
-    } catch (error) {
-      logError("Services.handleSaveAttendance", error)
-      toast.error(t(getErrorMessageKey(error)))
-    }
-  }
-
-  // Sparar gudstjänstens anteckning (kortnotering)
-  const handleSaveNote = async (note: string) => {
-    if (!selectedService) return
-    try {
-      await saveNote(selectedService.id, note)
-    } catch (error) {
-      logError("Services.handleSaveNote", error)
-      toast.error(t(getErrorMessageKey(error)))
-    }
-  }
-
-  // Tar bort en gudstjänst (och dess närvaro) med felhantering och toast
+  // Tar bort en gudstjänst med felhantering och toast
   const handleDeleteService = async (id: string) => {
     try {
       await removeService(id)
@@ -222,13 +172,7 @@ export function Services() {
     <>
       <header className="flex items-center justify-between mb-2">
         <h1 className="text-4xl font-serif font-bold text-strong">{t("services.title")}</h1>
-        <button
-          onClick={() => setAddModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-800 text-white text-sm font-semibold hover:bg-amber-900"
-        >
-          <Plus size={16} />
-          {t("services.add")}
-        </button>
+        <AddButton label={t("services.add")} onClick={() => setAddModalOpen(true)} />
       </header>
       <p className="text-soft mb-6">{t("services.total", { total: services.length })}</p>
 
@@ -246,15 +190,7 @@ export function Services() {
           <EmptyState
             icon={Calendar}
             title={t("services.empty")}
-            action={
-              <button
-                onClick={() => setAddModalOpen(true)}
-                className="btn-primary inline-flex items-center gap-2"
-              >
-                <Plus size={16} aria-hidden="true" />
-                {t("services.add")}
-              </button>
-            }
+            action={<AddButton label={t("services.add")} onClick={() => setAddModalOpen(true)} />}
           />
         </div>
       ) : (
@@ -271,9 +207,7 @@ export function Services() {
                     <ServiceRow
                       key={service.id}
                       service={service}
-                      presentCount={getPresentCount(service.id)}
-                      isMarked={getIsMarked(service.id)}
-                      onClick={() => setSelectedService(service)}
+                      onOpen={() => openService(service.id)}
                       onDelete={() => handleDeleteService(service.id)}
                     />
                   ))}
@@ -292,9 +226,7 @@ export function Services() {
                     <ServiceRow
                       key={service.id}
                       service={service}
-                      presentCount={getPresentCount(service.id)}
-                      isMarked={getIsMarked(service.id)}
-                      onClick={() => setSelectedService(service)}
+                      onOpen={() => openService(service.id)}
                       onDelete={() => handleDeleteService(service.id)}
                     />
                   ))}
@@ -307,18 +239,6 @@ export function Services() {
 
       {addModalOpen && (
         <AddServiceModal onSave={handleAddService} onClose={() => setAddModalOpen(false)} />
-      )}
-
-      {/* Närvaro-modal visas när en gudstjänst klickats */}
-      {selectedService && (
-        <AttendanceModal
-          service={selectedService}
-          members={members}
-          attendance={attendance.filter((a) => a.serviceId === selectedService.id)}
-          onSave={handleSaveAttendance}
-          onSaveNote={handleSaveNote}
-          onClose={() => setSelectedService(null)}
-        />
       )}
     </>
   )

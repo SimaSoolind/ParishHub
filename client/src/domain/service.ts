@@ -16,6 +16,8 @@ export type Service = {
   startTime: string // "10:00"
   endTime?: string | undefined // "12:00" — valfri sluttid
   notes?: string | undefined
+  feast?: string | undefined // Högtid (t.ex. Fastan, Jul, Påsk) — för planering
+  bibleText?: string | undefined // Bibeltexter kopplade till gudstjänsten
 }
 
 // Närvaro för EN medlem i EN gudstjänst (många-till-många-relation)

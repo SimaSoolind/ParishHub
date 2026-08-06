@@ -5,8 +5,10 @@
 // Används av: Members.tsx
 
 import { useEffect, useState } from "react"
-import { X, Phone, Mail, Trash2, Pencil, Users, UserPlus, MessageCircle } from "lucide-react"
+import { Phone, Mail, Users, UserPlus, MessageCircle } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { ModalCloseButton } from "./ModalCloseButton"
+import { DeleteEditActions } from "./DeleteEditActions"
 import { FocusTrap } from "focus-trap-react"
 import { Avatar } from "./Avatar"
 import type { Member } from "../domain/member"
@@ -51,9 +53,6 @@ export function MemberProfileModal({
 }: Props) {
   const { t } = useTranslation()
 
-  // Sant när prästen klickat Radera och ska bekräfta borttagningen
-  const [confirmingDelete, setConfirmingDelete] = useState(false)
-
   // Sant när listan för att koppla en familjemedlem visas
   const [showFamilyPicker, setShowFamilyPicker] = useState(false)
 
@@ -96,13 +95,7 @@ export function MemberProfileModal({
                 {member.name}
               </h2>
             </div>
-            <button
-              onClick={onClose}
-              className="p-1 rounded-full row-hover"
-              aria-label={t("form.close")}
-            >
-              <X size={20} className="text-soft" />
-            </button>
+            <ModalCloseButton onClose={onClose} />
           </div>
 
           {/* Snabbkontakt — ring och mejla */}
@@ -245,45 +238,8 @@ export function MemberProfileModal({
             </div>
           </div>
 
-          {/* Bekräftelse innan radering — annars vanliga knappar */}
-          {confirmingDelete ? (
-            <div className="mt-5">
-              <p className="text-sm text-soft mb-3">
-                {t("profile.deleteQ", { name: member.name })}
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setConfirmingDelete(false)}
-                  className="flex-1 px-4 py-2 btn-secondary text-soft"
-                >
-                  {t("form.cancel")}
-                </button>
-                <button
-                  onClick={onDelete}
-                  className="flex-1 px-4 py-2 bg-red-700 text-white rounded-xl font-semibold hover:bg-red-800"
-                >
-                  {t("profile.confirmDelete")}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex gap-2 mt-5">
-              <button
-                onClick={() => setConfirmingDelete(true)}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-red-200 rounded-xl font-semibold text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
-              >
-                <Trash2 size={16} />
-                {t("profile.delete")}
-              </button>
-              <button
-                onClick={onEdit}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 btn-primary"
-              >
-                <Pencil size={16} />
-                {t("profile.edit")}
-              </button>
-            </div>
-          )}
+          {/* Radera/Redigera-fot med inbyggd bekräftelse (delad komponent) */}
+          <DeleteEditActions name={member.name} onDelete={onDelete} onEdit={onEdit} />
         </div>
       </div>
     </FocusTrap>

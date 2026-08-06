@@ -30,6 +30,14 @@ export const mockServiceRepository: ServiceRepository = {
     return updated
   },
 
+  // Uppdaterar valda fält på en gudstjänst (t.ex. högtid och bibeltexter)
+  async update(id, changes) {
+    services = services.map((s) => (s.id === id ? { ...s, ...changes } : s))
+    const updated = services.find((s) => s.id === id)
+    if (!updated) throw new Error("Gudstjänst med id " + id + " saknas")
+    return updated
+  },
+
   // Tar bort en gudstjänst och dess tillhörande närvaro-poster (ingen rest lämnas kvar)
   async remove(id) {
     services = services.filter((s) => s.id !== id)

@@ -8,8 +8,9 @@
 // Används av: Members.tsx
 
 import { useEffect, useState } from "react"
-import { X, MessageCircle } from "lucide-react"
+import { MessageCircle } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { ModalCloseButton } from "./ModalCloseButton"
 import { FocusTrap } from "focus-trap-react"
 import type { Member } from "../domain/member"
 import { messageTemplateIds, fillTemplate } from "../data/messageTemplates"
@@ -55,13 +56,7 @@ export function GroupMessageModal({ members, onClose }: Props) {
             <h2 id="modal-title" className="text-xl font-bold text-strong">
               {t("group.title")}
             </h2>
-            <button
-              onClick={onClose}
-              className="p-1 rounded-full row-hover"
-              aria-label={t("form.close")}
-            >
-              <X size={20} className="text-soft" />
-            </button>
+            <ModalCloseButton onClose={onClose} />
           </div>
           <p className="text-sm text-faint mb-4">{t("group.subtitle", { n: members.length })}</p>
 

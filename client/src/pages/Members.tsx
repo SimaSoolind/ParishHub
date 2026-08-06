@@ -8,6 +8,7 @@
 import { useState, useCallback } from "react"
 import { Search, Plus, Users } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { AddButton } from "../components/AddButton"
 import { toast } from "sonner"
 import { logError, getErrorMessageKey } from "@lib/errorHandler"
 import { MemberCard } from "@components/MemberCard"
@@ -139,13 +140,7 @@ export function Members() {
             >
               {selectionMode ? t("members.cancel") : t("members.groupSend")}
             </button>
-            <button
-              onClick={() => setAddModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-800 text-white text-sm font-semibold hover:bg-amber-900"
-            >
-              <Plus size={16} />
-              {t("members.add")}
-            </button>
+            <AddButton label={t("members.add")} onClick={() => setAddModalOpen(true)} />
           </div>
         </div>
         <p className="text-soft mb-6">{t("members.total", { total })}</p>

@@ -6,8 +6,8 @@
 // Används av: Calendar.tsx
 
 import { useState, useEffect } from "react"
-import { X } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { ModalCloseButton } from "./ModalCloseButton"
 import { FocusTrap } from "focus-trap-react"
 import { lifeEventCategoryValues } from "../data/eventCategories"
 import { newEventSchema } from "../schemas/eventSchema"
@@ -92,13 +92,7 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
             <h2 id="modal-title" className="text-xl font-bold text-strong">
               {isEdit ? t("eventForm.editTitle") : t("eventForm.addTitle")}
             </h2>
-            <button
-              onClick={onClose}
-              className="p-1 rounded-full row-hover"
-              aria-label={t("form.close")}
-            >
-              <X size={20} className="text-soft" />
-            </button>
+            <ModalCloseButton onClose={onClose} />
           </div>
 
           {/* Själva formuläret — onSubmit triggas vid Spara-klick */}

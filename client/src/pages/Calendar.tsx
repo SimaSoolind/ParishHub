@@ -11,8 +11,9 @@ import { Calendar as BigCalendar, dateFnsLocalizer, Views } from "react-big-cale
 import type { View, SlotInfo } from "react-big-calendar"
 import { format, parse, startOfWeek, getDay } from "date-fns"
 import { sv } from "date-fns/locale"
-import { RefreshCw, Plus } from "lucide-react"
+import { RefreshCw } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { AddButton } from "../components/AddButton"
 import { toast } from "sonner"
 import { logError, getErrorMessageKey } from "../lib/errorHandler"
 import { EventModal } from "../components/EventModal"
@@ -145,13 +146,7 @@ export function Calendar() {
           <RefreshCw size={16} />
           {t("calendar.syncGoogle")}
         </button>
-        <button
-          onClick={() => setAddModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-800 text-white text-sm font-semibold hover:bg-amber-900"
-        >
-          <Plus size={16} />
-          {t("calendar.newEvent")}
-        </button>
+        <AddButton label={t("calendar.newEvent")} onClick={() => setAddModalOpen(true)} />
       </section>
 
       {/* Själva kalendern */}

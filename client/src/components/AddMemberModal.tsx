@@ -6,8 +6,9 @@
 // Används av: Members.tsx
 
 import { useState, useEffect, useRef } from "react"
-import { X, Upload, Camera, ChevronDown, ChevronUp } from "lucide-react"
+import { Upload, Camera, ChevronDown, ChevronUp } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { ModalCloseButton } from "./ModalCloseButton"
 import { FocusTrap } from "focus-trap-react"
 import type { MemberCategory, NewMemberData } from "../domain/member"
 import { newMemberSchema } from "../schemas/memberSchema"
@@ -150,13 +151,7 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
             <h2 id="modal-title" className="text-xl font-bold text-strong">
               {isEdit ? t("form.editTitle") : t("form.addTitle")}
             </h2>
-            <button
-              onClick={onClose}
-              className="p-1 rounded-full row-hover"
-              aria-label={t("form.close")}
-            >
-              <X size={20} className="text-soft" />
-            </button>
+            <ModalCloseButton onClose={onClose} />
           </div>
 
           <form onSubmit={handleSubmit}>
