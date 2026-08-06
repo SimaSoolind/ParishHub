@@ -5,11 +5,12 @@
 // Bygger på: useMembers (data via repository), useMemberSearch (sök) och MemberCard
 // Data: kommer från useMembers — sidan vet INTE om det är mock eller databas
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { Search, Plus, Users } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { AddButton } from "../components/AddButton"
+import { Chip } from "../components/Chip"
 import { toast } from "sonner"
 import { logError, getErrorMessageKey } from "@lib/errorHandler"
 import { MemberCard } from "@components/MemberCard"
@@ -44,7 +45,24 @@ export function Members() {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [groupModalOpen, setGroupModalOpen] = useState(false)
 
-  const { searchText, setSearchText, filter, setFilter, filteredMembers } = useMemberSearch(members)
+  const {
+    searchText,
+    setSearchText,
+    filter,
+    setFilter,
+    statusFilter,
+    setStatusFilter,
+    filteredMembers,
+  } = useMemberSearch(members)
+
+  // Läser ?kategori= från URL:en (t.ex. från Dashboard-diagrammet) och sätter filtret
+  const [searchParams] = useSearchParams()
+  useEffect(() => {
+    const category = searchParams.get("kategori")
+    if (category && filterOptions.includes(category as FilterCategory)) {
+      setFilter(category as FilterCategory)
+    }
+  }, [searchParams, setFilter])
 
   const total = filteredMembers.length
 
@@ -140,14 +158,48 @@ export function Members() {
             )
           })}
         </div>
+
+        {/* Status-filter — aktiva/inaktiva medlemmar */}
+        <div
+          className="flex gap-2 flex-wrap mb-6"
+          role="group"
+          aria-label={t("members.statusFilter.label")}
+        >
+          {(["all", "active", "inactive"] as const).map((value) => (
+            <Chip
+              key={value}
+              active={statusFilter === value}
+              onClick={() => setStatusFilter(value)}
+            >
+              {t("members.statusFilter." + value)}
+            </Chip>
+          ))}
+        </div>
       </section>
 
       {/* Urvalsrad i grupputskick-läge */}
       {selectionMode && (
-        <div className="flex items-center justify-between mb-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 dark:bg-amber-950 dark:border-amber-900">
-          <span className="text-sm text-soft">
-            {t("members.selected", { n: selectedIds.length })}
-          </span>
+        <div className="flex items-center justify-between gap-2 flex-wrap mb-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 dark:bg-amber-950 dark:border-amber-900">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-sm text-soft">
+              {t("members.selected", { n: selectedIds.length })}
+            </span>
+            {/* Segment: välj alla i den filtrerade listan (kategori + status som segment) */}
+            <button
+              onClick={() => setSelectedIds(filteredMembers.map((m) => m.id))}
+              className="text-xs font-semibold text-accent hover:underline"
+            >
+              {t("members.selectAllFiltered")}
+            </button>
+            {selectedIds.length > 0 && (
+              <button
+                onClick={() => setSelectedIds([])}
+                className="text-xs font-semibold text-soft hover:underline"
+              >
+                {t("members.clearSelection")}
+              </button>
+            )}
+          </div>
           <button
             onClick={() => setGroupModalOpen(true)}
             disabled={selectedIds.length === 0}

@@ -1,5 +1,9 @@
 # 🎨 Design & designsystem — ParishHub
 
+> **Syfte:** Färger, typografi, komponenter, bakgrundsbilder per församling.
+> **Använd när:** du ändrar färg, väljer font, designar ny sida.
+> **Se även:** [`ARCHITECTURE.md`](./ARCHITECTURE.md) för multi-tenant-bakgrundsbilder.
+
 Designplan för Kyrko-appen: färger, typografi, komponenter och alla skärmar.
 Temat heter **"Varm Olivsten"** med kopparaccent.
 

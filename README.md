@@ -1,5 +1,9 @@
 # ParishHub ✝
 
+> **Syfte:** Startpunkt för nya besökare på GitHub — vad projektet är + kom-igång.
+> **Använd när:** någon öppnar repot för första gången.
+> **Se även:** [`docs/INDEX.md`](./docs/INDEX.md) för hitta-rätt-guide, [`docs/BACKLOG.md`](./docs/BACKLOG.md) för tasks.
+
 Digitalt system för kyrkoförvaltning — med AI-tolkning live på svenska och arabiska.
 
 ## 🎯 Syfte

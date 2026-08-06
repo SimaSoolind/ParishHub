@@ -4,25 +4,29 @@
 //
 // Används av: App.tsx (ramar in Dashboard, Members, Calendar, Services)
 
-import { useEffect, Suspense } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { Outlet, Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { Sun, Moon, Type } from "lucide-react"
+import { Settings as SettingsIcon } from "lucide-react"
 import { ErrorBoundary } from "./ErrorBoundary"
 import { PageLoader } from "./PageLoader"
 import { BottomNav } from "./BottomNav"
+import { SettingsDrawer } from "./SettingsDrawer"
 import { useTheme } from "../hooks/useTheme"
-import { useFontScale, type FontScale } from "../hooks/useFontScale"
+import { useFontScale } from "../hooks/useFontScale"
 
 // Ritar gemensam header med navigering, språkväxlare och en <Outlet>
 // Tar inga props och returnerar sidramen som JSX
 export function Layout() {
   const { t, i18n } = useTranslation()
-  const { theme, toggleTheme } = useTheme()
-  const { scale, setScale } = useFontScale()
 
-  // Tillåtna textstorlekar i ordning (80–200 procent)
-  const fontScales: FontScale[] = [0.8, 1, 1.2, 1.4, 2]
+  // Styr om inställnings-panelen (drawer) är öppen — nåbar från alla sidor
+  const [settingsOpen, setSettingsOpen] = useState(false)
+
+  // Läser + applicerar sparade inställningar (tema, textstorlek) på hela appen
+  // Själva reglagen finns i inställnings-panelen (SettingsDrawer)
+  useTheme()
+  useFontScale()
 
   // Sätter språk-kod och textriktning på hela sidan (RTL för arabiska)
   // Körs varje gång språket byts
@@ -62,49 +66,14 @@ export function Layout() {
               </Link>
             </nav>
 
-            {/* Språkväxlare — byter mellan svenska och arabiska */}
-            <div className="flex gap-1 bg-stone-100 rounded-lg p-1 border border-stone-200 dark:bg-stone-700 dark:border-stone-600">
-              {(["sv", "ar"] as const).map((lng) => (
-                <button
-                  key={lng}
-                  onClick={() => i18n.changeLanguage(lng)}
-                  className={
-                    "px-2 py-1 rounded text-xs font-semibold " +
-                    (i18n.language === lng ? "bg-amber-800 text-white" : "text-soft hover-accent")
-                  }
-                >
-                  {lng === "sv" ? "SV" : "AR"}
-                </button>
-              ))}
-            </div>
-
-            {/* Tema-knapp — växlar mellan ljust och mörkt läge */}
+            {/* Kugg-ikon → öppnar inställnings-panelen (språk, tema, textstorlek m.m.) */}
             <button
-              onClick={toggleTheme}
-              aria-label={theme === "dark" ? t("theme.toLight") : t("theme.toDark")}
+              onClick={() => setSettingsOpen(true)}
+              aria-label={t("nav.settings")}
               className="p-2 rounded-lg text-soft hover-accent row-hover"
             >
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+              <SettingsIcon size={18} />
             </button>
-
-            {/* Textstorlek — skalar all text (WCAG 1.4.4, bra vid nedsatt syn) */}
-            <div className="flex items-center gap-1 bg-stone-100 rounded-lg p-1 border border-stone-200 dark:bg-stone-700 dark:border-stone-600">
-              <Type size={16} aria-hidden="true" className="text-faint" />
-              {fontScales.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setScale(s)}
-                  aria-pressed={scale === s}
-                  aria-label={t("a11y.fontScale", { percent: Math.round(s * 100) })}
-                  className={
-                    "px-2 py-1 rounded text-xs font-semibold " +
-                    (scale === s ? "bg-amber-800 text-white" : "text-soft hover-accent")
-                  }
-                >
-                  {Math.round(s * 100)}%
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       </header>
@@ -122,6 +91,9 @@ export function Layout() {
 
       {/* Fast bottennavigering — visas bara på mobil (md:hidden) */}
       <BottomNav />
+
+      {/* Inställnings-panel — öppnas av kugg-ikonen, ligger över alla sidor */}
+      <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   )
 }

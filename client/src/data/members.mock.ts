@@ -14,6 +14,7 @@ export const mockMembers: Member[] = [
     birthday: "5 aug",
     category: "adult",
     familyId: "fam-1",
+    familyRole: "parent",
   },
   {
     id: "2",
@@ -24,6 +25,7 @@ export const mockMembers: Member[] = [
     familySize: 1,
     birthday: "27 jul",
     category: "adult",
+    status: "inactive",
   },
   {
     id: "3",
@@ -34,7 +36,9 @@ export const mockMembers: Member[] = [
     familySize: 3,
     birthday: "12 sep",
     category: "leader",
+    notes: "Reser mycket i jobbet — ring helst på kvällar.",
     familyId: "fam-1",
+    familyRole: "child",
   },
   {
     id: "4",
@@ -55,5 +59,8 @@ export const mockMembers: Member[] = [
     familySize: 2,
     birthday: "18 nov",
     category: "other",
+    preferredName: "Dave",
+    language: "ar",
+    notes: "Ny i församlingen — behöver extra välkomnande.",
   },
 ]

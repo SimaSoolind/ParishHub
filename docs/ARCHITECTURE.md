@@ -1,5 +1,9 @@
 # Arkitektur — ParishHub
 
+> **Syfte:** Systemarkitektur, dataflöde, multi-tenant, tekniska val.
+> **Använd när:** du planerar ny funktion, funderar på hur delarna hänger ihop.
+> **Se även:** [`AI-TOLKNING.md`](./AI-TOLKNING.md) för live-tolknings-arkitektur, [`SECURITY.md`](./SECURITY.md) för säkerhets-detaljer.
+
 ## Översikt
 
 ParishHub är en monorepo med två delar som pratar med varandra:
@@ -114,6 +118,58 @@ Vecka 1-startpunkt (frontend + mock): `docs/POC-VECKA-1.md`.
 - Enklare att hålla frontend och backend synkade
 - En plats för dokumentation
 - Delade TypeScript-typer
+
+## Multi-tenant-arkitektur
+
+ParishHub är designat som en **kommersiell SaaS-produkt** för flera
+ortodoxa kyrkor. Varje församling är en isolerad "tenant" med egen data,
+egen inställning, egen bakgrundsbild.
+
+### Princip: en medlem = EN församling
+
+En medlem tillhör **en huvudförsamling** (hemkyrka). Undantag:
+
+- En medlem kan vara "besökare" i andra församlingar (mång-till-mång via `member_churches`)
+- En präst kan ha åtkomst till flera församlingar (mång-till-mång via `user_church_roles`)
+
+**Skäl:** enkel data-modell + tydlig ägarskap + GDPR-hantering per församling.
+
+### Tenant-isolation
+
+Varje församling är en tenant. Data isoleras via `churchId` på alla resurser:
+
+- `members.church_id`
+- `services.church_id`
+- `sermons.church_id` (via `services`)
+- `messages.church_id`
+- `sacraments.member_id` → `members.church_id`
+
+**Alla queries filtrerar via `churchId`** — hämtas från inloggad användares
+`user_church_roles`. Ingen församling ser data från en annan.
+
+### Parish profile
+
+Varje församling har en `parish_profile` med:
+
+- Namn + adress
+- Logo
+- Tradition (koptisk / grekisk / rysk / syriansk)
+- Färgtema (bas: Varm Olivsten, kan anpassas)
+- Bakgrundsbild för projektorvyn
+- Liturgisk kalender-typ (juliansk / reviderad juliansk)
+- Data-retention-policy (predikningar, 1-10 år)
+
+### Kommersiell modell
+
+Se `docs/AI-TOLKNING.md` sektion 13 — Simas teams affärsmodell.
+Kort: prenumerations-service med hymn-bibliotek som huvudprodukt.
+
+### Implementeringsplan
+
+Se `docs/BACKLOG.md` sektion **Flera kyrkor** + **Databasmodeller**
+(`Church`, `MemberChurch`, `UserChurch`).
+
+---
 
 ## Beroenden (externa tjänster)
 

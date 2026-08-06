@@ -12,9 +12,12 @@ import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { logError, getErrorMessageKey } from "../lib/errorHandler"
 import { Avatar } from "../components/Avatar"
+import { Badge } from "../components/Badge"
 import { AddMemberModal } from "../components/AddMemberModal"
 import { DeleteEditActions } from "../components/DeleteEditActions"
 import { SacramentPanel } from "../components/SacramentPanel"
+import { MemberHistoryChart } from "../components/MemberHistoryChart"
+import { FamilyTree } from "../components/FamilyTree"
 import { Skeleton } from "../components/Skeleton"
 import { useMembers } from "../hooks/useMembers"
 import { resolveFamilyId } from "../use-cases/family"
@@ -49,6 +52,9 @@ export function MemberDetail() {
   // Sant när listan för att koppla en familjemedlem visas
   const [showFamilyPicker, setShowFamilyPicker] = useState(false)
 
+  // Sant när prästen ska bekräfta att medlemmen tas bort ur familjen
+  const [confirmingUnlink, setConfirmingUnlink] = useState(false)
+
   // Sant när redigera-modalen är öppen
   const [editing, setEditing] = useState(false)
 
@@ -78,6 +84,14 @@ export function MemberDetail() {
   const handleUnlinkFamily = () => {
     if (!member) return
     updateMember(member.id, { familyId: undefined })
+  }
+
+  // Skapar en ny (tom) familj för medlemmen — får ett fräscht familyId
+  // Efteråt kan fler medlemmar kopplas till samma hushåll
+  const handleCreateFamily = () => {
+    if (!member) return
+    updateMember(member.id, { familyId: crypto.randomUUID() })
+    toast.success(t("profile.familyCreated"))
   }
 
   // Sparar en ändring av medlemmen
@@ -126,7 +140,15 @@ export function MemberDetail() {
           <div className="surface border p-6 rounded-2xl shadow-sm mb-6">
             <div className="flex items-center gap-3 mb-5">
               <Avatar name={member.name} photoUrl={member.photoUrl} size="lg" />
-              <h1 className="text-2xl font-serif font-bold text-strong">{member.name}</h1>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-2xl font-serif font-bold text-strong">{member.name}</h1>
+                {member.preferredName && (
+                  <p className="text-sm text-faint">”{member.preferredName}”</p>
+                )}
+              </div>
+              <Badge color={member.status === "inactive" ? "red" : "green"}>
+                {t("form.memberStatus." + (member.status ?? "active"))}
+              </Badge>
             </div>
 
             {/* Snabbkontakt — ring och mejla */}
@@ -154,6 +176,15 @@ export function MemberDetail() {
             <DetailRow label={t("form.familySize")} value={String(member.familySize)} />
             <DetailRow label={t("form.birthday")} value={member.birthday} />
             <DetailRow label={t("form.category")} value={t("members.filter." + member.category)} />
+            {member.language && (
+              <DetailRow label={t("form.language")} value={t("form.lang." + member.language)} />
+            )}
+            {member.familyRole && (
+              <DetailRow
+                label={t("form.familyRole")}
+                value={t("familyRole." + member.familyRole)}
+              />
+            )}
             {member.notes && <DetailRow label={t("profile.notes")} value={member.notes} />}
 
             {/* Familj — andra medlemmar med samma familyId */}
@@ -163,32 +194,25 @@ export function MemberDetail() {
                 {t("profile.family")}
               </div>
 
-              {familyMembers.length > 0 ? (
-                <ul className="mb-2">
-                  {familyMembers.map((fm) => (
-                    <li key={fm.id} className="flex items-center justify-between py-1">
-                      {/* Klick öppnar den familjemedlemmens detaljsida */}
-                      <button
-                        onClick={() => navigate("/medlemmar/" + fm.id)}
-                        className="text-sm text-accent hover:underline"
-                      >
-                        {fm.name}
-                      </button>
-                      {/* WhatsApp direkt till familjemedlemmen */}
-                      <a
-                        href={buildWhatsAppLink(fm.phone, "")}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-1 rounded-full row-hover"
-                        aria-label={t("profile.whatsappTo", { name: fm.name })}
-                      >
-                        <MessageCircle size={16} className="text-green-600 dark:text-green-400" />
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+              {member.familyId ? (
+                // Familjeträd — hushållet grupperat efter roll
+                <FamilyTree
+                  self={member}
+                  members={familyMembers}
+                  onOpen={(memberId) => navigate("/medlemmar/" + memberId)}
+                />
               ) : (
-                <p className="text-sm text-faint mb-2">{t("profile.noFamily")}</p>
+                <div className="mb-2">
+                  <p className="text-sm text-faint mb-2">{t("profile.noFamily")}</p>
+                  {/* Skapa en ny familj från noll (medlemmen blir ett eget hushåll) */}
+                  <button
+                    onClick={handleCreateFamily}
+                    className="flex items-center gap-1 text-sm font-semibold text-accent hover:underline"
+                  >
+                    <Users size={14} />
+                    {t("profile.createFamily")}
+                  </button>
+                </div>
               )}
 
               {/* Knapp eller väljare för att koppla en familjemedlem */}
@@ -222,15 +246,35 @@ export function MemberDetail() {
                 </div>
               )}
 
-              {/* Lossa denna medlem ur familjen */}
-              {member.familyId && (
-                <button
-                  onClick={handleUnlinkFamily}
-                  className="block mt-2 text-xs text-red-600 hover:underline dark:text-red-400"
-                >
-                  {t("profile.removeFromFamily")}
-                </button>
-              )}
+              {/* Lossa denna medlem ur familjen — med bekräftelse */}
+              {member.familyId &&
+                (confirmingUnlink ? (
+                  <div className="mt-2 flex items-center gap-2 flex-wrap">
+                    <span className="text-xs text-soft">{t("profile.confirmUnlink")}</span>
+                    <button
+                      onClick={() => setConfirmingUnlink(false)}
+                      className="px-2 py-0.5 rounded text-xs btn-secondary text-soft"
+                    >
+                      {t("form.cancel")}
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleUnlinkFamily()
+                        setConfirmingUnlink(false)
+                      }}
+                      className="px-2 py-0.5 rounded text-xs bg-red-700 text-white font-semibold hover:bg-red-800"
+                    >
+                      {t("profile.confirmDelete")}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setConfirmingUnlink(true)}
+                    className="block mt-2 text-xs text-red-600 hover:underline dark:text-red-400"
+                  >
+                    {t("profile.removeFromFamily")}
+                  </button>
+                ))}
             </div>
 
             {/* Snabbmeddelande via WhatsApp */}
@@ -274,6 +318,9 @@ export function MemberDetail() {
             />
           </div>
 
+          {/* Närvarohistorik — närvaro per gudstjänst + procent */}
+          <MemberHistoryChart memberId={member.id} />
+
           {/* Sakrament — dop, myrrasmörjelse, äktenskap, prästvigning m.fl. */}
           <SacramentPanel memberId={member.id} members={members} />
         </>
@@ -291,6 +338,10 @@ export function MemberDetail() {
             familySize: member.familySize,
             birthday: member.birthday,
             category: member.category,
+            preferredName: member.preferredName,
+            language: member.language,
+            status: member.status,
+            familyRole: member.familyRole,
             notes: member.notes,
             photoUrl: member.photoUrl,
           }}

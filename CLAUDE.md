@@ -1,5 +1,9 @@
 # ParishHub
 
+> **Syfte:** Kodregler, kommentarsstil, säkerhet, arbetssätt för Claude.
+> **Använd när:** du startar en ny session med Claude, vill påminna om regler.
+> **Se även:** [`docs/INDEX.md`](./docs/INDEX.md) för alla docs, [`docs/BACKLOG.md`](./docs/BACKLOG.md) för tasks.
+
 Digitalt system för kyrkoförvaltning. Byggs som examensprojekt av Sima Soolind.
 
 ## 📖 Om projektet
@@ -294,3 +298,93 @@ byt EN import-rad i hooken. Noll ändringar i sidor eller komponenter.
 - Påminn alltid Sima att skriva dags-logg i DAGBOK.md innan hon avslutar
 - Fråga om något ska loggas som milstolpe i DAGBOK.md
 - Följ mallen i docs/MALL-SETUP.md för nya projekt-tillägg
+
+---
+
+## 📝 Dagens dokumentation — regler för slutet av varje session
+
+Vid slutet av varje kod-session MÅSTE Claude:
+
+1. **Ställa reflektions-frågor** för att fånga dagens insikter
+2. **Hjälpa Sima dokumentera** i rätt filer baserat på svaren
+3. **ALDRIG hoppa DAGBOK.md** — även små dagar loggas ("10 min: läste docs")
+
+### Reflektions-frågor Claude ska ställa
+
+**Innehåll:**
+- Vad blev klart idag? (→ DAGBOK "Vad blev klart" + bocka av i BACKLOG.md)
+- Vad lärde du dig? (→ DAGBOK "Vad jag lärde mig")
+- Vilka fel löste du? (→ DAGBOK "Fel jag löste" + eventuellt TROUBLESHOOTING.md om svår)
+- Hur mycket tid la du? (→ DAGBOK "Tid")
+
+**Reflektion:**
+- Vad kändes bra? Vad var svårt?
+- Fastnade du på något? På vad?
+- Är det något du vill komma ihåg för i morgon?
+
+**Påverkan på andra filer (fråga bara relevanta):**
+- Är detta en milstolpe? → DAGBOK milstolpe-lista
+- Var det en stor förändring? → CHANGELOG.md ny version-rad
+- Ny säljbar merit? → CV-BULLETS.md
+- Ny teknik-detalj att förklara läraren? → REDOVISNING.md
+- Löste du en svår bugg (som kan hända igen)? → TROUBLESHOOTING.md
+- Har du privata kod-anteckningar? → NOTES.md
+- Ändrade du arkitekturen? → ARCHITECTURE.md
+- Påverkade du säkerheten? → SECURITY.md
+- Uppdaterade du design? → DESIGN.md
+- Ändrade du något om AI-tolkning? → AI-TOLKNING.md
+- Backend-krav som ändrats? → BACKEND-ATT-GORA.md
+- Teknisk översikt förändrad? → TEKNISK-DOKUMENTATION.md
+
+### Beslutsträd — vilken fil uppdateras
+
+| Situation | Fil att uppdatera | Krav |
+|---|---|---|
+| **Alltid** varje dag | `DAGBOK.md` | Kort eller lång — men något |
+| **Task klar** | `docs/BACKLOG.md` | Bocka av `- [ ]` → `- [x]` |
+| **Version-värd** förändring | `CHANGELOG.md` | Ny sida/feature/arkitektur |
+| **Stor dag** | `DAGBOK.md` milstolpar | 1-2 rader |
+| **Ny meritering** för CV | `CV-BULLETS.md` | Konkret CV-rad |
+| **Ny teknik-detalj** för lärare | `docs/REDOVISNING.md` | Motivering + hur du löste |
+| **Svår bugg** löst | `docs/TROUBLESHOOTING.md` | Fel + lösning + kontext |
+| **Privata anteckningar** | `NOTES.md` | Snippets, tanke-blockar |
+| **Arkitektur** ändrad | `docs/ARCHITECTURE.md` | Uppdatera diagram/beskrivning |
+| **Säkerhet** påverkad | `docs/SECURITY.md` | Ny sektion eller uppdatering |
+| **Design** förändrad | `docs/DESIGN.md` | Ny färg/typografi/komponent |
+| **AI-tolkning** ändrad | `docs/AI-TOLKNING.md` | Speechmatics/DeepL/protokoll |
+| **Backend-krav** | `docs/BACKEND-ATT-GORA.md` | Nya API-endpoints |
+| **Teknisk översikt** | `docs/TEKNISK-DOKUMENTATION.md` | Djupdykning uppdaterad |
+
+### Exempel-flöde (typisk fredag)
+
+**Claude frågar:**
+- "Vad har du åstadkommit idag?"
+- **Sima svarar:** "Byggde Sakraments-modalen"
+
+**Claude frågar följdfrågor:**
+- "Tekniskt: hur löste du dop-datum-valideringen?" → TROUBLESHOOTING om svårt
+- "Löste du någon bugg?" → DAGBOK "Fel jag löste"
+- "Var det en stor förändring?" → CHANGELOG
+- "Något värt att lägga i CV-BULLETS?" → CV-BULLETS
+- "Något du vill komma ihåg för i morgon?" → DAGBOK "Nästa steg"
+
+**Claude sammanställer:** dagens post i DAGBOK.md + prompt för de andra relevanta filerna.
+
+### Regel: Aldrig hoppa dokumentation
+
+Även om dagen var kort (30 min läste docs) → skriv i DAGBOK.md:
+
+```markdown
+### 🗓 [dag] [datum] — Dag [N] (kort dag)
+**⏱ Tid:** 30 min
+**Vad blev klart:** Läste igenom AI-TOLKNING.md
+**Reflektion:** Kort dag, ADHD-brist på fokus. Fortsätt i morgon.
+```
+
+Detta ger komplett historik = LIA-material senare.
+
+### Bonus — kort DAGBOK-mall Claude ska föreslå
+
+När Sima säger "kod-session klar" ska Claude erbjuda dagens post
+färdig-skriven baserat på reflektionsfrågorna. Sima behöver bara godkänna
+eller korrigera.

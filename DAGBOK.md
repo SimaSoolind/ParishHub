@@ -1,5 +1,9 @@
 # 📔 Dagbok — ParishHub
 
+> **Syfte:** Daglig utvecklingslogg + milstolpar för LIA-material.
+> **Använd när:** du vill komma ihåg vad som hände, se din progress.
+> **Uppdatera:** i slutet av varje arbetsdag (5-10 meningar räcker).
+
 En personlig logg över resan att bygga Kyrko-appen.
 Skriven av Sima Soolind från första dagen till lansering.
 
@@ -640,6 +644,106 @@ och ett predikobibliotek. Arkitekturen håller — nya moduler byggs på samma s
 
 ---
 
+### 🗓 Torsdag 6 augusti 2026 — Dag 15 (forts.)
+
+**🎯 Mål för dagen:** Komma så långt som möjligt mot att frontend är klar.
+
+**✅ Vad som gjordes:**
+- Sakramentsregister — 9 typer (dop, myrrasmörjelse, första nattvard, bikt, äktenskap,
+  prästvigning, sjuksmörjelse, begravning, övrigt), fält per typ, bikt-sekretess, GDPR-samtycke
+- Översiktssida /sacraments (läs-endast, filter typ + år) för statistik/export
+- Medlems-detaljsida (/medlemmar/:id) — profilinnehållet flyttat från modal, MemberProfileModal borttagen
+- Kalender-synk: gudstjänster + sakrament visas i kalendern (färgkodade, läs-endast)
+- Manuella påminnelser (påminnelse/sorg/åtagande) + anteckningar-i-vyn för "Att kontakta"
+- Startsidan omstrukturerad pedagogiskt: "Att göra idag"-översikt + zonerna Att göra / Överblick
+- Medlemsfält: status (aktiv/inaktiv), språkpreferens (6 språk), föredraget namn + status-filter
+- Familjeroller (make/maka, barn, förälder, syskon) som visas i familjelistan
+- Dokumenterade alla backend-krav i docs/BACKEND-ATT-GORA.md
+- 47 tester gröna, tsc + lint + bygge rent hela dagen
+
+**🎓 Lärdomar:**
+- Samma mönster (domän → repository → hook → sida) gör att nya moduler går snabbt och tryggt
+- Axe-felen (button-name, tabindex) kom från react-big-calendar, inte egen kod
+- Bikt visar hur sekretess byggs in i datamodellen (innehåll lagras aldrig)
+
+**⚠️ Utmaningar:**
+- Stor omstrukturering (medlemsmodal → detaljsida) — löstes fas för fas med verifiering
+- Mycket ocommittat mellan varven — viktigt att committa oftare
+
+**📝 Reflektion:**
+Frontend är nu nära komplett: Dashboard, Medlemmar (+detaljsida), Kalender, Gudstjänster
+(+detaljsida), Predikningar och Sakrament. Nästa stora fas är backend — allt som återstår
+(multi-kyrka, auth, kryptering, AI, SMS, Google-synk) är samlat i BACKEND-ATT-GORA.md.
+
+**➡️ Nästa steg:**
+- Committa dagens arbete
+- Fixa dokumentations-motsägelserna (backend-vecka m.m.)
+- Påbörja backend (Express + Prisma) enligt BACKLOG + BACKEND-ATT-GORA
+
+---
+
+### 🗓 Torsdag 6 augusti 2026 — Dag 15 (forts. 2)
+
+**🎯 Mål för dagen:** Bygga de sista frontend-funktionerna i ordning.
+
+**✅ Vad som gjordes:**
+- Cirkeldiagram på startsidan (medlemsfördelning per kategori) — klick på ett segment
+  öppnar medlemslistan filtrerad på kategorin (via ?kategori= i URL:en)
+- Juliansk datum-konvertering (utils/calendarConvert) — visar juliansk motsvarighet
+  i händelse-modalen när juliansk kalender är vald
+- Sammanfattningsrapport per gudstjänst — närvarograd jämförd med snittet av alla
+  gudstjänster (över/under/lika, med ikon och färg)
+- Zod-fel via i18n — global felkarta (zodErrorMap) översätter valideringsfel efter
+  feltyp; hårdkodade svenska meddelanden borttagna ur alla 6 formulär-schemana
+- 61 tester gröna, tsc + lint + bygge rent
+
+**🎓 Lärdomar:**
+- Zod 4 sätter en global felkarta med z.config; ett schema-eget meddelande vinner alltid
+  över kartan, så meddelandena måste bort ur schemana för att översättningen ska slå igenom
+- Samma återanvändbara diagram-komponent kan visa flera fördelningar (DRY)
+
+**📝 Reflektion:**
+Fyra av fem sista punkter klara. Kvar: AI-tolkning live (mock) — den största,
+med publik projektor-vy. Valde att pausa och stämma av vy-upplägget först.
+
+**➡️ Nästa steg:**
+- Bestämma vy-upplägg för AI-tolkning live (två vyer vs en)
+- Bygga AI-tolkning live (mock)
+
+---
+
+### 🗓 Torsdag 6 augusti 2026 — Dag 15 (forts. 3)
+
+**🎯 Mål för dagen:** Bygga AI-tolkning live klart och göra liturgin realistisk.
+
+**✅ Vad som gjordes:**
+- AI-tolkning live (mock) komplett: kontrollpanel, projektor-vy och YouTube-vy
+- Riktningsväljare AR↔SV, talar-tagg (präst/diakon i olika färg), partial→final
+- Projektor: mörkt olivsten-tema, Amiri för arabiska rubriker, AAA-kontrast, rullande
+  text som stannar kvar (så långsamma läsare hinner med)
+- Inställningar blev en utfällbar sido-panel (nåbar från alla sidor) med toggle,
+  slider och segmented controls
+- Liturgi-manus med tre flikar: Bibliotek, Dokument (PDF) och Manuellt
+- Läste in riktig liturgi-data: Agbeya-samlingen normaliseras (join av tabeller)
+- Insåg att präster inte hanterar JSON → bytte till PDF-uppladdning
+- Kopplade förberedd liturgi till projektorn: fasta delar visas utan AI, AI bara för predikan
+- Dokumenterade backend-krav (BACKEND-ATT-GORA §12–13) + CHANGELOG 0.5.0
+
+**🎓 Lärdomar:**
+- Var realistisk för användaren: en präst vet inte vad en JSON-fil är — dokument/PDF passar
+- Förberedd text som visas direkt gör AI-tolkningen både billigare och mer korrekt
+- Normaliserad data (sentences + relations) måste joinas ihop, precis som i en databas
+
+**📝 Reflektion:**
+Stor dag. AI-tolkningen känns nu som en helhet: förberedd liturgi + live-AI för predikan.
+Att bygga mot mock först gör att backend bara behöver byta ut datakällan sen.
+
+**➡️ Nästa steg:**
+- Normalisera fler liturgi-samlingar (katameros, kholagy, stilla-veckan)
+- Backend: STT + DeepL + WebSocket enligt AI-TOLKNING.md
+
+---
+
 ## 📋 Mall för nya dagar
 
 Kopiera detta block och klistra in högst upp under "Dag-för-dag":
@@ -690,6 +794,11 @@ Kopiera detta block och klistra in högst upp under "Dag-för-dag":
 - [x] Fullständig dokumentations-städ + WCAG-kontrast räknad + 3 att-göra-listor för UX/kod/design — **3 augusti 2026** ✅
 - [x] Dashboard komplett: statistik, widgets, närvarograf, kontaktkanaler och automatiska frånvaro-påminnelser — **5 augusti 2026** ✅
 - [x] Modul 2 (Gudstjänst): planering, noteringar per gudstjänst & sökbart predikobibliotek — **6 augusti 2026** ✅
+- [x] Sakramentsregister (9 typer, översikt, GDPR) + Påminnelser & regler + kalender-synk — **6 augusti 2026** ✅
+- [x] Modul 3 (Medlemmar): detaljsida, status/språk/föredraget namn, familjeroller + pedagogisk startsida — **6 augusti 2026** ✅
+- [x] Sista frontend-passet: medlemsdiagram, juliansk kalender, gudstjänst-rapport & översatta valideringsfel (Zod-i18n) — **6 augusti 2026** ✅
+- [x] AI-tolkning live (mock) komplett: kontroll + projektor + YouTube, riktning, talare, rullande text — **6 augusti 2026** ✅
+- [x] Liturgi-manus (bibliotek/dokument/manuellt) + Agbeya-data normaliserad + kopplad till live-projektorn — **6 augusti 2026** ✅
 - [ ] Första Express-servern igång
 - [ ] Första databaskopplingen till PostgreSQL
 - [ ] Första JWT-inloggningen fungerar

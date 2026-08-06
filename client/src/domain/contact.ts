@@ -17,4 +17,6 @@ export type Contact = {
   // Datum då personen senast kontaktades (ISO "YYYY-MM-DD") — saknas om ingen kontakt skett
   // Vem som kontaktade läggs till när inloggning finns (kräver användar-id)
   lastContactedAt?: string
+  // Prästens anteckning om personen — visas som kontext inför kontakt
+  note?: string | undefined
 }

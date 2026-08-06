@@ -1,0 +1,30 @@
+{
+  "title": "Julen (Kristi födelse)",
+  "blocks": [
+    {
+      "kind": "heading",
+      "ar": "قداس عيد الميلاد",
+      "sv": "Julens liturgi"
+    },
+    {
+      "kind": "text",
+      "ar": "باسم الآب والابن والروح القدس، إله واحد. آمين",
+      "sv": "I Faderns och Sonens och den Helige Andes namn, en enda Gud. Amen"
+    },
+    {
+      "kind": "text",
+      "ar": "المجد لله في الأعالي وعلى الأرض السلام",
+      "sv": "Ära vare Gud i höjden och frid på jorden",
+      "bibleRef": "Luk 2:14"
+    },
+    {
+      "kind": "text",
+      "ar": "ولما وُلد يسوع في بيت لحم اليهودية",
+      "sv": "När Jesus var född i Betlehem i Judeen",
+      "bibleRef": "Matt 2:1-12"
+    },
+    {
+      "kind": "sermon"
+    }
+  ]
+}

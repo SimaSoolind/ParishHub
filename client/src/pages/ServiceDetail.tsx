@@ -12,6 +12,9 @@ import { useServices } from "../hooks/useServices"
 import { PlanningPanel } from "../components/PlanningPanel"
 import { StreamingPanel } from "../components/StreamingPanel"
 import { NotesPanel } from "../components/NotesPanel"
+import { ServiceSummaryPanel } from "../components/ServiceSummaryPanel"
+import { ServiceToolsMenu } from "../components/ServiceToolsMenu"
+import { LiturgyScriptPanel } from "../components/LiturgyScriptPanel"
 import { Skeleton } from "../components/Skeleton"
 import { getWeekday } from "../utils/dateUtils"
 
@@ -53,10 +56,13 @@ export function ServiceDetail() {
             </p>
           </header>
 
+          <ServiceToolsMenu />
+          <ServiceSummaryPanel serviceId={service.id} />
           <PlanningPanel
             service={service}
             onSave={(changes) => updateService(service.id, changes)}
           />
+          <LiturgyScriptPanel serviceId={service.id} serviceFeast={service.feast} />
           <StreamingPanel
             service={service}
             onSave={(changes) => updateService(service.id, changes)}

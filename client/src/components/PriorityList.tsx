@@ -5,7 +5,7 @@
 // Används av: Dashboard.tsx
 // Bygger på: Badge, ContactActions, contactStatusInfo och usePriorityContacts
 
-import { PhoneCall, Check, Clock, PartyPopper } from "lucide-react"
+import { PhoneCall, Check, Clock, PartyPopper, StickyNote } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Badge } from "./Badge"
 import { ContactActions } from "./ContactActions"
@@ -61,6 +61,13 @@ export function PriorityList({ contacts }: Props) {
                 <div className="min-w-0">
                   <div className="font-semibold text-strong truncate">{contact.name}</div>
                   <div className="text-sm text-faint">{contact.reason}</div>
+                  {/* Prästens anteckning om personen — kontext inför kontakt */}
+                  {contact.note && (
+                    <div className="text-xs text-faint italic mt-0.5 flex items-center gap-1">
+                      <StickyNote size={11} className="flex-shrink-0" aria-hidden="true" />
+                      {contact.note}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap justify-end">

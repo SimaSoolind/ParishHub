@@ -1,8 +1,34 @@
 # Changelog
 
+> **Syfte:** Version-historik (0.1.0, 0.2.0, 0.3.0, 0.4.0) med detaljer.
+> **Använd när:** du rapporterar framsteg, skriver CV, spårar vad som ändrats när.
+> **Uppdatera:** vid varje betydande commit (inte varje litet fix).
+
 Alla större ändringar i ParishHub loggas här.
 
 Format inspirerat av [Keep a Changelog](https://keepachangelog.com/sv-SE/1.1.0/).
+
+## [0.5.0] - 2026-08-06
+
+### Tillagt
+- AI-tolkning live (mock): kontrollpanel `/live`, projektor-vy `/live/display` och YouTube-vy `/watch`
+- Riktningsväljare AR↔SV, talar-tagg (präst/diakon i olika färg) och partial→final-segment
+- Projektor: mörkt "Varm Olivsten"-tema, Cormorant/Cairo/Amiri, AAA-kontrast, rullande text som stannar kvar
+- Cross-tab-synk mellan kontroll och projektor via `BroadcastChannel` (`lib/liveChannel.ts`) med Zod-validering
+- Ren logik utbruten och testad: `use-cases/liveSession.ts` (`upsertSegment`, `latestSegment`)
+- Liturgi-manus på gudstjänstsidan med tre flikar: Bibliotek, Dokument (PDF/bild) och Manuellt
+- Bibliotek läses från `data/liturgy/` — Agbeya-samlingen normaliseras (join av sentences + pray_hours + relations)
+- Koppling live: operatören kan visa förberedd liturgi på projektorn utan AI; AI bara för predikan
+- Inställningar som utfällbar sido-panel (`SettingsDrawer`) nåbar från alla sidor (ersätter `/settings`-sidan)
+- Nya återanvändbara komponenter: `ToggleSwitch`, `SegmentedControl`, `IconBadge`, `TranscriptFeed`, `LiturgyBlockList`
+- Cirkeldiagram (medlemsfördelning) på startsidan, klickbart till filtrerad medlemslista
+- Juliansk datum-konvertering (`utils/calendarConvert.ts`) — visas i händelse-modalen
+- Sammanfattningsrapport per gudstjänst (närvarograd mot snitt)
+- Zod-valideringsfel översätts via global felkarta (`schemas/zodErrorMap.ts`, sv/ar)
+
+### Ändrat
+- Central CSS: `.arabic-text` (Cairo + RTL), projektor-tema och drawer-animation i `index.css`
+- Arabiska rubriker använder Amiri (klassisk naskh) i stället för Cairo
 
 ## [0.4.0] - 2026-08-03
 

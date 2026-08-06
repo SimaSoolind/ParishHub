@@ -1,5 +1,9 @@
 # 📘 Redovisning — Frontend i ParishHub
 
+> **Syfte:** Offentlig sida-för-sida-beskrivning för lärare och LIA-handledare.
+> **Använd när:** du ska presentera projektet, förklara tekniska val.
+> **Se även:** [`CV-BULLETS.md`](../CV-BULLETS.md) för LIA-CV, [`TEKNISK-DOKUMENTATION.md`](./TEKNISK-DOKUMENTATION.md) för djupare teknik.
+
 **Projekt:** ParishHub (Kyrko-appen)
 **Byggd av:** Sima Soolind
 **Datum:** Juli 2026

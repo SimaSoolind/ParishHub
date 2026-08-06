@@ -1,0 +1,58 @@
+[
+  {
+    "id": "vad-ar-vi",
+    "rubrik": "Vilka är vi?",
+    "ingress": "Vi kallas koptisk-ortodoxa kristna, därför att vi hör till den Koptisk-Ortodoxa kyrkan.",
+    "text": "Ortodox är ett grekiskt ord och betyder rätt troende. Den Koptisk-Ortodoxa kyrkan är den ursprungliga Kyrkan, som grundades av Vår Herre Jesus Kristus själv. Den etablerades i Egypten av den Helige Aposteln och Evangelisten Markus under det första århundradet. Kyrkan kallas apostolisk, därför att Jesu egna lärjungar gav den en fast ordning. I den Koptisk-Ortodoxa kyrkan har apostlarnas undervisning bevarats oförändrad i alla tider.",
+    "ikon": "✦"
+  },
+  {
+    "id": "kyrkans-ledning",
+    "rubrik": "Kyrkans ledning",
+    "ingress": "Kyrkan leds av biskopar.",
+    "text": "Den högste andlige ledaren är Påven av Alexandria och Patriark av hela Afrika. Den apostoliska ledningen har genom handpåläggning bevarats i en obruten kedja från de heliga apostlarna till våra dagars biskopar. Kyrkan kallas även allmännelig eller katolsk, vilket betyder att den sträcker sig över hela världen och når alla människor.",
+    "ikon": "🕊️"
+  },
+  {
+    "id": "tradition-och-skrift",
+    "rubrik": "Tradition och den heliga Skrift",
+    "ingress": "Den sanning Gud har uppenbarat hålls fast genom den heliga Traditionen och den heliga Skrift.",
+    "text": "I Traditionen bevaras det fromma livet som getts vidare till kyrkan. I den heliga Skriften bevaras Guds ord, nedskrivna av heliga apostlar och profeter under inverkan av den Helige Ande. Den rätta kristna tron lär vi oss bäst i Trosbekännelsen, där vi bekänner vår tro på den heliga Treenigheten: Gud Fadern, Gud Sonen och Gud den Helige Ande.",
+    "ikon": "📖"
+  },
+  {
+    "id": "gud-och-skapelsen",
+    "rubrik": "Gud och skapelsen",
+    "ingress": "Den allsmäktige Gud är vår himmelske Fader. Han har skapat allting, både den osynliga världen med änglarna, och den synliga världen.",
+    "text": "Människan skapades efter Guds avbild med en fri vilja. Trots att människan föll, övergav Gud henne inte. Han sände sin enfödde Son, Vår Herre Jesus Kristus, som genom den Helige Ande föddes av Jungfru Maria. Han offrade sig frivilligt på korset, uppstod från de döda och besegrade döden för vår skull.",
+    "ikon": "🌿"
+  },
+  {
+    "id": "de-heliga-mysterierna",
+    "rubrik": "De heliga mysterierna",
+    "ingress": "Den Helige Andes nåd och Guds kraft får vi del av i de Heliga Mysterierna (sakramenten).",
+    "text": "De sju främsta mysterierna är nödvändiga för vår frälsning: dopet, myrrasmörjelsen, Herrens Heliga Nattvard, botens mysterium (bikt), prästvigningen, äktenskapets mysterium och oljesmörjelsen. Dopet sker alltid med fullständig nedsänkning. Genom dessa mysterier förenas vi med Vår Herre Jesus Kristus.",
+    "ikon": "🕯️"
+  },
+  {
+    "id": "bonen",
+    "rubrik": "Bönen",
+    "ingress": "För varje medlem i Kyrkan är Kristi efterföljelse nödvändig. Genom bönen står vi i ständig förbindelse med Honom.",
+    "text": "Bönen sker med både kropp och själ. Korstecknet är de kristnas heliga tecken. När vi gör korstecknet minns vi den Korsfäste och uttrycker vår vilja att överlämna oss åt Honom. Även vördnadsfulla bugningar hör till bönen.",
+    "ikon": "🙏"
+  },
+  {
+    "id": "theotokos-och-helgon",
+    "rubrik": "Theotokos och de heliga",
+    "ingress": "I den ortodoxa tron vördar vi djupt Jesu mor.",
+    "text": "Vi benämner henne med hennes fullständiga titel: vår allraheligaste, allrarenaste, mest välsignade och härliga Härskarinna Maria, Theotokos (Gudaföderska) och ständig Jungfru. Vi hedrar henne därför att hon är modern till vår Gud. Utöver Theotokos vördar vi också kyrkans Heliga: profeter, apostlar, martyrer och helgon. Deras förböner är mycket starka, och vi ber om deras hjälp.",
+    "ikon": "⭐"
+  },
+  {
+    "id": "ikoner-och-de-insomnade",
+    "rubrik": "Ikoner och bönen för de insomnade",
+    "ingress": "Vi vördar även heliga ikoner av Kristus, Guds Moder och änglarna.",
+    "text": "Ikonerna är en integrerad del av gudstjänsten. Vi tänder ljus framför dem och kysser dem med kärlek. Vördnaden går inte till färgen eller träet, utan vidareförmedlas till den heliga person som ikonen föreställer. Slutligen ber vi också för de insomnade. Kärleken dör aldrig, och bönen för de döda förenar den jordiska kyrkan med den himmelska i Kristi ljus.",
+    "ikon": "🕍"
+  }
+]

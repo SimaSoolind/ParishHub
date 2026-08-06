@@ -23,6 +23,15 @@ const ServiceDetail = lazy(() =>
 )
 const Sermons = lazy(() => import("./pages/Sermons").then((m) => ({ default: m.Sermons })))
 const Sacraments = lazy(() => import("./pages/Sacraments").then((m) => ({ default: m.Sacraments })))
+const LiveControl = lazy(() =>
+  import("./pages/LiveControl").then((m) => ({ default: m.LiveControl }))
+)
+const LiveDisplay = lazy(() =>
+  import("./pages/LiveDisplay").then((m) => ({ default: m.LiveDisplay }))
+)
+const StreamViewer = lazy(() =>
+  import("./pages/StreamViewer").then((m) => ({ default: m.StreamViewer }))
+)
 const DesignPreview = lazy(() => import("./design/DesignPreview"))
 
 // Sätter upp routing: Layout som ram med tre sidor under sig
@@ -46,7 +55,25 @@ function App() {
             <Route path="gudstjanster/:id" element={<ServiceDetail />} />
             <Route path="predikningar" element={<Sermons />} />
             <Route path="sacraments" element={<Sacraments />} />
+            <Route path="live" element={<LiveControl />} />
           </Route>
+          {/* Projektor- och YouTube-vy ligger utanför Layout — helskärm utan meny */}
+          <Route
+            path="/live/display"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <LiveDisplay />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/watch"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <StreamViewer />
+              </Suspense>
+            }
+          />
           {/* /design ligger utanför Layout — behöver därför en egen Suspense */}
           <Route
             path="/design"

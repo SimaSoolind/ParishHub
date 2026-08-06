@@ -99,6 +99,7 @@ export function buildAbsenceReminders(
         email: member.email,
         reason: lastPresent ? `Frånvarande ${weeks} veckor` : "Ingen närvaro registrerad",
         status: "not-contacted",
+        note: member.notes,
       },
       weeks,
     })

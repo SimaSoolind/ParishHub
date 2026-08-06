@@ -1,0 +1,58 @@
+[
+    {
+        "colors": "4d2c0e,fce68a,503718,b8922f,ada17b",
+        "pray_id": 0,
+        "pray_image": "baker",
+        "title_arabic": "باكر",
+        "title_swedish": "Morgonbön"
+    },
+    {
+        "colors": "111414,8dc63f,0b2a53,6b9db5,e6f0f9",
+        "pray_id": 1,
+        "pray_image": "talta",
+        "title_arabic": "الساعة الثالثة",
+        "title_swedish": "Tredje timmen"
+    },
+    {
+        "colors": "111414,8dc63f,254240,7fafa4,5878ae",
+        "pray_id": 2,
+        "pray_image": "sata",
+        "title_arabic": "الساعة السادسة",
+        "title_swedish": "Sjätte timmen"
+    },
+    {
+        "colors": "d1cbff,827b00,bf8915,272212,5b79b0",
+        "pray_id": 3,
+        "pray_image": "tas3a",
+        "title_arabic": "الساعة التاسعة",
+        "title_swedish": "Nionde timmen"
+    },
+    {
+        "colors": "4d2c0e,fce68a,c2491e,671a1a,a77d66",
+        "pray_id": 4,
+        "pray_image": "ghorob",
+        "title_arabic": "الغروب",
+        "title_swedish": "Elfte timmen"
+    },
+    {
+        "colors": "b9f1ec,061836,142140,bf710b,01133b",
+        "pray_id": 5,
+        "pray_image": "nom",
+        "title_arabic": "النوم",
+        "title_swedish": "Nattbön"
+    },
+    {
+        "colors": "b9f1ec,061836,b53f5b,111551,0f051d",
+        "pray_id": 6,
+        "pray_image": "setar",
+        "title_arabic": "الستار",
+        "title_swedish": "Bön när mörkret faller"
+    },
+    {
+        "colors": "b9f1ec,061836,242574,bc833b,000115",
+        "pray_id": 7,
+        "pray_image": "nos_lil",
+        "title_arabic": "نصف الليل",
+        "title_swedish": "Midnattsbön"
+    }
+]

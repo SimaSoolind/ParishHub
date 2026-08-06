@@ -1,5 +1,5 @@
 /* Google Fonts måste importeras före andra regler */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Cairo:wght@400;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Cairo:wght@400;600;700&family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&display=swap");
 @import "tailwindcss";
 
 /* Mörkt läge styrs manuellt via data-theme="dark" på <html> (inte systemets tema) */
@@ -44,14 +44,17 @@ body {
   font-family: "Inter", sans-serif;
 }
 
-/* Arabiska använder Cairo-font (sätts när lang="ar") */
+/* Arabiska: Cairo för brödtext (modern, lättläst) — sätts när lang="ar" */
+/* Arabisk text får extra radavstånd — arabiska är tätare och behöver mer luft */
 html[lang="ar"] body {
   font-family: "Cairo", sans-serif;
+  line-height: 1.85;
 }
 
-/* Arabiska rubriker använder också Cairo — Cormorant saknar arabiska tecken */
+/* Arabiska rubriker använder Amiri — klassiskt naskh-seriftypsnitt som matchar */
+/* Cormorants klassiska känsla (Cormorant saknar arabiska tecken) */
 html[lang="ar"] .font-serif {
-  font-family: "Cairo", sans-serif;
+  font-family: "Amiri", serif;
 }
 
 /* Semantiska färgklasser för ljust/mörkt läge — samlade på ETT ställe (DRY) */
@@ -127,6 +130,59 @@ html[lang="ar"] .font-serif {
   /* Sekundärknapp (kontur) — textfärg läggs separat */
   .btn-secondary {
     @apply border border-stone-200 rounded-xl font-semibold hover:bg-stone-50 dark:border-stone-600 dark:hover:bg-stone-700;
+  }
+  /* Arabisk text (t.ex. live-tolkningens källtext) — alltid Cairo och RTL,
+     oavsett vilket språk resten av appen visas på. Textjustering styrs av
+     layouten (RTL ger högerställd text som standard).
+     Extra radavstånd + aning större storlek för bättre läsbarhet */
+  .arabic-text {
+    font-family: "Cairo", sans-serif;
+    direction: rtl;
+    line-height: 1.9;
+    font-size: 1.08em;
+  }
+  /* Projektor-vyn — alltid mörk "Varm Olivsten", oberoende av appens tema
+     (kyrkans projektor står i ett dunkelt rum). Ljus text ger AAA-kontrast */
+  .projector-surface {
+    background: radial-gradient(circle at 50% 30%, #2a231d 0%, #17130f 75%);
+    color: #f6f4f1;
+  }
+  /* Koppar-accent för källtexten (arabiska) — AAA-kontrast mot mörk bakgrund */
+  .projector-accent {
+    color: #dcb98f;
+  }
+  /* Textskugga så texten är läsbar även mot en framtida bakgrundsbild */
+  .projector-shadow {
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
+  }
+  /* Mjuk intoning när ett nytt segment visas */
+  .projector-fade {
+    animation: projector-fade 500ms ease-out;
+  }
+}
+
+/* Intonings-animation för projektorns segment (utanför @layer så den inte rensas) */
+@keyframes projector-fade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mjuk intoning för inställnings-panelen (sido-drawer) */
+.drawer-enter {
+  animation: drawer-enter 200ms ease-out;
+}
+@keyframes drawer-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 

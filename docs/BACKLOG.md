@@ -1,7 +1,10 @@
 # ParishHub — Master Backlog
 
-**Uppdaterad:** 2026-08-05
-**Syfte:** Enda samlade översikten av vad som är klart och vad som är kvar.
+> **Syfte:** Enda platsen med checkbox-tasks — vad som är klart och vad som är kvar.
+> **Använd när:** du vill veta nästa steg, bocka av klara uppgifter.
+> **Se även:** [`INDEX.md`](./INDEX.md) för hitta-rätt-guide, [`ROADMAP.md`](../ROADMAP.md) för högnivå-vision.
+
+**Uppdaterad:** 2026-08-06
 **Bygg dagligen:** 8-10 timmar = realistisk tidsram nedan.
 
 Denna fil är den **ENDA sanningskällan** för scope och tasks.
@@ -124,7 +127,7 @@ Deep Research-spec, Dokument 2 (PARISHHUB-app) från Drive.
 - [ ] YouTube-spelare + live-status
 - [ ] PDF-export av predikan
 
-### Sakrament (NY MODUL — se `docs/SAKRAMENT.md`)
+### Sakrament (NY MODUL)
 - [ ] Sida för dop
 - [ ] Sida för krismation
 - [ ] Sida för vigsel (två medlemmar kopplas)
@@ -135,6 +138,42 @@ Deep Research-spec, Dokument 2 (PARISHHUB-app) från Drive.
 - [ ] Sakramentsflik per medlem (samlad tidslinje)
 - [ ] Sök efter medlem via sakraments-metadata
 - [ ] Juliansk-datum för sakrament (13 dagars stöd)
+
+#### Arkitektur (från SAKRAMENT.md)
+
+Ortodoxa kyrkan har fyra centrala sakrament som ska följa en medlem
+genom hela livet. ParishHub lagrar dessa som förstklassiga entiteter
+i databasen — inte som anteckningar.
+
+**De fyra sakramenten:**
+
+| Sakrament | När sker det | Vem officierar |
+|---|---|---|
+| **Dop** | Barndop (oftast) eller vuxendop | Präst |
+| **Krismation** | Direkt efter dopet (koptisk tradition) | Präst |
+| **Vigsel** | Bröllop | Präst eller biskop |
+| **Prästvigning** | När diakon/präst vigs | Biskop |
+
+**Fält per sakrament:**
+- Datum (både civil OCH juliansk kalender — 13 dagars förskjutning stöds)
+- Officiant (präst eller biskop — kopplas till `users`-tabellen)
+- Vittnen (fritext eller kopplas till medlemmar)
+- Plats (kyrka/adress)
+- Officiellt intyg (PDF-mall genereras vid registrering)
+
+**Speciella regler:**
+- **Vigsel:** kopplas till TVÅ medlemmar (make + maka)
+- **Prästvigning:** kräver biskop + grad (diakon/präst/biskop)
+
+**GDPR + integritet:**
+Sakrament är personuppgifter enligt GDPR art. 9 (särskilda kategorier —
+religiös övertygelse). Extra skydd:
+- Kryptering i vila (AES-256 via pgcrypto)
+- Samtycke från medlem för lagring (art. 9.2(a))
+- Audit-logg för all åtkomst
+- Retention: sakrament sparas permanent (kyrkorättslig grund)
+
+Se `docs/SECURITY.md` sektion 12 för kryptering-implementation.
 
 ### Kommunikation
 - [x] Ring-knapp (`tel:`-länk)
@@ -364,6 +403,21 @@ värda att ta ställning till. Bocka av eller stryk vid genomgång.
 - ~~Native mobil-app~~ (webbappen är responsiv nog)
 
 ---
+
+## Kodstruktur + prestanda (från KODSTRUKTUR-INSTRUKTION.md)
+
+Steg 1-10 klara. Kvar:
+
+- [ ] useDebounce-hook för sökning (aktiveras när backend + Prisma används v.7-14). Wrap `useMemberSearch` med 300 ms debounce så filter-anrop inte triggas per tangenttryck.
+
+## Färg + design (från FARG-OCH-DESIGN-ATT-GORA.md)
+
+Steg 1-11 klara. Kvar:
+
+- [ ] Steg 12: Interaktiv onboarding (driver.js) — välkomstguide vid första besöket
+- [ ] Steg 13: Synka DESIGN.md med index.css-tokens
+- [ ] Steg 14: Steg-för-steg-flöden i stora modaler (AddMemberModal ~10 fält)
+- [ ] Steg 16: shadcn/ui — utvärdera + hoppa (beslut: behåll egna komponenter)
 
 ## v1.5 Post-MVP
 

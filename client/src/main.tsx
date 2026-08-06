@@ -10,7 +10,11 @@ import "./index.css"
 import "react-big-calendar/lib/css/react-big-calendar.css"
 // Startar flerspråkigheten (svenska + arabiska)
 import "./i18n"
+// Kopplar in översatta Zod-valideringsfel (måste ske efter att i18n startat)
+import { installZodErrorMap } from "./schemas/zodErrorMap"
 import App from "./App.tsx"
+
+installZodErrorMap()
 
 // Aktiverar axe-core BARA i utvecklingsläge (aldrig i produktion)
 // Skannar sidan och loggar a11y-brister i konsolen — fångar problem tidigt

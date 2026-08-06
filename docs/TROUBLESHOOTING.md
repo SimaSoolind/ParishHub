@@ -1,5 +1,9 @@
 # Felsökningsguide — ParishHub
 
+> **Syfte:** Fel du löst tidigare + lösningar.
+> **Använd när:** du har samma fel som förut, letar snabb lösning.
+> **Uppdatera:** varje gång du löser ett fel som tog mer än 15 minuter.
+
 Vanliga fel och lösningar. Uppdateras varje gång ett fel tar mer än 15 min att lösa.
 
 ## 🔴 Fel: "Port 3000 upptagen"

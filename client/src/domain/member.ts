@@ -12,6 +12,20 @@ export type MemberCategory =
   | "leader" // Ledare
   | "other" // Övrig
 
+// MemberStatus — om medlemmen är aktiv eller inaktiv i församlingen
+export type MemberStatus = "active" | "inactive"
+
+// MemberLanguage — medlemmens språkpreferens (för kontakt och meddelanden)
+// Flera språk stöds — kan utökas när fler språkgrupper finns i församlingen
+export type MemberLanguage = "sv" | "ar" | "en" | "el" | "ru" | "syr"
+
+// FamilyRole — medlemmens roll i hushållet/familjen
+export type FamilyRole =
+  | "spouse" // Make/maka
+  | "child" // Barn
+  | "parent" // Förälder
+  | "sibling" // Syskon
+
 // Komplett Member — används när medlemmen redan finns i systemet
 // Varje fält beskriver en uppgift om personen
 export type Member = {
@@ -26,6 +40,10 @@ export type Member = {
   notes?: string | undefined // Frivilligt fält för prästens egna anteckningar
   familyId?: string | undefined // Kod som kopplar ihop familjemedlemmar (samma kod = samma familj)
   photoUrl?: string | undefined // Länk till profilbild (valfritt) — annars visas initialer
+  preferredName?: string | undefined // Föredraget namn (smeknamn) — visas vid sidan av namnet
+  language?: MemberLanguage | undefined // Språkpreferens för kontakt (flera språk stöds)
+  status?: MemberStatus | undefined // Aktiv eller inaktiv medlem (saknas = aktiv)
+  familyRole?: FamilyRole | undefined // Roll i familjen (make/maka, barn, förälder, syskon)
 }
 
 // NewMemberData — formen på datan NÄR formuläret skickas in

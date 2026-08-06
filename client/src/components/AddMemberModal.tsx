@@ -10,7 +10,13 @@ import { Upload, Camera, ChevronDown, ChevronUp } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { ModalCloseButton } from "./ModalCloseButton"
 import { FocusTrap } from "focus-trap-react"
-import type { MemberCategory, NewMemberData } from "../domain/member"
+import type {
+  MemberCategory,
+  MemberLanguage,
+  MemberStatus,
+  FamilyRole,
+  NewMemberData,
+} from "../domain/member"
 import { newMemberSchema } from "../schemas/memberSchema"
 import { Dropdown } from "./Dropdown"
 import { Avatar } from "./Avatar"
@@ -26,6 +32,9 @@ interface Props {
 
 // Värden i kategori-dropdown — texten översätts via members.filter.<value>
 const categoryOptions: MemberCategory[] = ["adult", "youth", "leader", "other"]
+const languageOptions: MemberLanguage[] = ["sv", "ar", "en", "el", "ru", "syr"]
+const statusOptions: MemberStatus[] = ["active", "inactive"]
+const familyRoleOptions: (FamilyRole | "")[] = ["", "spouse", "child", "parent", "sibling"]
 
 // Ritar formuläret och håller fältens värden i state
 // Tar emot onSave (spara), onClose (stäng) och eventuell initialData
@@ -44,6 +53,10 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
   const [category, setCategory] = useState<MemberCategory>(initialData?.category ?? "adult")
   const [notes, setNotes] = useState(initialData?.notes ?? "")
   const [photoUrl, setPhotoUrl] = useState(initialData?.photoUrl ?? "")
+  const [preferredName, setPreferredName] = useState(initialData?.preferredName ?? "")
+  const [language, setLanguage] = useState<MemberLanguage>(initialData?.language ?? "sv")
+  const [status, setStatus] = useState<MemberStatus>(initialData?.status ?? "active")
+  const [familyRole, setFamilyRole] = useState<FamilyRole | "">(initialData?.familyRole ?? "")
 
   // Håller felmeddelanden per fält från valideringen
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -79,6 +92,10 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
       familySize,
       birthday,
       category,
+      preferredName: preferredName.trim() || undefined,
+      language,
+      status,
+      familyRole: familyRole || undefined,
       notes: notes || undefined,
       photoUrl: photoUrl.trim() || undefined,
     })
@@ -195,6 +212,19 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
 
             {showMoreFields && (
               <>
+                {/* Föredraget namn (smeknamn) */}
+                <div className="mb-4">
+                  <label className="field-label">{t("form.preferredName")}</label>
+                  <input
+                    type="text"
+                    value={preferredName}
+                    onChange={(e) => setPreferredName(e.target.value)}
+                    maxLength={100}
+                    placeholder={t("form.phPreferredName")}
+                    className="field"
+                  />
+                </div>
+
                 {/* E-post-fält */}
                 <div className="mb-4">
                   <label className="field-label">{t("form.email")}</label>
@@ -259,6 +289,48 @@ export function AddMemberModal({ onSave, onClose, initialData, isEdit = false }:
                     options={categoryOptions.map((value) => ({
                       value,
                       label: t("members.filter." + value),
+                    }))}
+                  />
+                </div>
+
+                {/* Språk + status */}
+                <div className="flex gap-3 mb-4">
+                  <div className="flex-1">
+                    <label className="field-label">{t("form.language")}</label>
+                    <Dropdown
+                      value={language}
+                      onChange={(value) => setLanguage(value as MemberLanguage)}
+                      ariaLabel={t("form.language")}
+                      options={languageOptions.map((value) => ({
+                        value,
+                        label: t("form.lang." + value),
+                      }))}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="field-label">{t("form.status")}</label>
+                    <Dropdown
+                      value={status}
+                      onChange={(value) => setStatus(value as MemberStatus)}
+                      ariaLabel={t("form.status")}
+                      options={statusOptions.map((value) => ({
+                        value,
+                        label: t("form.memberStatus." + value),
+                      }))}
+                    />
+                  </div>
+                </div>
+
+                {/* Familjeroll — roll i hushållet (valfri) */}
+                <div className="mb-4">
+                  <label className="field-label">{t("form.familyRole")}</label>
+                  <Dropdown
+                    value={familyRole}
+                    onChange={(value) => setFamilyRole(value as FamilyRole | "")}
+                    ariaLabel={t("form.familyRole")}
+                    options={familyRoleOptions.map((value) => ({
+                      value,
+                      label: value === "" ? t("form.roleNone") : t("familyRole." + value),
                     }))}
                   />
                 </div>

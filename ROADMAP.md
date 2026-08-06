@@ -1,5 +1,9 @@
 # 🗺 ROADMAP — ParishHub (Kyrko-appen)
 
+> **Syfte:** Vision + faser + 12 funktioner på hög nivå.
+> **Använd när:** du förklarar för någon, planerar långsiktigt.
+> **Se även:** [`docs/BACKLOG.md`](./docs/BACKLOG.md) för konkreta tasks, [`docs/INDEX.md`](./docs/INDEX.md) för alla docs.
+
 **Byggd av:** Sima Soolind
 **Uppdaterad:** 3 augusti 2026
 **Syfte:** En SAMLAD plats för alla funktioner och deras status

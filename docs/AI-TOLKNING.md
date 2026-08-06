@@ -1,5 +1,9 @@
 # Live-tolkning i ParishHub — Konsoliderad plan
 
+> **Syfte:** Teknisk plan för AR↔SV realtids-tolkning (Speechmatics + DeepL + WebSocket).
+> **Använd när:** du bygger tolknings-funktioner, integrerar mikrofon, planerar AI-backend.
+> **Se även:** [`BACKLOG.md`](./BACKLOG.md) för AI-tolknings-tasks, [`examples/live-interpretation-mock/`](./examples/live-interpretation-mock/) för körbar mock.
+
 Baserat på **Deep Research-spec (2026-08-05)**.
 
 Denna fil är den **enda aktuella källan**. Gamla planer ligger i
@@ -474,6 +478,96 @@ Kärnkrav som ska vara uppfyllda:
 - Heartbeat + exponential backoff-reconnect
 - 60-min mock-test klarat utan minnesläckor
 - Tillgänglighet: `axe` 0 fel + AAA-kontrast
+
+---
+
+## Vecka 1 — PoC-implementation (från POC-VECKA-1.md)
+
+Första veckan enligt Deep Research 8-veckors plan. **Ingen backend.
+Ingen Speechmatics. Ingen DeepL.** Bara frontend + mock.
+
+**Mål:** bevisa att Clean Architecture-strukturen fungerar för
+live-tolkningen, och att UI-flödet är korrekt.
+
+### Definition of Done Vecka 1
+
+- Domänmodell finns i `client/src/domain/live-interpretation/`
+- MockInterpretationRepository simulerar en session med segment
+- Tre routes finns:
+  - `/live-interpretation` — operatörens kontrollpanel (stub)
+  - `/projector/:sessionId` — projektorvy (stub)
+  - `/watch/:sessionId` — YouTube-vy (stub)
+- `tsc` grön, `lint` grön, `test` grön
+
+**Ingen kod för backend/API/mikrofon denna vecka.**
+
+### Steg 1: Domänmodell
+
+Skapa mappstruktur i `client/src/`:
+
+```bash
+mkdir -p client/src/domain/live-interpretation/{entities,repositories,types}
+mkdir -p client/src/application/live-interpretation
+mkdir -p client/src/infrastructure/live-interpretation
+mkdir -p client/src/features/live-interpretation/{hooks,components}
+```
+
+Full kod-referens (typer, entiteter, repository-interface):
+se `docs/examples/live-interpretation-mock/src/domain/`.
+
+### Steg 2: Mock-repository
+
+`client/src/infrastructure/live-interpretation/MockInterpretationRepository.ts`
+simulerar en session — skickar dummy-segment var 3:e sekund så UI kan
+byggas utan backend.
+
+Full kod: `docs/examples/live-interpretation-mock/src/infrastructure/`.
+
+### Steg 3: Tre routes (stubs)
+
+Skapa tre nya sid-komponenter — bara skelett den här veckan:
+
+- `client/src/pages/LiveInterpretationPage.tsx` — kontrollpanel-stub
+- `client/src/pages/ProjectorPage.tsx` — projektorvy-stub
+- `client/src/pages/StreamViewerPage.tsx` — YouTube-vy-stub
+
+Rutter i `App.tsx` (lazy-load enligt befintlig konvention):
+
+```tsx
+<Route path="/live-interpretation" element={<LiveInterpretation />} />
+<Route path="/projector/:sessionId" element={<Projector />} />
+<Route path="/watch/:sessionId" element={<StreamViewer />} />
+```
+
+`/projector` och `/watch` ligger **utanför Layout** (som `/design`) —
+inga headers eller nav ska visas.
+
+Full kod för alla tre stubs: `docs/examples/live-interpretation-mock/src/pages/`.
+
+### Steg 4: Verifiera
+
+```bash
+cd client
+npx tsc -p tsconfig.app.json --noEmit
+npm run lint
+npm run test
+npm run dev
+```
+
+Öppna:
+- `http://localhost:5173/live-interpretation` → visar stub-sida
+- `http://localhost:5173/projector/test-session` → visar stub-sida
+- `http://localhost:5173/watch/test-session` → visar stub-sida
+
+### Framtida versioner (referens)
+
+Vecka 1 bygger BARA basen. Senare versioner lägger till:
+
+- **v1.5:** Manuellt hymn-bibliotek + kyrko-upload av bakgrundsbilder
+- **v2:** Auto-sync sång med Speechmatics + liturgiska säsong-bakgrunder
+- **v3:** Karaoke-style word-highlighting + fler språk (EN, GR, RU, SYR)
+
+Se sektion 10 (Sång/kör) och sektion 12 (Bakgrundsbild) ovan för detaljer.
 
 ---
 

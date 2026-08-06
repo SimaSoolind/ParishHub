@@ -10,6 +10,8 @@ import { ModalCloseButton } from "./ModalCloseButton"
 import { DeleteEditActions } from "./DeleteEditActions"
 import { FocusTrap } from "focus-trap-react"
 import { formatLongDate } from "../utils/dateUtils"
+import { gregorianToJulian } from "../utils/calendarConvert"
+import { useCalendarSystem } from "../hooks/useCalendarSystem"
 
 // Definierar vad ett event ska innehålla för att visas i modalen
 // Union type — antingen ChurchEvent eller LifeEvent i react-big-calendar-format
@@ -35,6 +37,9 @@ interface Props {
 // Returnerar modalen som JSX
 export function EventModal({ event, onClose, onEdit, onDelete }: Props) {
   const { t } = useTranslation()
+
+  // Vald kalender (gregoriansk/juliansk) styr om juliansk motsvarighet visas
+  const { system: calendarSystem } = useCalendarSystem()
 
   // Kategori-texten i valt språk — faller tillbaka till råvärdet om nyckeln saknas
   const categoryLabel = t("eventCategory." + event.category, { defaultValue: event.category })
@@ -79,6 +84,14 @@ export function EventModal({ event, onClose, onEdit, onDelete }: Props) {
           <div className="mb-3">
             <div className="text-xs font-semibold text-faint uppercase">{t("form.date")}</div>
             <div className="text-strong">{formatLongDate(event.start)}</div>
+            {/* Juliansk motsvarighet visas bara när juliansk kalender är vald */}
+            {calendarSystem === "julian" && (
+              <div className="text-xs text-faint mt-0.5">
+                {t("calendar.julianLabel", {
+                  date: formatLongDate(gregorianToJulian(event.start)),
+                })}
+              </div>
+            )}
           </div>
 
           {/* Kategori */}
