@@ -404,6 +404,49 @@ värda att ta ställning till. Bocka av eller stryk vid genomgång.
 
 ---
 
+## Datamodell-luckor (audit 2026-08-06 mot "Mockdata + UI-hierarki"-dokumentet)
+
+### Saknade domain-entities
+
+- [ ] Skapa `client/src/domain/church.ts` (multi-tenant kärna)
+- [ ] Skapa `client/src/domain/user.ts` (roller + inloggning)
+- [ ] Skapa `client/src/domain/family.ts` (egen entity, inte bara `familyId` på member)
+- [ ] Skapa `client/src/domain/attendance.ts` (egen entity, ~600 mock-poster)
+- [ ] Skapa `client/src/domain/transcript.ts` (egen entity från liveSession)
+
+### Fält att lägga till per befintlig entity
+
+- [ ] `Member`: `firstName` + `lastName` separat (istället för `name`), `birthDate` som Date, `role`, `joinedAt`, `lastContactAt`, `priorityScore`
+- [ ] `Service`: `churchId`, `liturgyType`, `officiantId`, `deaconIds`, `expectedCount`, `sermonId`, `streamStatus`
+- [ ] `Sermon`: `bibleReferences` (array istället för `bibleText`), `feastId`, `churchIds`, `officiantId`, `tags`, `transcript`, `aiDraft`, `finalVersion`
+- [ ] `Event`: `type` (istället för `category`), `memberIds`, `churchId`
+
+### Mock-omfång att utöka (för realistisk demo)
+
+- [ ] `members.mock.ts`: 5 → 60 poster (med pravatar.cc-avatarer)
+- [ ] `sacraments.mock.ts`: 2 → 40 poster
+- [ ] `sermons.mock.ts`: 3 → 12 poster
+- [ ] `events.mock.ts`: 6 → 15 poster
+- [ ] Skapa `churches.mock.ts`: 1 post
+- [ ] Skapa `users.mock.ts`: 3 poster (präst, admin, viewer)
+- [ ] Skapa `families.mock.ts`: 15 poster
+- [ ] Skapa `attendance.mock.ts`: ~600 poster (60 medlemmar × 10 gudstjänster)
+
+### Struktur att fixa
+
+- [ ] Skapa `client/src/data/mock/seed/`-mapp
+- [ ] Flytta befintliga mock-data-filer under `seed/`
+- [ ] Skapa mock-repositories: `mockChurchRepository`, `mockUserRepository`, `mockFamilyRepository`, `mockAttendanceRepository`
+
+### UI-luckor från audit
+
+- [ ] Reducera `BottomNav` från 6 → 5 items
+- [ ] Skapa "Mer"-dropdown med Predikningar + Sakrament + framtida sidor
+- [ ] Klickbara cirkeldiagram på Dashboard (Recharts — redan installerat)
+- [ ] "Nästa gudstjänst startar om X"-widget på Dashboard
+
+---
+
 ## Kodstruktur + prestanda (från KODSTRUKTUR-INSTRUKTION.md)
 
 Steg 1-10 klara. Kvar:

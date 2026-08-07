@@ -31,7 +31,7 @@ export function FamilyTree({ self, members, onOpen }: Props) {
   const groups = roleOrder
     .map((role) => ({
       role,
-      people: household.filter((m) => (m.familyRole ?? "none") === role),
+      people: household.filter((member) => (member.familyRole ?? "none") === role),
     }))
     .filter((group) => group.people.length > 0)
 
@@ -43,35 +43,35 @@ export function FamilyTree({ self, members, onOpen }: Props) {
             {group.role === "none" ? t("profile.noRole") : t("familyRole." + group.role)}
           </div>
           <ul className="space-y-1">
-            {group.people.map((m) => {
-              const isSelf = m.id === self.id
+            {group.people.map((member) => {
+              const isSelf = member.id === self.id
               return (
-                <li key={m.id} className="flex items-center justify-between gap-2">
+                <li key={member.id} className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <Avatar name={m.name} photoUrl={m.photoUrl} />
+                    <Avatar name={member.name} photoUrl={member.photoUrl} />
                     {isSelf ? (
                       <span className="text-sm font-semibold text-strong truncate">
-                        {m.name}{" "}
+                        {member.name}{" "}
                         <span className="text-xs font-normal text-faint">
                           ({t("profile.thisMember")})
                         </span>
                       </span>
                     ) : (
                       <button
-                        onClick={() => onOpen(m.id)}
+                        onClick={() => onOpen(member.id)}
                         className="text-sm text-accent hover:underline truncate"
                       >
-                        {m.name}
+                        {member.name}
                       </button>
                     )}
                   </div>
                   {!isSelf && (
                     <a
-                      href={buildWhatsAppLink(m.phone, "")}
+                      href={buildWhatsAppLink(member.phone, "")}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="p-1 rounded-full row-hover flex-shrink-0"
-                      aria-label={t("profile.whatsappTo", { name: m.name })}
+                      aria-label={t("profile.whatsappTo", { name: member.name })}
                     >
                       <MessageCircle size={16} className="text-green-600 dark:text-green-400" />
                     </a>

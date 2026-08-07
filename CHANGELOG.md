@@ -8,6 +8,27 @@ Alla större ändringar i ParishHub loggas här.
 
 Format inspirerat av [Keep a Changelog](https://keepachangelog.com/sv-SE/1.1.0/).
 
+## [0.5.1] - 2026-08-07
+
+### Ändrat (kodkvalitet — läsbarhet, DRY, hållbarhet)
+- Läsbara variabelnamn i hela koden: ~110 enbokstavs-namn i callbacks bytta till hela ord
+  (`(e)` → `(event)`, `(m)` → `(member)`, `(a)` → `(record)` osv.); `t` (i18n) och generiska
+  typparametrar behållna
+- Kommentarer skärpta att förklara VARFÖR (t.ex. Escape-stängning motiverad med WCAG)
+- Stora komponenter uppdelade: AddMemberModal 425 → 186, MemberDetail 354 → 159
+  (nya delar: MemberProfileCard, MemberFamilySection, MemberWhatsAppLinks, MemberMoreFields)
+- Nya återanvändbara komponenter/hjälpare (DRY): `Card`, `FormField`, `FormDropdown`,
+  `PhotoPicker`, `schemas/fields.ts` (gemensamma Zod-fält), `use-cases/formErrors.ts`
+  (`collectFieldErrors` — delas av alla formulär-modaler)
+- Tester utökade: alla use-cases + 19 hooks testade (100 tester), med DRY-helpers
+  (`test/hookHelpers.ts`, `test/factories.ts`)
+
+### Dokumentation
+- Ny `docs/BESLUT.md` — motiveringar (VARFÖR) bakom arkitektur- och designval
+- `docs/SECURITY.md` utökad: beroende-rutin (npm audit) + regler för rå HTML/externa inbäddningar
+- `CLAUDE.md` utökad: komponent-storlek, early returns, filnamn utan förkortningar,
+  try/catch runt kraschbar kod, safeFetch för alla nätverksanrop
+
 ## [0.5.0] - 2026-08-06
 
 ### Tillagt

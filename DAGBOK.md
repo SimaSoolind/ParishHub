@@ -744,6 +744,39 @@ Att bygga mot mock först gör att backend bara behöver byta ut datakällan sen
 
 ---
 
+### 🗓 Fredag 7 augusti 2026 — Dag 16
+
+**🎯 Mål för dagen:** Höja kodkvaliteten och planera databasen inför backend.
+
+**✅ Vad som gjordes:**
+- Läsbarhet: ~110 enbokstavs-namn i hela koden bytta till hela ord (event, member,
+  record, service, sacrament ...); `t` (i18n) och typparametrar behållna
+- Kommentarer skärpta att förklara VARFÖR (t.ex. Escape-stängning motiverad med WCAG)
+- Stora komponenter uppdelade: AddMemberModal 425 → 186, MemberDetail 354 → 159
+- Nya återanvändbara delar (DRY): Card, FormField, FormDropdown, PhotoPicker,
+  schemas/fields.ts, use-cases/formErrors.ts (collectFieldErrors)
+- Tester utökade till 100 (alla use-cases + 19 hooks) med DRY-helpers
+- Kvalitets-granskning mot 6 principer (läsbarhet, enkelhet, säkerhet, DRY,
+  hållbarhet, stabilitet) — inga farliga fynd (inga console.log/any/hemligheter)
+- Dokumentation: ny docs/BESLUT.md (varför-beslut), SECURITY utökad (beroende-rutin +
+  rå-HTML-regler), CLAUDE.md-regler, CHANGELOG 0.5.1
+- Databas-planering: ny docs/DATABAS-ATT-GORA.md — alla tabeller backend behöver
+
+**🎓 Lärdomar:**
+- Kod ska gå att läsa som meningar — enbokstavs-namn är dålig kod för en nybörjare
+- En delegerad agent som verifierar (tsc/lint/tester) gör stora mekaniska pass trygga
+- Att planera databasen utifrån färdig frontend gör tabellerna enkla att härleda
+
+**📝 Reflektion:**
+Frontend är nu ren, läsbar, testad och dokumenterad. Nästa fas är backend, och
+databas-listan ger en tydlig startordning (kyrkor + auth först).
+
+**➡️ Nästa steg:**
+- Committa allt
+- Börja backend: Prisma-schema enligt DATABAS-ATT-GORA (churches + users + auth först)
+
+---
+
 ## 📋 Mall för nya dagar
 
 Kopiera detta block och klistra in högst upp under "Dag-för-dag":
@@ -799,6 +832,7 @@ Kopiera detta block och klistra in högst upp under "Dag-för-dag":
 - [x] Sista frontend-passet: medlemsdiagram, juliansk kalender, gudstjänst-rapport & översatta valideringsfel (Zod-i18n) — **6 augusti 2026** ✅
 - [x] AI-tolkning live (mock) komplett: kontroll + projektor + YouTube, riktning, talare, rullande text — **6 augusti 2026** ✅
 - [x] Liturgi-manus (bibliotek/dokument/manuellt) + Agbeya-data normaliserad + kopplad till live-projektorn — **6 augusti 2026** ✅
+- [x] Kodkvalitets-pass (läsbara namn, uppdelade komponenter, DRY-helpers, 100 tester) + databas-plan för backend — **7 augusti 2026** ✅
 - [ ] Första Express-servern igång
 - [ ] Första databaskopplingen till PostgreSQL
 - [ ] Första JWT-inloggningen fungerar

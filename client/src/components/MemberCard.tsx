@@ -43,9 +43,9 @@ function MemberCardBase({
   }
 
   // Öppnar/bockar med Enter eller mellanslag (tangentbords-stöd)
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault()
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault()
       handleActivate()
     }
   }
@@ -88,7 +88,7 @@ function MemberCardBase({
         <div className="flex items-center gap-2">
           {/* stopPropagation gör att klick på länkarna inte öppnar profilen */}
           <a
-            onClick={(e) => e.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
             href={phoneLink}
             className="p-2 rounded-full row-hover"
             aria-label={t("common.call", { name: member.name })}
@@ -96,7 +96,7 @@ function MemberCardBase({
             <Phone size={18} className="text-accent" />
           </a>
           <a
-            onClick={(e) => e.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
             href={emailLink}
             className="p-2 rounded-full row-hover"
             aria-label={t("common.email", { name: member.name })}

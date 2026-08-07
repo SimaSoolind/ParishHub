@@ -33,14 +33,18 @@ export function AttendanceCard() {
   const [selectedService, setSelectedService] = useState<Service | null>(null)
 
   // Senast först — närvaro prickas oftast av efter gudstjänsten (visar högst sex)
-  const recentFirst = [...services].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6)
+  const recentFirst = [...services]
+    .sort((first, second) => second.date.localeCompare(first.date))
+    .slice(0, 6)
 
   // Räknar antal närvarande för en gudstjänst
   const getPresentCount = (serviceId: string) =>
-    attendance.filter((a) => a.serviceId === serviceId && a.status === "present").length
+    attendance.filter((record) => record.serviceId === serviceId && record.status === "present")
+      .length
 
   // Sant om närvaron redan är avprickad (minst en post finns)
-  const getIsMarked = (serviceId: string) => attendance.some((a) => a.serviceId === serviceId)
+  const getIsMarked = (serviceId: string) =>
+    attendance.some((record) => record.serviceId === serviceId)
 
   // Sparar närvaron för den valda gudstjänsten
   const handleSaveAttendance = async (records: Attendance[]) => {
@@ -126,7 +130,7 @@ export function AttendanceCard() {
         <AttendanceModal
           service={selectedService}
           members={members}
-          attendance={attendance.filter((a) => a.serviceId === selectedService.id)}
+          attendance={attendance.filter((record) => record.serviceId === selectedService.id)}
           onSave={handleSaveAttendance}
           onSaveNote={handleSaveNote}
           onClose={() => setSelectedService(null)}

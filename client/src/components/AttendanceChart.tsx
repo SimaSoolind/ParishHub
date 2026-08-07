@@ -53,7 +53,7 @@ export function AttendanceChart({ points }: Props) {
   const summary =
     t("attendanceChart.title") +
     ": " +
-    points.map((p) => `${p.label} ${p.present}/${p.total}`).join(", ")
+    points.map((point) => `${point.label} ${point.present}/${point.total}`).join(", ")
 
   return (
     <div className="surface border p-6 rounded-2xl shadow-sm mb-6">

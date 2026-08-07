@@ -12,25 +12,35 @@ import { Dashboard } from "./pages/Dashboard"
 // Sidor som lazy-laddas — bundlas i separata chunks och hämtas vid navigering
 // Minskar startbundlen och förbättrar Time-to-Interactive
 // Members/Calendar/Services har named exports — därför .then(m => ({ default: ... }))
-const Members = lazy(() => import("./pages/Members").then((m) => ({ default: m.Members })))
+const Members = lazy(() =>
+  import("./pages/Members").then((imported) => ({ default: imported.Members }))
+)
 const MemberDetail = lazy(() =>
-  import("./pages/MemberDetail").then((m) => ({ default: m.MemberDetail }))
+  import("./pages/MemberDetail").then((imported) => ({ default: imported.MemberDetail }))
 )
-const Calendar = lazy(() => import("./pages/Calendar").then((m) => ({ default: m.Calendar })))
-const Services = lazy(() => import("./pages/Services").then((m) => ({ default: m.Services })))
+const Calendar = lazy(() =>
+  import("./pages/Calendar").then((imported) => ({ default: imported.Calendar }))
+)
+const Services = lazy(() =>
+  import("./pages/Services").then((imported) => ({ default: imported.Services }))
+)
 const ServiceDetail = lazy(() =>
-  import("./pages/ServiceDetail").then((m) => ({ default: m.ServiceDetail }))
+  import("./pages/ServiceDetail").then((imported) => ({ default: imported.ServiceDetail }))
 )
-const Sermons = lazy(() => import("./pages/Sermons").then((m) => ({ default: m.Sermons })))
-const Sacraments = lazy(() => import("./pages/Sacraments").then((m) => ({ default: m.Sacraments })))
+const Sermons = lazy(() =>
+  import("./pages/Sermons").then((imported) => ({ default: imported.Sermons }))
+)
+const Sacraments = lazy(() =>
+  import("./pages/Sacraments").then((imported) => ({ default: imported.Sacraments }))
+)
 const LiveControl = lazy(() =>
-  import("./pages/LiveControl").then((m) => ({ default: m.LiveControl }))
+  import("./pages/LiveControl").then((imported) => ({ default: imported.LiveControl }))
 )
 const LiveDisplay = lazy(() =>
-  import("./pages/LiveDisplay").then((m) => ({ default: m.LiveDisplay }))
+  import("./pages/LiveDisplay").then((imported) => ({ default: imported.LiveDisplay }))
 )
 const StreamViewer = lazy(() =>
-  import("./pages/StreamViewer").then((m) => ({ default: m.StreamViewer }))
+  import("./pages/StreamViewer").then((imported) => ({ default: imported.StreamViewer }))
 )
 const DesignPreview = lazy(() => import("./design/DesignPreview"))
 

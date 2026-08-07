@@ -10,7 +10,7 @@ import type { Sacrament, SacramentType } from "../domain/sacrament"
 // Tar en lista med sakrament
 // Returnerar en ny sorterad lista (muterar inte originalet)
 export function sortSacramentsByDate(sacraments: Sacrament[]): Sacrament[] {
-  return [...sacraments].sort((a, b) => a.date.localeCompare(b.date))
+  return [...sacraments].sort((first, second) => first.date.localeCompare(second.date))
 }
 
 // Avgör om en typ använder vittnen (dop, myrrasmörjelse, första nattvard, äktenskap)
@@ -48,7 +48,7 @@ export function filterSacraments(
   return sacraments
     .filter((sacrament) => type === "" || sacrament.type === type)
     .filter((sacrament) => year === "" || sacrament.date.startsWith(year))
-    .sort((a, b) => b.date.localeCompare(a.date))
+    .sort((first, second) => second.date.localeCompare(first.date))
 }
 
 // Plockar ut alla unika år som finns bland sakramenten (för år-filtret)
@@ -56,5 +56,5 @@ export function filterSacraments(
 // Returnerar åren som text, senaste först
 export function getSacramentYears(sacraments: Sacrament[]): string[] {
   const years = new Set(sacraments.map((sacrament) => sacrament.date.slice(0, 4)))
-  return [...years].sort((a, b) => b.localeCompare(a))
+  return [...years].sort((first, second) => second.localeCompare(first))
 }

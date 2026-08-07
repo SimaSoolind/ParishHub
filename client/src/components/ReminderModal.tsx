@@ -9,8 +9,10 @@ import { useTranslation } from "react-i18next"
 import { FocusTrap } from "focus-trap-react"
 import { ModalCloseButton } from "./ModalCloseButton"
 import { Chip } from "./Chip"
+import { FormField } from "./FormField"
 import type { NewReminderData, ReminderKind } from "../domain/reminder"
 import { newReminderSchema } from "../schemas/reminderSchema"
+import { collectFieldErrors } from "../use-cases/formErrors"
 
 // De tre typerna av påminnelse i den ordning de visas som chips
 const reminderKinds: ReminderKind[] = ["manual", "grief", "commitment"]
@@ -38,16 +40,16 @@ export function ReminderModal({ onSave, onClose }: Props) {
 
   // Stänger modalen när Escape trycks (tillgänglighet)
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose()
     }
     window.addEventListener("keydown", handleKey)
     return () => window.removeEventListener("keydown", handleKey)
   }, [onClose])
 
   // Validerar med Zod och skickar vidare bara om allt är korrekt
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
 
     const result = newReminderSchema.safeParse({
       name,
@@ -59,12 +61,7 @@ export function ReminderModal({ onSave, onClose }: Props) {
     })
 
     if (!result.success) {
-      const fieldErrors: Record<string, string> = {}
-      for (const issue of result.error.issues) {
-        const field = String(issue.path[0])
-        if (!fieldErrors[field]) fieldErrors[field] = issue.message
-      }
-      setErrors(fieldErrors)
+      setErrors(collectFieldErrors(result.error))
       return
     }
 
@@ -76,7 +73,7 @@ export function ReminderModal({ onSave, onClose }: Props) {
     <FocusTrap focusTrapOptions={{ returnFocusOnDeactivate: true, escapeDeactivates: false }}>
       <div onClick={onClose} className="modal-backdrop">
         <div
-          onClick={(e) => e.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
@@ -94,34 +91,35 @@ export function ReminderModal({ onSave, onClose }: Props) {
             <div className="mb-4">
               <label className="field-label">{t("reminderForm.kind")}</label>
               <div className="flex flex-wrap gap-2">
-                {reminderKinds.map((k) => (
-                  <Chip key={k} active={kind === k} onClick={() => setKind(k)}>
-                    {t("reminders.kind." + k)}
+                {reminderKinds.map((kindOption) => (
+                  <Chip
+                    key={kindOption}
+                    active={kind === kindOption}
+                    onClick={() => setKind(kindOption)}
+                  >
+                    {t("reminders.kind." + kindOption)}
                   </Chip>
                 ))}
               </div>
             </div>
 
             {/* Vem */}
-            <div className="mb-4">
-              <label className="field-label">{t("reminderForm.name")}</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                maxLength={100}
-                placeholder={t("reminderForm.namePh")}
-                className="field"
-              />
-              {errors["name"] && <p className="field-error">{errors["name"]}</p>}
-            </div>
+            <FormField
+              className="mb-4"
+              label={t("reminderForm.name")}
+              value={name}
+              onChange={setName}
+              error={errors["name"]}
+              maxLength={100}
+              placeholder={t("reminderForm.namePh")}
+            />
 
             {/* Orsak */}
             <div className="mb-4">
               <label className="field-label">{t("reminderForm.reason")}</label>
               <textarea
                 value={reason}
-                onChange={(e) => setReason(e.target.value)}
+                onChange={(event) => setReason(event.target.value)}
                 maxLength={300}
                 rows={2}
                 placeholder={t("reminderForm.reasonPh")}
@@ -131,38 +129,34 @@ export function ReminderModal({ onSave, onClose }: Props) {
             </div>
 
             {/* Datum (valfritt) */}
-            <div className="mb-4">
-              <label className="field-label">{t("reminderForm.dueDate")}</label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="field"
-              />
-            </div>
+            <FormField
+              className="mb-4"
+              label={t("reminderForm.dueDate")}
+              value={dueDate}
+              onChange={setDueDate}
+              type="date"
+            />
 
             {/* Telefon + e-post (valfria — för snabbkontakt) */}
             <div className="flex gap-3 mb-6">
-              <div className="flex-1">
-                <label className="field-label">{t("reminderForm.phone")}</label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  maxLength={30}
-                  className="field"
-                />
-              </div>
-              <div className="flex-1">
-                <label className="field-label">{t("reminderForm.email")}</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  maxLength={200}
-                  className="field"
-                />
-              </div>
+              <FormField
+                className="flex-1"
+                label={t("reminderForm.phone")}
+                value={phone}
+                onChange={setPhone}
+                type="tel"
+                inputMode="tel"
+                maxLength={30}
+              />
+              <FormField
+                className="flex-1"
+                label={t("reminderForm.email")}
+                value={email}
+                onChange={setEmail}
+                type="email"
+                inputMode="email"
+                maxLength={200}
+              />
             </div>
 
             <div className="flex gap-2">

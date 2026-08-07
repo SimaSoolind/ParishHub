@@ -137,11 +137,15 @@ export function Calendar() {
   const { services } = useServices()
   const { sacraments } = useAllSacraments()
   const { members } = useMembers()
-  const nameById = new Map(members.map((m) => [m.id, m.name]))
+  const nameById = new Map(members.map((member) => [member.id, member.name]))
 
   const serviceEvents = services.map(serviceToCalendarEvent)
-  const sacramentEvents = sacraments.map((s) =>
-    sacramentToCalendarEvent(s, t("sacraments.type." + s.type), nameById.get(s.memberId) ?? "—")
+  const sacramentEvents = sacraments.map((sacrament) =>
+    sacramentToCalendarEvent(
+      sacrament,
+      t("sacraments.type." + sacrament.type),
+      nameById.get(sacrament.memberId) ?? "—"
+    )
   )
 
   // Slår ihop alla källor för visning; bara egna event hanteras via repositoryt

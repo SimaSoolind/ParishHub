@@ -9,6 +9,9 @@ import { useState, useEffect } from "react"
 import type { CalendarEvent, NewEventData } from "../domain/event"
 import { mockEventRepository as repository } from "../data/mock/mockEventRepository"
 
+// Ger kalenderns händelser och funktioner för att ändra dem, via repositoryt
+// Tar inga argument
+// Returnerar events, loading, addEvent, updateEvent och removeEvent
 export function useEvents() {
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [loading, setLoading] = useState(true)

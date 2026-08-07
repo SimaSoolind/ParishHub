@@ -231,6 +231,26 @@ Medlemsregistret innehåller personuppgifter → GDPR gäller:
 - Publicera INTE source maps i produktion (de avslöjar källkoden).
 - CI kör `tsc`, lint och tester innan kod slås ihop.
 
+### Rutin för beroenden (varför + hur)
+
+Gamla beroenden blir snabbt en säkerhetsrisk — därför är detta en fast vana, inte
+något som görs "vid behov":
+
+1. **Varje vecka / före varje release:** kör `npm audit` i `client/` (och `server/`
+   när det finns).
+2. **Skilj på var sårbarheten sitter:** en sårbarhet i ett **dev-/CI-verktyg**
+   (byggs aldrig in i appen) är mindre brådskande än en i en **produktions-beroende**
+   (skeppas till användaren). Kontrollera trädet med `npm ls <paket>`.
+3. **Åtgärda:** `npm audit fix` för säkra fixar. Undvik `--force` om det innebär en
+   nedgradering (breaking) av ett verktyg — väg risk mot nytta och notera beslutet.
+4. **Testa efter uppdatering:** `tsc` + lint + tester + `npm run build` ska vara gröna.
+
+**Status 2026-08-07:** `npm audit` visar 7 sårbarheter, men ALLA ligger i `@lhci/cli`
+(Lighthouse CI — ett dev-/CI-verktyg via `uuid`/`tmp`/`external-editor`/`inquirer`).
+De byggs inte in i appen. `npm audit fix --force` skulle nedgradera `@lhci/cli`
+(breaking) — därför avvaktar vi tills en icke-breaking uppdatering finns.
+Inga sårbarheter i produktions-beroenden.
+
 ---
 
 ## 12. Frontend- och TypeScript-säkerhet
@@ -258,6 +278,24 @@ function handle(input: unknown) {
 ### Förbjud eval() och new Function()
 Kör aldrig strängar som kod — det är en av de största riskerna i JavaScript
 (kodinjektion). Det finns inget giltigt skäl att använda dem i ParishHub.
+
+### Rå HTML och externa inbäddningar (dangerouslySetInnerHTML)
+- **Använd ALDRIG `dangerouslySetInnerHTML`** (eller `innerHTML`, `document.write`).
+  Det öppnar för XSS. Rendera text som text — React skyddar då automatiskt.
+- Om HTML från en extern källa någon gång MÅSTE renderas: acceptera bara från
+  betrodda, granskade källor, **sanera på serversidan** med ett robust
+  saneringsbibliotek (ta bort skript, event-attribut och farliga attribut) INNAN
+  det når React. Varje användning kräver stark motivering och granskning.
+- **Externa inbäddningar (iframe/object) host-låses via allowlist.** Bädda aldrig in
+  en rå användar-URL. Exempel i appen: YouTube-spelaren bygger alltid
+  `https://www.youtube.com/embed/<id>` från ett validerat 11-teckens video-id
+  (`use-cases/youtube.ts`) — den rå länken bäddas aldrig in. Uppladdade dokument
+  visas som lokal `blob:`-URL (prästens egen fil), inte extern HTML.
+- Backend ska sätta CSP (helmet) som extra spärr, inkl. `frame-src` med bara
+  tillåtna värdar (t.ex. `https://www.youtube.com`).
+
+Status 2026-08-07: `dangerouslySetInnerHTML`/`innerHTML`/`eval`/`document.write`
+förekommer INTE i koden. Enda externa ytan (YouTube) är allowlist-begränsad.
 
 ### Null-skydd och type guards
 Kontrollera alltid att ett värde finns innan dess egenskaper läses, annars kan

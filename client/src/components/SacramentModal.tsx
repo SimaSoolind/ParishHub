@@ -14,9 +14,11 @@ import { FocusTrap } from "focus-trap-react"
 import { ModalCloseButton } from "./ModalCloseButton"
 import { Chip } from "./Chip"
 import { Dropdown } from "./Dropdown"
+import { FormField } from "./FormField"
 import type { Member } from "../domain/member"
 import type { Sacrament, NewSacramentData, SacramentType } from "../domain/sacrament"
 import { newSacramentSchema } from "../schemas/sacramentSchema"
+import { collectFieldErrors } from "../use-cases/formErrors"
 import { usesWitnesses, usesGrade, usesPartner, usesContent } from "../use-cases/sacraments"
 
 // Alla typer i den ordning de visas som chips
@@ -41,7 +43,8 @@ interface Props {
 }
 
 // Dagens datum i ISO-format (YYYY-MM-DD) — standardvärde för nya sakrament
-const today = new Date().toISOString().split("T")[0]
+// slice ger en garanterad sträng (till skillnad från split()[0] som kan bli undefined)
+const today = new Date().toISOString().slice(0, 10)
 
 // Ritar formuläret och håller fältens värden i state
 // Tar emot memberId, members, sacrament (för redigering), onSave och onClose
@@ -69,13 +72,15 @@ export function SacramentModal({ memberId, members, sacrament, onSave, onClose }
   // Val för make/maka-väljaren: en tom rad + alla andra medlemmar
   const partnerOptions = [
     { value: "", label: t("sacramentForm.partnerNone") },
-    ...members.filter((m) => m.id !== memberId).map((m) => ({ value: m.id, label: m.name })),
+    ...members
+      .filter((member) => member.id !== memberId)
+      .map((member) => ({ value: member.id, label: member.name })),
   ]
 
   // Stänger modalen när Escape trycks (tillgänglighet)
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose()
     }
     window.addEventListener("keydown", handleKey)
     return () => window.removeEventListener("keydown", handleKey)
@@ -83,8 +88,8 @@ export function SacramentModal({ memberId, members, sacrament, onSave, onClose }
 
   // Validerar med Zod och skickar vidare bara om allt är korrekt
   // Fält som inte hör till typen sparas som undefined (t.ex. bikt får aldrig innehåll)
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
 
     // GDPR: ett nytt sakrament kräver medlemmens samtycke (art. 9 — religiös uppgift)
     if (!sacrament && !consent) {
@@ -106,12 +111,7 @@ export function SacramentModal({ memberId, members, sacrament, onSave, onClose }
     })
 
     if (!result.success) {
-      const fieldErrors: Record<string, string> = {}
-      for (const issue of result.error.issues) {
-        const field = String(issue.path[0])
-        if (!fieldErrors[field]) fieldErrors[field] = issue.message
-      }
-      setErrors(fieldErrors)
+      setErrors(collectFieldErrors(result.error))
       return
     }
 
@@ -123,7 +123,7 @@ export function SacramentModal({ memberId, members, sacrament, onSave, onClose }
     <FocusTrap focusTrapOptions={{ returnFocusOnDeactivate: true, escapeDeactivates: false }}>
       <div onClick={onClose} className="modal-backdrop">
         <div
-          onClick={(e) => e.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
@@ -151,42 +151,32 @@ export function SacramentModal({ memberId, members, sacrament, onSave, onClose }
 
             {/* Datum + officiant (etiketten blir "Biskop" vid prästvigning) */}
             <div className="flex gap-3 mb-4">
-              <div className="flex-1">
-                <label className="field-label">{t("form.date")}</label>
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="field"
-                />
-                {errors["date"] && <p className="field-error">{errors["date"]}</p>}
-              </div>
-              <div className="flex-1">
-                <label className="field-label">
-                  {usesGrade(type) ? t("sacramentForm.bishop") : t("sacramentForm.officiant")}
-                </label>
-                <input
-                  type="text"
-                  value={officiant}
-                  onChange={(e) => setOfficiant(e.target.value)}
-                  maxLength={100}
-                  className="field"
-                />
-                {errors["officiant"] && <p className="field-error">{errors["officiant"]}</p>}
-              </div>
+              <FormField
+                className="flex-1"
+                label={t("form.date")}
+                value={date}
+                onChange={setDate}
+                error={errors["date"]}
+                type="date"
+              />
+              <FormField
+                className="flex-1"
+                label={usesGrade(type) ? t("sacramentForm.bishop") : t("sacramentForm.officiant")}
+                value={officiant}
+                onChange={setOfficiant}
+                error={errors["officiant"]}
+                maxLength={100}
+              />
             </div>
 
             {/* Plats */}
-            <div className="mb-4">
-              <label className="field-label">{t("sacramentForm.place")}</label>
-              <input
-                type="text"
-                value={place}
-                onChange={(e) => setPlace(e.target.value)}
-                maxLength={200}
-                className="field"
-              />
-            </div>
+            <FormField
+              className="mb-4"
+              label={t("sacramentForm.place")}
+              value={place}
+              onChange={setPlace}
+              maxLength={200}
+            />
 
             {/* Kopplad medlem (make/maka) — bara vid äktenskap */}
             {usesPartner(type) && (
@@ -203,46 +193,38 @@ export function SacramentModal({ memberId, members, sacrament, onSave, onClose }
 
             {/* Vittnen — bara för typer som använder det */}
             {usesWitnesses(type) && (
-              <div className="mb-4">
-                <label className="field-label">{t("sacramentForm.witnesses")}</label>
-                <input
-                  type="text"
-                  value={witnesses}
-                  onChange={(e) => setWitnesses(e.target.value)}
-                  maxLength={300}
-                  className="field"
-                />
-              </div>
+              <FormField
+                className="mb-4"
+                label={t("sacramentForm.witnesses")}
+                value={witnesses}
+                onChange={setWitnesses}
+                maxLength={300}
+              />
             )}
 
             {/* Grad — bara vid prästvigning */}
             {usesGrade(type) && (
-              <div className="mb-4">
-                <label className="field-label">{t("sacramentForm.grade")}</label>
-                <input
-                  type="text"
-                  value={grade}
-                  onChange={(e) => setGrade(e.target.value)}
-                  maxLength={100}
-                  placeholder={t("sacramentForm.gradePh")}
-                  className="field"
-                />
-              </div>
+              <FormField
+                className="mb-4"
+                label={t("sacramentForm.grade")}
+                value={grade}
+                onChange={setGrade}
+                maxLength={100}
+                placeholder={t("sacramentForm.gradePh")}
+              />
             )}
 
             {/* Intyg (länk) — inte för bikt */}
             {type !== "confession" && (
-              <div className="mb-4">
-                <label className="field-label">{t("sacramentForm.certificate")}</label>
-                <input
-                  type="url"
-                  value={certificateUrl}
-                  onChange={(e) => setCertificateUrl(e.target.value)}
-                  maxLength={500}
-                  placeholder="https://..."
-                  className="field"
-                />
-              </div>
+              <FormField
+                className="mb-4"
+                label={t("sacramentForm.certificate")}
+                value={certificateUrl}
+                onChange={setCertificateUrl}
+                type="url"
+                maxLength={500}
+                placeholder="https://..."
+              />
             )}
 
             {/* Övrigt/anteckningar — men ALDRIG för bikt (sekretess) */}
@@ -251,7 +233,7 @@ export function SacramentModal({ memberId, members, sacrament, onSave, onClose }
                 <label className="field-label">{t("sacramentForm.notes")}</label>
                 <textarea
                   value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
+                  onChange={(event) => setNotes(event.target.value)}
                   maxLength={1000}
                   rows={3}
                   className="field"
@@ -267,7 +249,7 @@ export function SacramentModal({ memberId, members, sacrament, onSave, onClose }
                 <input
                   type="checkbox"
                   checked={consent}
-                  onChange={(e) => setConsent(e.target.checked)}
+                  onChange={(event) => setConsent(event.target.checked)}
                   className="mt-1"
                 />
                 <span>{t("sacramentForm.consent")}</span>

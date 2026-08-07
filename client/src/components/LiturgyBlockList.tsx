@@ -41,7 +41,8 @@ export function LiturgyBlockList({ blocks, emptyText, onRemove }: Props) {
                 <span className="text-xs italic text-accent">{t("liturgy.liveHint")}</span>
               </div>
             ) : block.kind === "heading" ? (
-              // Rubrik — framhävs
+              // Rubrik — framhävs så prästen ser liturgins struktur och inte
+              // förväxlar den med en vanlig textrad
               <div className="pt-1">
                 {block.sv && (
                   <p className="text-sm font-bold uppercase tracking-wide text-accent">

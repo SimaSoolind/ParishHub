@@ -60,7 +60,7 @@ export function AttendanceModal({
   const buildInitial = (): Record<string, AttendanceStatus> => {
     const map: Record<string, AttendanceStatus> = {}
     for (const member of members) {
-      const existing = attendance.find((a) => a.memberId === member.id)
+      const existing = attendance.find((record) => record.memberId === member.id)
       map[member.id] = existing ? existing.status : "not-marked"
     }
     return map
@@ -89,13 +89,13 @@ export function AttendanceModal({
   const [reasons, setReasons] = useState<Record<string, AbsenceReason>>(buildReasons)
   const [contacts, setContacts] = useState<Record<string, ContactStatus>>(buildContacts)
 
-  // Stänger modalen när Escape trycks (tillgänglighet)
+  // Escape stänger modalen — tangentbords-användare ska kunna stänga utan mus (WCAG)
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose()
     }
-    window.addEventListener("keydown", handleKey)
-    return () => window.removeEventListener("keydown", handleKey)
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
   }, [onClose])
 
   // Sätter status för en medlem — klick på samma knapp avmarkerar
@@ -127,8 +127,8 @@ export function AttendanceModal({
   }
 
   // Räknar hur många som är närvarande respektive frånvarande
-  const presentCount = Object.values(marks).filter((s) => s === "present").length
-  const absentCount = Object.values(marks).filter((s) => s === "absent").length
+  const presentCount = Object.values(marks).filter((status) => status === "present").length
+  const absentCount = Object.values(marks).filter((status) => status === "absent").length
 
   // Sparar — bygger Attendance-posterna via use-case:et (ren affärslogik)
   const handleSave = () => {
@@ -150,7 +150,7 @@ export function AttendanceModal({
       <div onClick={onClose} className="modal-backdrop">
         {/* Själva modalen — stopPropagation förhindrar att klick stänger */}
         <div
-          onClick={(e) => e.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
@@ -172,7 +172,7 @@ export function AttendanceModal({
             <label className="field-label">{t("attendance.note")}</label>
             <textarea
               value={note}
-              onChange={(e) => setNote(e.target.value)}
+              onChange={(event) => setNote(event.target.value)}
               rows={2}
               placeholder={t("attendance.notePlaceholder")}
               className="field resize-none"

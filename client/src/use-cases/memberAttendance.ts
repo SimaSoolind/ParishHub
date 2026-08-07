@@ -25,18 +25,22 @@ export function getMemberAttendance(
   const serviceById = new Map(services.map((service) => [service.id, service]))
 
   return attendance
-    .filter((a) => a.memberId === memberId && serviceById.has(a.serviceId))
-    .map((a) => {
-      const service = serviceById.get(a.serviceId)
+    .filter((record) => record.memberId === memberId && serviceById.has(record.serviceId))
+    .map((record) => {
+      const service = serviceById.get(record.serviceId)
       return {
-        serviceId: a.serviceId,
+        serviceId: record.serviceId,
         date: service?.date ?? "",
-        present: a.status === "present",
+        present: record.status === "present",
       }
     })
-    .sort((x, y) => x.date.localeCompare(y.date))
+    .sort((earlier, later) => earlier.date.localeCompare(later.date))
     .slice(-limit)
-    .map((r) => ({ serviceId: r.serviceId, label: formatShortDate(r.date), present: r.present }))
+    .map((record) => ({
+      serviceId: record.serviceId,
+      label: formatShortDate(record.date),
+      present: record.present,
+    }))
 }
 
 // Räknar ut närvaro-procent (andel gudstjänster medlemmen var närvarande på)

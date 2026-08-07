@@ -91,7 +91,7 @@ export function NotesPanel({ serviceId }: Props) {
         </div>
         <textarea
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(event) => setText(event.target.value)}
           placeholder={t("notes.placeholder")}
           rows={2}
           className="field"
@@ -116,7 +116,7 @@ export function NotesPanel({ serviceId }: Props) {
         />
         <input
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(event) => setQuery(event.target.value)}
           placeholder={t("notes.search")}
           aria-label={t("notes.search")}
           className="field pl-9"

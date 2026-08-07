@@ -33,8 +33,8 @@ export function Dropdown({ value, options, onChange, ariaLabel }: Props) {
 
   // Stänger listan när man klickar utanför komponenten
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setOpen(false)
       }
     }
@@ -55,8 +55,8 @@ export function Dropdown({ value, options, onChange, ariaLabel }: Props) {
     <div
       ref={containerRef}
       className="relative"
-      onKeyDown={(e) => {
-        if (e.key === "Escape") setOpen(false)
+      onKeyDown={(event) => {
+        if (event.key === "Escape") setOpen(false)
       }}
     >
       {/* Knappen som visar aktuellt val och öppnar listan */}

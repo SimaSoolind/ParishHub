@@ -50,13 +50,13 @@ export function EventModal({ event, onClose, onEdit, onDelete }: Props) {
       ? "calendar.fromCopticCalendar"
       : "calendar.readonlySynced"
 
-  // Stänger modalen när Escape trycks (tillgänglighet)
+  // Escape stänger modalen — tangentbords-användare ska kunna stänga utan mus (WCAG)
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose()
     }
-    window.addEventListener("keydown", handleKey)
-    return () => window.removeEventListener("keydown", handleKey)
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
   }, [onClose])
 
   return (
@@ -66,7 +66,7 @@ export function EventModal({ event, onClose, onEdit, onDelete }: Props) {
       <div onClick={onClose} className="modal-backdrop">
         {/* Själva modalen — stopPropagation stoppar klick från att nå backdrop */}
         <div
-          onClick={(e) => e.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"

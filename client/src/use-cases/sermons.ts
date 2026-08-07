@@ -10,16 +10,16 @@ import type { Sermon } from "../domain/sermon"
 // Tom högtid ("") betyder alla högtider
 // Returnerar en sorterad lista (nyaste datum överst)
 export function filterSermons(sermons: Sermon[], query: string, feast: string): Sermon[] {
-  const q = query.trim().toLowerCase()
+  const search = query.trim().toLowerCase()
 
   return sermons
     .filter((sermon) => feast === "" || sermon.feast === feast)
     .filter((sermon) => {
-      if (q === "") return true
+      if (search === "") return true
       const fields = [sermon.title, sermon.content, sermon.bibleText, sermon.feast]
-      return fields.some((field) => field?.toLowerCase().includes(q))
+      return fields.some((field) => field?.toLowerCase().includes(search))
     })
-    .sort((a, b) => b.date.localeCompare(a.date))
+    .sort((first, second) => second.date.localeCompare(first.date))
 }
 
 // Plockar ut alla unika högtider som finns bland predikningarna (för filtret)

@@ -96,7 +96,9 @@ export function Members() {
   // Bockar av eller på en medlem i grupputskicket
   // useCallback ger stabil referens till memo:ade MemberCard
   const handleToggleSelect = useCallback((id: string) => {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((selectedId) => selectedId !== id) : [...prev, id]
+    )
   }, [])
 
   return (
@@ -127,7 +129,7 @@ export function Members() {
             type="text"
             placeholder={t("members.search")}
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={(event) => setSearchText(event.target.value)}
             className="field pl-10 pr-4"
           />
         </div>
@@ -186,7 +188,7 @@ export function Members() {
             </span>
             {/* Segment: välj alla i den filtrerade listan (kategori + status som segment) */}
             <button
-              onClick={() => setSelectedIds(filteredMembers.map((m) => m.id))}
+              onClick={() => setSelectedIds(filteredMembers.map((member) => member.id))}
               className="text-xs font-semibold text-accent hover:underline"
             >
               {t("members.selectAllFiltered")}
@@ -255,7 +257,7 @@ export function Members() {
       {/* Grupputskick-modal — WhatsApp till varje vald medlem */}
       {groupModalOpen && (
         <GroupMessageModal
-          members={members.filter((m) => selectedIds.includes(m.id))}
+          members={members.filter((member) => selectedIds.includes(member.id))}
           onClose={() => setGroupModalOpen(false)}
         />
       )}

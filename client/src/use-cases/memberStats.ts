@@ -19,6 +19,6 @@ const categories: MemberCategory[] = ["adult", "youth", "leader", "other"]
 // Returnerar en post per kategori som har minst en medlem
 export function countByCategory(members: Member[]): CategoryCount[] {
   return categories
-    .map((key) => ({ key, value: members.filter((m) => m.category === key).length }))
+    .map((key) => ({ key, value: members.filter((member) => member.category === key).length }))
     .filter((count) => count.value > 0)
 }

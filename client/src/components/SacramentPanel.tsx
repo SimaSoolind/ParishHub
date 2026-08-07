@@ -106,7 +106,7 @@ export function SacramentPanel({ memberId, members }: Props) {
                 {sacrament.partnerId && (
                   <div className="text-xs text-faint mt-1">
                     {t("sacramentForm.partner")}:{" "}
-                    {members.find((m) => m.id === sacrament.partnerId)?.name ?? "—"}
+                    {members.find((member) => member.id === sacrament.partnerId)?.name ?? "—"}
                   </div>
                 )}
                 {sacrament.witnesses && (

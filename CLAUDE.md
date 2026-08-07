@@ -53,7 +53,14 @@ AI-tolkning live på svenska + arabiska.
 - Om samma kod skrivs 2 gånger → bryt ut till en funktion
 - Om samma UI upprepas → bryt ut till en komponent
 - Korta funktioner (max ~30 rader) — om längre, dela upp
+- Korta komponenter (~100–150 rader max) — om en sida/komponent blir längre, dela upp
+  den i mindre underkomponenter (t.ex. `MemberTableHeader.tsx`, `MemberRow.tsx`)
+- Använd tidiga avbrott (early returns) i stället för djupa if/else-block
 - Meningsfulla variabelnamn på engelska — inte "data", "temp", "x"
+- Filnamnet ska berätta vad filen innehåller. Behöver man öppna filen för att förstå
+  vad den gör är namnet dåligt. Hela engelska ord, inga förkortningar (`button`, inte `btn`)
+- Omslut kod som kan krascha (nätverk, API, `JSON.parse`, extern data) i `try/catch`.
+  Fånga felet och visa ett snyggt meddelande för användaren — aldrig en blank skärm
 
 ## ⚛️ React — separera logik från JSX
 - **Logik** (state, useEffect, API-anrop) hör hemma i **custom hooks**
@@ -270,6 +277,9 @@ Följ detta mönster för ALL data — lägg aldrig en mock-import direkt i en s
   repositoryt (och ev. use-cases) och ger sidan klar data.
 - **utils/** — rena, domän-agnostiska hjälpfunktioner (`dateUtils`). **lib/** — tjänster (api, errorHandler, whatsapp).
 - **components/ + pages/** — bara visning. Får INTE importera mock-filer eller känna till datakällan.
+- **Alla nätverksanrop går via `safeFetch` (`lib/api.ts`)** — anropa ALDRIG `fetch()` direkt i
+  hooks/komponenter. safeFetch samlar felhantering (nätverk, 401/403 m.m.) och Zod-validering
+  på ETT ställe, så ogiltig data aldrig läcker in och alla fel hanteras likadant.
 
 ### Dataflöde
 `sida/komponent` → `useXxx()` (hook) → `xxxRepository` (gränssnitt) → mock (eller API)

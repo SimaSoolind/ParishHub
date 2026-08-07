@@ -43,8 +43,8 @@ export function SettingsDrawer({ open, onClose }: Props) {
   // Stänger panelen när Escape trycks (tillgänglighet)
   useEffect(() => {
     if (!open) return
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose()
     }
     window.addEventListener("keydown", handleKey)
     return () => window.removeEventListener("keydown", handleKey)
@@ -132,8 +132,8 @@ export function SettingsDrawer({ open, onClose }: Props) {
                   max={fontScales.length - 1}
                   step={1}
                   value={currentIndex}
-                  onChange={(e) => {
-                    const next = fontScales[Number(e.target.value)]
+                  onChange={(event) => {
+                    const next = fontScales[Number(event.target.value)]
                     if (next) setScale(next)
                   }}
                   aria-label={t("settings.fontSize")}

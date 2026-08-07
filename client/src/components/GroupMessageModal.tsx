@@ -30,13 +30,13 @@ export function GroupMessageModal({ members, onClose }: Props) {
   // Meddelande-texten — börjar med första mallen (i valt språk)
   const [text, setText] = useState(() => t("templates." + messageTemplateIds[0] + ".text"))
 
-  // Stänger modalen när Escape trycks (tillgänglighet)
+  // Escape stänger modalen — tangentbords-användare ska kunna stänga utan mus (WCAG)
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose()
     }
-    window.addEventListener("keydown", handleKey)
-    return () => window.removeEventListener("keydown", handleKey)
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
   }, [onClose])
 
   return (
@@ -45,7 +45,7 @@ export function GroupMessageModal({ members, onClose }: Props) {
       <div onClick={onClose} className="modal-backdrop">
         {/* Själva modalen — stopPropagation förhindrar att klick stänger */}
         <div
-          onClick={(e) => e.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
@@ -84,18 +84,18 @@ export function GroupMessageModal({ members, onClose }: Props) {
           {/* Redigera texten fritt ({namn} byts mot förnamn per person) */}
           <textarea
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(event) => setText(event.target.value)}
             rows={3}
             className="field resize-none mb-4"
           />
 
           {/* Lista med valda — en WhatsApp-knapp per person */}
           <ul className="overflow-y-auto divide-y divide-rows">
-            {members.map((m) => (
-              <li key={m.id} className="flex items-center justify-between py-2">
-                <span className="text-sm text-strong">{m.name}</span>
+            {members.map((member) => (
+              <li key={member.id} className="flex items-center justify-between py-2">
+                <span className="text-sm text-strong">{member.name}</span>
                 <a
-                  href={buildWhatsAppLink(m.phone, fillTemplate(text, m.name))}
+                  href={buildWhatsAppLink(member.phone, fillTemplate(text, member.name))}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border border-green-200 text-green-700 hover:bg-green-50 dark:border-green-900 dark:text-green-400 dark:hover:bg-green-950"

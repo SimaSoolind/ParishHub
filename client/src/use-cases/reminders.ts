@@ -13,13 +13,13 @@ import type { Reminder } from "../domain/reminder"
 export function getActiveReminders(reminders: Reminder[]): Reminder[] {
   return reminders
     .filter((reminder) => !reminder.done)
-    .sort((a, b) => {
+    .sort((first, second) => {
       // Har båda ett datum: tidigast datum först
-      if (a.dueDate && b.dueDate) return a.dueDate.localeCompare(b.dueDate)
+      if (first.dueDate && second.dueDate) return first.dueDate.localeCompare(second.dueDate)
       // Bara en har datum: den daterade läggs först
-      if (a.dueDate) return -1
-      if (b.dueDate) return 1
+      if (first.dueDate) return -1
+      if (second.dueDate) return 1
       // Ingen har datum: äldst skapad först
-      return a.createdAt.localeCompare(b.createdAt)
+      return first.createdAt.localeCompare(second.createdAt)
     })
 }

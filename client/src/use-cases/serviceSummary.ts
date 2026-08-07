@@ -22,7 +22,7 @@ export interface ServiceSummary {
 // Returnerar procent (0-100) eller null om inga poster finns
 function rateFor(records: Attendance[]): number | null {
   if (records.length === 0) return null
-  const present = records.filter((a) => a.status === "present").length
+  const present = records.filter((record) => record.status === "present").length
   return Math.round((present / records.length) * 100)
 }
 
@@ -34,20 +34,20 @@ export function buildServiceSummary(
   attendance: Attendance[],
   serviceId: string
 ): ServiceSummary {
-  const records = attendance.filter((a) => a.serviceId === serviceId)
-  const present = records.filter((a) => a.status === "present").length
-  const absent = records.filter((a) => a.status === "absent").length
+  const records = attendance.filter((record) => record.serviceId === serviceId)
+  const present = records.filter((record) => record.status === "present").length
+  const absent = records.filter((record) => record.status === "absent").length
   const rate = rateFor(records) ?? 0
 
   // Snittet räknas per gudstjänst (varje gudstjänst väger lika), inte per person
   const perServiceRates = services
-    .map((service) => rateFor(attendance.filter((a) => a.serviceId === service.id)))
-    .filter((r): r is number => r !== null)
+    .map((service) => rateFor(attendance.filter((record) => record.serviceId === service.id)))
+    .filter((rate): rate is number => rate !== null)
 
   const averageRate =
     perServiceRates.length === 0
       ? 0
-      : Math.round(perServiceRates.reduce((sum, r) => sum + r, 0) / perServiceRates.length)
+      : Math.round(perServiceRates.reduce((sum, rate) => sum + rate, 0) / perServiceRates.length)
 
   return {
     present,

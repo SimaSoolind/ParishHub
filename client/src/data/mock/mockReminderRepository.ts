@@ -28,14 +28,14 @@ export const mockReminderRepository: ReminderRepository = {
 
   // Markerar en påminnelse som klar eller aktiv igen
   async setDone(id, done) {
-    reminders = reminders.map((r) => (r.id === id ? { ...r, done } : r))
-    const updated = reminders.find((r) => r.id === id)
+    reminders = reminders.map((reminder) => (reminder.id === id ? { ...reminder, done } : reminder))
+    const updated = reminders.find((reminder) => reminder.id === id)
     if (!updated) throw new Error("Påminnelse med id " + id + " saknas")
     return updated
   },
 
   // Tar bort en påminnelse
   async remove(id) {
-    reminders = reminders.filter((r) => r.id !== id)
+    reminders = reminders.filter((reminder) => reminder.id !== id)
   },
 }

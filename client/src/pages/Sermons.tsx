@@ -95,7 +95,7 @@ export function Sermons() {
           />
           <input
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(event) => setQuery(event.target.value)}
             placeholder={t("sermons.search")}
             aria-label={t("sermons.search")}
             className="field pl-9"
@@ -106,9 +106,13 @@ export function Sermons() {
             <Chip active={feast === ""} onClick={() => setFeast("")}>
               {t("sermons.allFeasts")}
             </Chip>
-            {feasts.map((f) => (
-              <Chip key={f} active={feast === f} onClick={() => setFeast(f)}>
-                {f}
+            {feasts.map((feastOption) => (
+              <Chip
+                key={feastOption}
+                active={feast === feastOption}
+                onClick={() => setFeast(feastOption)}
+              >
+                {feastOption}
               </Chip>
             ))}
           </div>

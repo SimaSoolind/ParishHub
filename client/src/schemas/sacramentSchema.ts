@@ -1,10 +1,12 @@
 // sacramentSchema — Zod-validering för sakrament-formuläret
 // Ligger i egen fil så samma regler kan återanvändas senare (t.ex. på backend)
+// Återanvänder de gemensamma fält-byggarna i fields.ts (DRY)
 // Används av SacramentModal
 //
 // Felmeddelanden översätts globalt via zodErrorMap (svenska/arabiska)
 
 import { z } from "zod"
+import { requiredText, optionalText, requiredDate } from "./fields"
 
 export const newSacramentSchema = z.object({
   memberId: z.string().min(1),
@@ -19,12 +21,12 @@ export const newSacramentSchema = z.object({
     "funeral",
     "other",
   ]),
-  date: z.string().trim().min(1),
-  officiant: z.string().trim().min(1).max(100),
-  place: z.string().max(200).optional(),
-  witnesses: z.string().max(300).optional(),
-  grade: z.string().max(100).optional(),
+  date: requiredDate(),
+  officiant: requiredText(100),
+  place: optionalText(200),
+  witnesses: optionalText(300),
+  grade: optionalText(100),
   partnerId: z.string().optional(),
-  certificateUrl: z.string().max(500).optional(),
-  notes: z.string().max(1000).optional(),
+  certificateUrl: optionalText(500),
+  notes: optionalText(1000),
 })

@@ -48,7 +48,9 @@ function countPresentThisWeek(services: Service[], attendance: Attendance[], tod
     services.filter((service) => isWithinLastWeek(service.date, today)).map((service) => service.id)
   )
 
-  return attendance.filter((a) => a.status === "present" && weekServiceIds.has(a.serviceId)).length
+  return attendance.filter(
+    (record) => record.status === "present" && weekServiceIds.has(record.serviceId)
+  ).length
 }
 
 // Skapar kontaktuppgifter automatiskt för medlemmar som inte deltagit på X veckor
@@ -72,14 +74,14 @@ export function buildAbsenceReminders(
   const scored: Array<{ contact: Contact; weeks: number }> = []
 
   for (const member of members) {
-    const records = attendance.filter((a) => a.memberId === member.id)
+    const records = attendance.filter((record) => record.memberId === member.id)
     // Medlemmar utan någon närvaro-data hoppas över (ingen grund att bedöma)
     if (records.length === 0) continue
 
     // Datum då medlemmen senast var närvarande (sista efter sortering = senaste)
     const presentDates = records
-      .filter((a) => a.status === "present")
-      .map((a) => serviceDate.get(a.serviceId))
+      .filter((record) => record.status === "present")
+      .map((record) => serviceDate.get(record.serviceId))
       .filter((date): date is string => date !== undefined)
       .sort()
     const lastPresent = presentDates.length > 0 ? presentDates[presentDates.length - 1] : undefined
@@ -106,7 +108,7 @@ export function buildAbsenceReminders(
   }
 
   // Mest frånvarande överst, så "dagens lista" visar de viktigaste först
-  return scored.sort((a, b) => b.weeks - a.weeks).map((entry) => entry.contact)
+  return scored.sort((first, second) => second.weeks - first.weeks).map((entry) => entry.contact)
 }
 
 // Räknar antal hela veckor mellan ett datum och idag
@@ -125,7 +127,7 @@ export function getUpcomingServices(services: Service[], today: Date, limit = 3)
   const todayIso = toIsoDate(today)
   return services
     .filter((service) => service.date >= todayIso)
-    .sort((a, b) => a.date.localeCompare(b.date))
+    .sort((first, second) => first.date.localeCompare(second.date))
     .slice(0, limit)
 }
 
@@ -135,7 +137,9 @@ export function getUpcomingServices(services: Service[], today: Date, limit = 3)
 export function getRecentContacts(contacts: Contact[], limit = 3): Contact[] {
   return contacts
     .filter((contact) => contact.lastContactedAt)
-    .sort((a, b) => (b.lastContactedAt ?? "").localeCompare(a.lastContactedAt ?? ""))
+    .sort((first, second) =>
+      (second.lastContactedAt ?? "").localeCompare(first.lastContactedAt ?? "")
+    )
     .slice(0, limit)
 }
 
@@ -156,15 +160,15 @@ export function getAttendanceTrend(
   limit = 6
 ): AttendancePoint[] {
   return services
-    .filter((service) => attendance.some((a) => a.serviceId === service.id))
-    .sort((a, b) => a.date.localeCompare(b.date))
+    .filter((service) => attendance.some((record) => record.serviceId === service.id))
+    .sort((first, second) => first.date.localeCompare(second.date))
     .slice(-limit)
     .map((service) => {
-      const records = attendance.filter((a) => a.serviceId === service.id)
+      const records = attendance.filter((record) => record.serviceId === service.id)
       return {
         serviceId: service.id,
         label: formatShortDate(service.date),
-        present: records.filter((a) => a.status === "present").length,
+        present: records.filter((record) => record.status === "present").length,
         total: records.length,
       }
     })

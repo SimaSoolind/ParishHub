@@ -69,8 +69,8 @@ export function StreamingPanel({ service, onSave }: Props) {
             id="stream-url"
             type="url"
             value={url}
-            onChange={(e) => {
-              setUrl(e.target.value)
+            onChange={(event) => {
+              setUrl(event.target.value)
               setError("")
             }}
             placeholder="https://youtu.be/..."

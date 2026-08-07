@@ -19,7 +19,9 @@ import { Skeleton } from "./Skeleton"
 // Returnerar liturgins id, eller tom sträng om inga finns
 function defaultId(scripts: LiturgyScript[], serviceFeast?: string): string {
   const feast = serviceFeast?.toLowerCase()
-  const match = feast ? scripts.find((s) => s.title.toLowerCase().includes(feast)) : undefined
+  const match = feast
+    ? scripts.find((script) => script.title.toLowerCase().includes(feast))
+    : undefined
   return match?.id ?? scripts[0]?.id ?? ""
 }
 

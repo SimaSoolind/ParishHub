@@ -7,6 +7,7 @@
 import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { Languages, BookOpen, type LucideIcon } from "lucide-react"
+import { Card } from "./Card"
 
 // Ett verktyg i menyn: vart det länkar, ikon och vilken i18n-nyckel som används
 interface Tool {
@@ -28,8 +29,7 @@ export function ServiceToolsMenu() {
   const { t } = useTranslation()
 
   return (
-    <div className="surface border p-6 rounded-2xl shadow-sm mb-6">
-      <h2 className="text-sm font-bold text-accent mb-4">{t("serviceTools.title")}</h2>
+    <Card title={t("serviceTools.title")}>
       <ul className="grid gap-3 sm:grid-cols-2">
         {tools.map(({ to, icon: Icon, key }) => (
           <li key={key}>
@@ -50,6 +50,6 @@ export function ServiceToolsMenu() {
           </li>
         ))}
       </ul>
-    </div>
+    </Card>
   )
 }

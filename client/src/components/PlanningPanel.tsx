@@ -52,7 +52,7 @@ export function PlanningPanel({ service, onSave }: Props) {
           <input
             id="planning-feast"
             value={feast}
-            onChange={(e) => setFeast(e.target.value)}
+            onChange={(event) => setFeast(event.target.value)}
             placeholder={t("planning.feastPlaceholder")}
             className="field"
           />
@@ -64,7 +64,7 @@ export function PlanningPanel({ service, onSave }: Props) {
           <textarea
             id="planning-bible"
             value={bibleText}
-            onChange={(e) => setBibleText(e.target.value)}
+            onChange={(event) => setBibleText(event.target.value)}
             placeholder={t("planning.biblePlaceholder")}
             rows={2}
             className="field"

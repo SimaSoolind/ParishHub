@@ -41,9 +41,9 @@ function ServiceRow({
   return (
     <li
       onClick={onOpen}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault()
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault()
           onOpen()
         }
       }}
@@ -80,8 +80,8 @@ function ServiceRow({
           // stopPropagation så klick och tangent inte öppnar detaljsidan bakom
           <div
             className="flex items-center gap-2"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => event.stopPropagation()}
           >
             <span className="text-xs text-soft hidden sm:inline">
               {t("profile.deleteQ", { name: service.title })}
@@ -103,11 +103,11 @@ function ServiceRow({
           <>
             {/* Radera-knapp — stopPropagation så raden inte öppnar detaljsidan */}
             <button
-              onClick={(e) => {
-                e.stopPropagation()
+              onClick={(event) => {
+                event.stopPropagation()
                 setConfirmingDelete(true)
               }}
-              onKeyDown={(e) => e.stopPropagation()}
+              onKeyDown={(event) => event.stopPropagation()}
               aria-label={t("services.delete")}
               className="p-1.5 rounded-full text-soft hover:text-red-700 dark:hover:text-red-400 row-hover"
             >
@@ -136,11 +136,13 @@ export function Services() {
 
   // Kommande gudstjänster (idag och framåt) — närmast först
   const upcoming = services
-    .filter((s) => s.date >= today)
-    .sort((a, b) => a.date.localeCompare(b.date))
+    .filter((service) => service.date >= today)
+    .sort((first, second) => first.date.localeCompare(second.date))
 
   // Tidigare gudstjänster — senast genomförda först
-  const past = services.filter((s) => s.date < today).sort((a, b) => b.date.localeCompare(a.date))
+  const past = services
+    .filter((service) => service.date < today)
+    .sort((first, second) => second.date.localeCompare(first.date))
 
   // Öppnar detaljsidan för en gudstjänst
   const openService = (id: string) => navigate("/gudstjanster/" + id)

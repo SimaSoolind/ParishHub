@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import { LiturgyLibraryTab } from "./LiturgyLibraryTab"
 import { LiturgyUploadTab } from "./LiturgyUploadTab"
 import { LiturgyManualTab } from "./LiturgyManualTab"
+import { Card } from "./Card"
 
 // Flikarnas ordning (texten översätts via t("liturgy.tabs." + tab))
 const tabs = ["library", "upload", "manual"] as const
@@ -28,9 +29,7 @@ export function LiturgyScriptPanel({ serviceId, serviceFeast }: Props) {
   const [tab, setTab] = useState<Tab>("library")
 
   return (
-    <div className="surface border p-6 rounded-2xl shadow-sm mb-6">
-      <h2 className="text-sm font-bold text-accent mb-4">{t("liturgy.title")}</h2>
-
+    <Card title={t("liturgy.title")}>
       {/* Flikar */}
       <div role="tablist" aria-label={t("liturgy.title")} className="flex gap-2 mb-4 flex-wrap">
         {tabs.map((tabKey) => (
@@ -57,6 +56,6 @@ export function LiturgyScriptPanel({ serviceId, serviceFeast }: Props) {
       {tab === "manual" && <LiturgyManualTab serviceId={serviceId} />}
 
       <p className="text-xs text-faint mt-4">{t("liturgy.hint")}</p>
-    </div>
+    </Card>
   )
 }

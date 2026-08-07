@@ -26,7 +26,8 @@ export function LiturgyManualTab({ serviceId }: Props) {
   const { t } = useTranslation()
   const { blocks, loading, addBlock, removeBlock } = useLiturgyDraft(serviceId)
 
-  // Formulärets fält
+  // Lokala fält medan prästen fyller i — töms först när raden lagts till,
+  // så formuläret är redo för nästa rad utan att blanda ihop värden
   const [kind, setKind] = useState<LiturgyBlockKind>("text")
   const [ar, setAr] = useState("")
   const [sv, setSv] = useState("")
@@ -70,20 +71,20 @@ export function LiturgyManualTab({ serviceId }: Props) {
           <>
             <input
               value={ar}
-              onChange={(e) => setAr(e.target.value)}
+              onChange={(event) => setAr(event.target.value)}
               placeholder={t("liturgy.manual.ar")}
               lang="ar"
               className="field arabic-text"
             />
             <input
               value={sv}
-              onChange={(e) => setSv(e.target.value)}
+              onChange={(event) => setSv(event.target.value)}
               placeholder={t("liturgy.manual.sv")}
               className="field"
             />
             <input
               value={bibleRef}
-              onChange={(e) => setBibleRef(e.target.value)}
+              onChange={(event) => setBibleRef(event.target.value)}
               placeholder={t("liturgy.manual.bibleRef")}
               className="field"
             />

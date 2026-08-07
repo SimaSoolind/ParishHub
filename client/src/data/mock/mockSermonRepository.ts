@@ -23,14 +23,14 @@ export const mockSermonRepository: SermonRepository = {
 
   // Uppdaterar valda fält på en predikan
   async update(id, changes) {
-    sermons = sermons.map((s) => (s.id === id ? { ...s, ...changes } : s))
-    const updated = sermons.find((s) => s.id === id)
+    sermons = sermons.map((sermon) => (sermon.id === id ? { ...sermon, ...changes } : sermon))
+    const updated = sermons.find((sermon) => sermon.id === id)
     if (!updated) throw new Error("Predikan med id " + id + " saknas")
     return updated
   },
 
   // Tar bort en predikan
   async remove(id) {
-    sermons = sermons.filter((s) => s.id !== id)
+    sermons = sermons.filter((sermon) => sermon.id !== id)
   },
 }

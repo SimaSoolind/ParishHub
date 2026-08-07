@@ -50,7 +50,7 @@ export function Sacraments() {
   const visible = filterSacraments(sacraments, type, year)
 
   // Snabb uppslagning medlemsnamn på id
-  const nameById = new Map(members.map((m) => [m.id, m.name]))
+  const nameById = new Map(members.map((member) => [member.id, member.name]))
 
   return (
     <>
@@ -67,9 +67,13 @@ export function Sacraments() {
           <Chip active={type === ""} onClick={() => setType("")}>
             {t("sacramentsOverview.allTypes")}
           </Chip>
-          {sacramentTypes.map((st) => (
-            <Chip key={st} active={type === st} onClick={() => setType(st)}>
-              {t("sacraments.type." + st)}
+          {sacramentTypes.map((sacramentType) => (
+            <Chip
+              key={sacramentType}
+              active={type === sacramentType}
+              onClick={() => setType(sacramentType)}
+            >
+              {t("sacraments.type." + sacramentType)}
             </Chip>
           ))}
         </div>
@@ -78,9 +82,13 @@ export function Sacraments() {
             <Chip active={year === ""} onClick={() => setYear("")}>
               {t("sacramentsOverview.allYears")}
             </Chip>
-            {years.map((y) => (
-              <Chip key={y} active={year === y} onClick={() => setYear(y)}>
-                {y}
+            {years.map((yearOption) => (
+              <Chip
+                key={yearOption}
+                active={year === yearOption}
+                onClick={() => setYear(yearOption)}
+              >
+                {yearOption}
               </Chip>
             ))}
           </div>

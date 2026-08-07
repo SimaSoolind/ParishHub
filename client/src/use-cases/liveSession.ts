@@ -15,12 +15,12 @@ export function upsertSegment(
   segment: TranscriptSegment,
   limit = 50
 ): TranscriptSegment[] {
-  const existingIndex = segments.findIndex((s) => s.sequence === segment.sequence)
+  const existingIndex = segments.findIndex((existing) => existing.sequence === segment.sequence)
 
   let next: TranscriptSegment[]
   if (existingIndex >= 0) {
     // Ersätter det gamla segmentet på samma plats (behåller ordningen)
-    next = segments.map((s, i) => (i === existingIndex ? segment : s))
+    next = segments.map((current, index) => (index === existingIndex ? segment : current))
   } else {
     next = [...segments, segment]
   }

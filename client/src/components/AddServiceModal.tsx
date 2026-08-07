@@ -8,8 +8,10 @@ import { useState, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { ModalCloseButton } from "./ModalCloseButton"
 import { FocusTrap } from "focus-trap-react"
+import { FormField } from "./FormField"
 import type { NewServiceData } from "../domain/service"
 import { newServiceSchema } from "../schemas/serviceSchema"
+import { collectFieldErrors } from "../use-cases/formErrors"
 
 interface Props {
   onSave: (service: NewServiceData) => void
@@ -17,8 +19,8 @@ interface Props {
 }
 
 // Dagens datum i ISO-format (YYYY-MM-DD) — används som standardvärde
-// Sätts dynamiskt istället för ett låst datum
-const today = new Date().toISOString().split("T")[0]
+// slice ger en garanterad sträng (till skillnad från split()[0] som kan bli undefined)
+const today = new Date().toISOString().slice(0, 10)
 
 // Id:n för snabbval-titlar — texten översätts via t("serviceForm.presets.<id>")
 // Fritext-fältet under används för egna namn (t.ex. Fasta eller Jul)
@@ -40,19 +42,19 @@ export function AddServiceModal({ onSave, onClose }: Props) {
   // Håller felmeddelanden per fält från valideringen
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Stänger modalen när Escape trycks (tillgänglighet)
+  // Escape stänger modalen — tangentbords-användare ska kunna stänga utan mus (WCAG)
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose()
     }
-    window.addEventListener("keydown", handleKey)
-    return () => window.removeEventListener("keydown", handleKey)
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
   }, [onClose])
 
   // Körs när formuläret skickas
   // Validerar med Zod och skickar vidare bara om allt är korrekt
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
 
     const result = newServiceSchema.safeParse({
       title,
@@ -64,12 +66,7 @@ export function AddServiceModal({ onSave, onClose }: Props) {
 
     // Om valideringen misslyckas — samla felmeddelanden per fält och avbryt
     if (!result.success) {
-      const fieldErrors: Record<string, string> = {}
-      for (const issue of result.error.issues) {
-        const field = String(issue.path[0])
-        if (!fieldErrors[field]) fieldErrors[field] = issue.message
-      }
-      setErrors(fieldErrors)
+      setErrors(collectFieldErrors(result.error))
       return
     }
 
@@ -83,7 +80,7 @@ export function AddServiceModal({ onSave, onClose }: Props) {
       <div onClick={onClose} className="modal-backdrop">
         {/* Själva modalen — stopPropagation förhindrar att klick stänger */}
         <div
-          onClick={(e) => e.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
@@ -124,7 +121,7 @@ export function AddServiceModal({ onSave, onClose }: Props) {
               <input
                 type="text"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(event) => setTitle(event.target.value)}
                 maxLength={100}
                 placeholder={t("serviceForm.phTitle")}
                 className="field"
@@ -132,39 +129,32 @@ export function AddServiceModal({ onSave, onClose }: Props) {
               {errors["title"] && <p className="field-error">{errors["title"]}</p>}
             </div>
 
-            {/* Datum */}
-            <div className="mb-4">
-              <label className="field-label">{t("form.date")}</label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="field"
-              />
-              {errors["date"] && <p className="field-error">{errors["date"]}</p>}
-            </div>
+            <FormField
+              className="mb-4"
+              label={t("form.date")}
+              value={date}
+              onChange={setDate}
+              error={errors["date"]}
+              type="date"
+            />
 
             {/* Starttid och sluttid bredvid varandra */}
             <div className="flex gap-3 mb-4">
-              <div className="flex-1">
-                <label className="field-label">{t("serviceForm.startTime")}</label>
-                <input
-                  type="time"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  className="field"
-                />
-                {errors["startTime"] && <p className="field-error">{errors["startTime"]}</p>}
-              </div>
-              <div className="flex-1">
-                <label className="field-label">{t("serviceForm.endTime")}</label>
-                <input
-                  type="time"
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                  className="field"
-                />
-              </div>
+              <FormField
+                className="flex-1"
+                label={t("serviceForm.startTime")}
+                value={startTime}
+                onChange={setStartTime}
+                error={errors["startTime"]}
+                type="time"
+              />
+              <FormField
+                className="flex-1"
+                label={t("serviceForm.endTime")}
+                value={endTime}
+                onChange={setEndTime}
+                type="time"
+              />
             </div>
 
             {/* Anteckningar — valfritt fält (maxLength 500) */}
@@ -172,7 +162,7 @@ export function AddServiceModal({ onSave, onClose }: Props) {
               <label className="field-label">{t("form.notesOptional")}</label>
               <textarea
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={(event) => setNotes(event.target.value)}
                 maxLength={500}
                 rows={2}
                 placeholder={t("serviceForm.phNotes")}

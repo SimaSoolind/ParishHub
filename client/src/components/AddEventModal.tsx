@@ -11,6 +11,7 @@ import { ModalCloseButton } from "./ModalCloseButton"
 import { FocusTrap } from "focus-trap-react"
 import { lifeEventCategoryValues } from "../data/eventCategories"
 import { newEventSchema } from "../schemas/eventSchema"
+import { collectFieldErrors } from "../use-cases/formErrors"
 import { Dropdown } from "./Dropdown"
 import type { NewEventData } from "../domain/event"
 
@@ -36,21 +37,20 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
   const [notes, setNotes] = useState(initialData?.notes ?? "")
 
   // Håller felmeddelanden per fält från valideringen
-  const [errors, setErrors] = useState<{ title?: string; date?: string }>({})
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Stänger modalen när Escape trycks (tillgänglighet)
+  // Escape stänger modalen — tangentbords-användare ska kunna stänga utan mus (WCAG)
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose()
     }
-    window.addEventListener("keydown", handleKey)
-    return () => window.removeEventListener("keydown", handleKey)
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
   }, [onClose])
 
-  // Körs när formuläret skickas
-  // Validerar med Zod och skickar vidare bara om allt är korrekt
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  // Validerar med Zod innan spara, så ogiltig data aldrig skickas vidare till föräldern
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
 
     const result = newEventSchema.safeParse({
       title,
@@ -61,12 +61,7 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
 
     // Om valideringen misslyckas — visa felmeddelanden och avbryt
     if (!result.success) {
-      const fieldErrors: { title?: string; date?: string } = {}
-      for (const issue of result.error.issues) {
-        if (issue.path[0] === "title") fieldErrors.title = issue.message
-        if (issue.path[0] === "date") fieldErrors.date = issue.message
-      }
-      setErrors(fieldErrors)
+      setErrors(collectFieldErrors(result.error))
       return
     }
 
@@ -81,7 +76,7 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
       <div onClick={onClose} className="modal-backdrop">
         {/* Själva modalen — stopPropagation förhindrar att klick stänger */}
         <div
-          onClick={(e) => e.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
@@ -103,11 +98,11 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
               <input
                 type="text"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(event) => setTitle(event.target.value)}
                 placeholder={t("eventForm.phTitle")}
                 className="field"
               />
-              {errors.title && <p className="field-error">{errors.title}</p>}
+              {errors["title"] && <p className="field-error">{errors["title"]}</p>}
             </div>
 
             {/* Datum-fält */}
@@ -116,10 +111,10 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
               <input
                 type="date"
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={(event) => setDate(event.target.value)}
                 className="field"
               />
-              {errors.date && <p className="field-error">{errors.date}</p>}
+              {errors["date"] && <p className="field-error">{errors["date"]}</p>}
             </div>
 
             {/* Kategori-dropdown */}
@@ -141,7 +136,7 @@ export function AddEventModal({ onSave, onClose, initialData, isEdit = false }: 
               <label className="field-label">{t("form.notesOptional")}</label>
               <textarea
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={(event) => setNotes(event.target.value)}
                 placeholder={t("eventForm.phNotes")}
                 rows={3}
                 className="field resize-none"

@@ -38,7 +38,7 @@ function loadAgbeya(): LiturgyScript[] {
   if (!sentences.success || !hours.success || !relations.success) return []
 
   // Uppslag mening-id -> mening, för snabb join
-  const sentenceById = new Map(sentences.data.map((s) => [s._id, s]))
+  const sentenceById = new Map(sentences.data.map((sentence) => [sentence._id, sentence]))
 
   return hours.data.map((hour) => {
     // Meningarna som hör till bönen, i filens ordning (= läsordning)

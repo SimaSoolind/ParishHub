@@ -24,24 +24,26 @@ export const mockServiceRepository: ServiceRepository = {
 
   // Sätter (eller nollställer) anteckningen på en gudstjänst
   async updateNote(id, note) {
-    services = services.map((s) => (s.id === id ? { ...s, notes: note.trim() || undefined } : s))
-    const updated = services.find((s) => s.id === id)
+    services = services.map((service) =>
+      service.id === id ? { ...service, notes: note.trim() || undefined } : service
+    )
+    const updated = services.find((service) => service.id === id)
     if (!updated) throw new Error("Gudstjänst med id " + id + " saknas")
     return updated
   },
 
   // Uppdaterar valda fält på en gudstjänst (t.ex. högtid och bibeltexter)
   async update(id, changes) {
-    services = services.map((s) => (s.id === id ? { ...s, ...changes } : s))
-    const updated = services.find((s) => s.id === id)
+    services = services.map((service) => (service.id === id ? { ...service, ...changes } : service))
+    const updated = services.find((service) => service.id === id)
     if (!updated) throw new Error("Gudstjänst med id " + id + " saknas")
     return updated
   },
 
   // Tar bort en gudstjänst och dess tillhörande närvaro-poster (ingen rest lämnas kvar)
   async remove(id) {
-    services = services.filter((s) => s.id !== id)
-    attendance = attendance.filter((a) => a.serviceId !== id)
+    services = services.filter((service) => service.id !== id)
+    attendance = attendance.filter((record) => record.serviceId !== id)
   },
 
   async getAttendance() {
@@ -50,7 +52,7 @@ export const mockServiceRepository: ServiceRepository = {
 
   // Ersätter all närvaro för en gudstjänst med de nya posterna
   async saveAttendance(serviceId, records) {
-    attendance = [...attendance.filter((a) => a.serviceId !== serviceId), ...records]
+    attendance = [...attendance.filter((record) => record.serviceId !== serviceId), ...records]
     return [...attendance]
   },
 }

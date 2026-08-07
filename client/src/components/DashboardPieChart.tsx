@@ -7,6 +7,7 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts"
 import { chartColor } from "../utils/chartColors"
+import { Card } from "./Card"
 
 // Ett segment: nyckel (för klick/filter), etikett (visas) och värde (antal)
 export interface PieSlice {
@@ -46,9 +47,7 @@ export function DashboardPieChart({ title, data, onSliceClick }: Props) {
   const total = data.reduce((sum, slice) => sum + slice.value, 0)
 
   return (
-    <div className="surface border p-6 rounded-2xl shadow-sm mb-6">
-      <h2 className="text-sm font-bold text-accent mb-4">{title}</h2>
-
+    <Card title={title}>
       {total === 0 ? (
         <p className="text-sm text-faint italic">—</p>
       ) : (
@@ -65,10 +64,10 @@ export function DashboardPieChart({ title, data, onSliceClick }: Props) {
                   outerRadius={70}
                   paddingAngle={2}
                 >
-                  {data.map((slice, i) => (
+                  {data.map((slice, index) => (
                     <Cell
                       key={slice.key}
-                      fill={chartColor(i)}
+                      fill={chartColor(index)}
                       className={onSliceClick ? "cursor-pointer focus:outline-none" : ""}
                       onClick={() => onSliceClick?.(slice.key)}
                     />
@@ -81,7 +80,7 @@ export function DashboardPieChart({ title, data, onSliceClick }: Props) {
 
           {/* Legend — klickbar, tangentbords-nåbar (även skärmläsar-alternativ) */}
           <ul className="flex-1 w-full space-y-1">
-            {data.map((slice, i) => (
+            {data.map((slice, index) => (
               <li key={slice.key}>
                 <button
                   onClick={() => onSliceClick?.(slice.key)}
@@ -90,7 +89,7 @@ export function DashboardPieChart({ title, data, onSliceClick }: Props) {
                   <span className="flex items-center gap-2 text-soft">
                     <span
                       className="w-3 h-3 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: chartColor(i) }}
+                      style={{ backgroundColor: chartColor(index) }}
                       aria-hidden="true"
                     />
                     {slice.label}
@@ -102,6 +101,6 @@ export function DashboardPieChart({ title, data, onSliceClick }: Props) {
           </ul>
         </div>
       )}
-    </div>
+    </Card>
   )
 }

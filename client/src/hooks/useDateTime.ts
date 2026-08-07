@@ -8,7 +8,6 @@
 // Tar inga argument
 // Returnerar date (formaterat datum) och greetingKey (nyckel som översätts via i18n)
 export function useDateTime() {
-  // Skapar ett Date-objekt med aktuell tid från datorn
   const now = new Date()
 
   // Räknar ut hälsnings-nyckel baserat på timme (0-23)
@@ -30,15 +29,14 @@ export function useDateTime() {
     weekday: "long",
     day: "numeric",
     month: "long",
-    year: "numeric"
+    year: "numeric",
   })
 
   // Första bokstaven i veckodagen med stor bokstav
   const formattedDate = date.charAt(0).toUpperCase() + date.slice(1)
 
-  // Returnerar båda värden så komponenten kan använda dem
   return {
     date: formattedDate,
-    greetingKey
+    greetingKey,
   }
 }

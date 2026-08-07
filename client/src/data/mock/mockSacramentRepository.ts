@@ -17,7 +17,7 @@ export const mockSacramentRepository: SacramentRepository = {
 
   // Hämtar alla sakrament för en specifik medlem
   async getByMember(memberId) {
-    return sacraments.filter((s) => s.memberId === memberId)
+    return sacraments.filter((sacrament) => sacrament.memberId === memberId)
   },
 
   // Skapar ett nytt sakrament med unikt id
@@ -29,14 +29,16 @@ export const mockSacramentRepository: SacramentRepository = {
 
   // Uppdaterar valda fält på ett sakrament
   async update(id, changes) {
-    sacraments = sacraments.map((s) => (s.id === id ? { ...s, ...changes } : s))
-    const updated = sacraments.find((s) => s.id === id)
+    sacraments = sacraments.map((sacrament) =>
+      sacrament.id === id ? { ...sacrament, ...changes } : sacrament
+    )
+    const updated = sacraments.find((sacrament) => sacrament.id === id)
     if (!updated) throw new Error("Sakrament med id " + id + " saknas")
     return updated
   },
 
   // Tar bort ett sakrament
   async remove(id) {
-    sacraments = sacraments.filter((s) => s.id !== id)
+    sacraments = sacraments.filter((sacrament) => sacrament.id !== id)
   },
 }

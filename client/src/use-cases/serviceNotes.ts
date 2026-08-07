@@ -9,7 +9,7 @@ import type { ServiceNote } from "../domain/serviceNote"
 // Tar en lista med noteringar och en söksträng
 // Returnerar alla om söksträngen är tom, annars de som matchar
 export function filterServiceNotes(notes: ServiceNote[], query: string): ServiceNote[] {
-  const q = query.trim().toLowerCase()
-  if (!q) return notes
-  return notes.filter((note) => note.text.toLowerCase().includes(q))
+  const search = query.trim().toLowerCase()
+  if (!search) return notes
+  return notes.filter((note) => note.text.toLowerCase().includes(search))
 }

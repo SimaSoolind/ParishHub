@@ -7,6 +7,7 @@
 import { useTranslation } from "react-i18next"
 import { TrendingUp, TrendingDown, Minus } from "lucide-react"
 import { useServiceSummary } from "../hooks/useServiceSummary"
+import { Card } from "./Card"
 import { Badge } from "./Badge"
 import { Skeleton } from "./Skeleton"
 
@@ -24,9 +25,7 @@ export function ServiceSummaryPanel({ serviceId }: Props) {
   if (loading) return <Skeleton className="h-32 w-full mb-6" />
 
   return (
-    <div className="surface border p-6 rounded-2xl shadow-sm mb-6">
-      <h2 className="text-sm font-bold text-accent mb-4">{t("serviceSummary.title")}</h2>
-
+    <Card title={t("serviceSummary.title")}>
       {!summary || !summary.hasData ? (
         <p className="text-sm text-faint italic">{t("serviceSummary.noData")}</p>
       ) : (
@@ -48,7 +47,7 @@ export function ServiceSummaryPanel({ serviceId }: Props) {
           <ComparisonRow diff={summary.diffFromAverage} average={summary.averageRate} />
         </div>
       )}
-    </div>
+    </Card>
   )
 }
 

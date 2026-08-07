@@ -29,7 +29,7 @@ export function ServiceDetail() {
 
   // Gudstjänsterna hämtas via hooken; rätt gudstjänst plockas ut på id
   const { services, loading, updateService } = useServices()
-  const service = services.find((s) => s.id === id)
+  const service = services.find((service) => service.id === id)
 
   return (
     <>
