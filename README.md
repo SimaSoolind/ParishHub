@@ -28,8 +28,6 @@ ParishHub/
 ├── client/           # Frontend — React + Vite + TypeScript
 ├── server/           # Backend — Node.js + Express + TypeScript
 ├── docs/             # Dokumentation
-├── .claude/          # Claude Code-inställningar
-├── CLAUDE.md         # Projektregler
 ├── CHANGELOG.md      # Ändringslogg
 └── README.md         # Denna fil
 ```
@@ -134,7 +132,7 @@ Frontenden körs på http://localhost:5173
 
 ## 📖 Vidare läsning
 
-- [CLAUDE.md](./CLAUDE.md) — Projektregler och kodstandard
+- [docs/BESLUT.md](./docs/BESLUT.md) — Beslut och motiveringar (varför bakom arkitektur- och designval)
 - [ROADMAP.md](./ROADMAP.md) — Alla funktioner, status per funktion + faser
 - [docs/DESIGN.md](./docs/DESIGN.md) — Designsystem (färger, typografi, komponenter, skärmar)
 - [docs/FARG-OCH-DESIGN-ATT-GORA.md](./docs/FARG-OCH-DESIGN-ATT-GORA.md) — Färg & design — att-göra-lista (WCAG, mobilnav m.m.)

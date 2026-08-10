@@ -148,8 +148,9 @@ vite.config.ts.timestamp-*
 .env.*
 !.env.example
 
-# Claude — personliga inställningar
-.claude/settings.local.json
+# Claude — hålls privat (finns kvar lokalt, delas inte på GitHub)
+.claude/
+CLAUDE.md
 
 # System-filer
 .DS_Store
