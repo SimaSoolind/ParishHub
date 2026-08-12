@@ -21,6 +21,12 @@ Uppdaterad: 2026-08-06
 **Innehåller:** Överblick, dataflöde, multi-tenant, tekniska val.
 **Använd när du:** funderar på hur delarna hänger ihop, planerar ny funktion.
 
+## 🧠 "Vad betyder backend-orden? (tabell, SQL, migration…)"
+
+**→ Öppna:** [`docs/BACKEND-GRUNDER.md`](./BACKEND-GRUNDER.md)
+**Innehåller:** Backend förklarat från grunden, med liknelser + ordlista.
+**Använd när du:** glömt vad ett begrepp betyder eller lär dig backend.
+
 ## 🔒 "Säkerhet, GDPR, roller?"
 
 **→ Öppna:** [`docs/SECURITY.md`](./SECURITY.md)
@@ -59,8 +65,8 @@ Uppdaterad: 2026-08-06
 
 ## 🗺 "Vad är projektets vision?"
 
-**→ Öppna:** [`ROADMAP.md`](../ROADMAP.md)
-**Innehåller:** 12 funktioner, faser, tidslinje.
+**→ Öppna:** [`docs/BACKLOG.md`](./BACKLOG.md) — sektionen "Vision & faser"
+**Innehåller:** Vision, 4 utvecklingsfaser och alla uppgifter (single source of truth).
 **Använd när du:** förklarar för någon, planerar långsiktigt.
 
 ## 📋 "Vad har jag redan gjort? (version-historik)"
@@ -81,12 +87,6 @@ Uppdaterad: 2026-08-06
 **Innehåller:** Kodregler, kommentarsstil, säkerhet, arbetssätt.
 **Använd när du:** startar en ny session med Claude, vill påminna om regler.
 
-## 📘 "Mall för nästa projekt?"
-
-**→ Öppna:** [`docs/MALL-SETUP.md`](./MALL-SETUP.md)
-**Innehåller:** 14-stegs mall för att sätta upp Claude Code + docs i nytt projekt.
-**Använd när du:** startar ett nytt projekt och vill ha samma setup.
-
 ---
 
 ## 🗂 Struktur — hur mapparna hänger ihop
@@ -94,8 +94,7 @@ Uppdaterad: 2026-08-06
 ```
 ParishHub/
 ├── README.md           ← Startpunkt för nya besökare
-├── CLAUDE.md           ← Instruktioner för Claude Code
-├── ROADMAP.md          ← Vision + faser
+├── CLAUDE.md           ← Instruktioner för Claude Code (privat, i .gitignore)
 ├── CHANGELOG.md        ← Vad har ändrats när
 ├── DAGBOK.md           ← Din dagliga logg
 ├── CV-BULLETS.md       ← LIA-material
@@ -111,7 +110,6 @@ ParishHub/
     ├── AI-TOLKNING.md  ← AI-tolkning + PoC-Vecka-1
     ├── REDOVISNING.md  ← För LIA
     ├── TROUBLESHOOTING.md ← Fel + lösningar
-    ├── MALL-SETUP.md   ← Mall för nya projekt
     ├── examples/       ← Körbar mock-kod
     └── archive/        ← Gamla/klara docs
 ```

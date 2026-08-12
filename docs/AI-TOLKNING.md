@@ -2,16 +2,14 @@
 
 > **Syfte:** Teknisk plan för AR↔SV realtids-tolkning (Speechmatics + DeepL + WebSocket).
 > **Använd när:** du bygger tolknings-funktioner, integrerar mikrofon, planerar AI-backend.
-> **Se även:** [`BACKLOG.md`](./BACKLOG.md) för AI-tolknings-tasks, [`examples/live-interpretation-mock/`](./examples/live-interpretation-mock/) för körbar mock.
+> **Se även:** [`BACKLOG.md`](./BACKLOG.md) för AI-tolknings-tasks. Byggd kod (mock) finns i `client/src/` (LiveControl, LiveDisplay, liveSession).
 
 Baserat på **Deep Research-spec (2026-08-05)**.
 
-Denna fil är den **enda aktuella källan**. Gamla planer ligger i
-`docs/archive/`.
+Denna fil är den **enda aktuella källan**. Äldre versioner finns i git-historiken.
 
-Ingen kod duplicerad här — länkar till `docs/examples/live-interpretation-mock/`
-för mock-referens och `client/src/domain/live-interpretation/` för
-produktions-kod.
+Live-tolkningen är redan byggd (mot mock) i `client/src/` — se `pages/LiveControl.tsx`,
+`pages/LiveDisplay.tsx`, `domain/liveSession.ts` och `data/mock/mockLiveTranscript.ts`.
 
 Uppdaterad: 2026-08-05
 
@@ -75,6 +73,13 @@ Fullständig dataflödesbild i `docs/ARCHITECTURE.md`.
 ---
 
 ## 4. Frontend-struktur (Deep Research)
+
+> **⚠️ Byggd version skiljer sig från planen nedan.** Strukturen i detta avsnitt (samt
+> avsnitt 5–7) var den ursprungliga Deep Research-planen. Den faktiskt byggda mock-versionen
+> använder enklare namn i `client/src/`:
+> `domain/liveSession.ts`, `data/mock/mockLiveTranscript.ts`, `pages/LiveControl.tsx`,
+> `pages/LiveDisplay.tsx`, `pages/StreamViewer.tsx`, `components/LanguageDirectionSelector.tsx`.
+> Rutter: `/live`, `/live/display`, `/watch`. Planen nedan behålls som referens inför backend-fasen.
 
 **INTE ny mapp — läggs in i befintlig `client/src/`:**
 
@@ -413,7 +418,7 @@ mångspråkiga församlingar.
 
 | Vecka | Fokus | Milstolpe |
 |---|---|---|
-| 1 | Domänmodell + MockInterpretationRepository + 3 routes | Se `docs/POC-VECKA-1.md` |
+| 1 | Domänmodell + MockInterpretationRepository + 3 routes | Se avsnitt Vecka 1 nedan |
 | 2 | Operatörens kontrollpanel med state machine | Klick Starta/Stoppa fungerar mot mock |
 | 3 | Projektorvy (mörk olivsten, AAA-kontrast, `lang="ar" dir="rtl"`) | Text från mock ramlar in vackert |
 | 4 | Publik-/YouTube-vy (`/watch/:sessionId`) | Iframe-vänlig sida |
@@ -481,7 +486,7 @@ Kärnkrav som ska vara uppfyllda:
 
 ---
 
-## Vecka 1 — PoC-implementation (från POC-VECKA-1.md)
+## Vecka 1 — PoC-implementation
 
 Första veckan enligt Deep Research 8-veckors plan. **Ingen backend.
 Ingen Speechmatics. Ingen DeepL.** Bara frontend + mock.
@@ -513,7 +518,7 @@ mkdir -p client/src/features/live-interpretation/{hooks,components}
 ```
 
 Full kod-referens (typer, entiteter, repository-interface):
-se `docs/examples/live-interpretation-mock/src/domain/`.
+se `client/src/domain/liveSession.ts`.
 
 ### Steg 2: Mock-repository
 
@@ -521,7 +526,7 @@ se `docs/examples/live-interpretation-mock/src/domain/`.
 simulerar en session — skickar dummy-segment var 3:e sekund så UI kan
 byggas utan backend.
 
-Full kod: `docs/examples/live-interpretation-mock/src/infrastructure/`.
+Byggd kod: `client/src/data/mock/mockLiveTranscript.ts`.
 
 ### Steg 3: Tre routes (stubs)
 
@@ -542,7 +547,7 @@ Rutter i `App.tsx` (lazy-load enligt befintlig konvention):
 `/projector` och `/watch` ligger **utanför Layout** (som `/design`) —
 inga headers eller nav ska visas.
 
-Full kod för alla tre stubs: `docs/examples/live-interpretation-mock/src/pages/`.
+Byggd kod: `client/src/pages/` (LiveControl, LiveDisplay, StreamViewer).
 
 ### Steg 4: Verifiera
 
@@ -587,13 +592,8 @@ Se sektion 10 (Sång/kör) och sektion 12 (Bakgrundsbild) ovan för detaljer.
 - Koptisk glossary: `server/src/services/copticGlossary.ts`
 
 **Aktuell dokumentation:**
-- Startpunkt: `docs/POC-VECKA-1.md`
-- Mock-referens: `docs/examples/live-interpretation-mock/`
+- Startpunkt: avsnittet Vecka 1 nedan
+- Byggd kod (live-tolkning): `client/src/`
 - Systemarkitektur: `docs/ARCHITECTURE.md`
 - Säkerhet: `docs/SECURITY.md`
 - Design: `docs/DESIGN.md`
-
-**Historiska docs:**
-- `docs/archive/AI-TOLKNING-RAPPORT-2026-08-04.md`
-- `docs/archive/AI-I-PARISHHUB-2026-08-04.md`
-- `docs/archive/examples-poc-speechmatics-2026-08-04/` (tidigare feltänkt PoC)

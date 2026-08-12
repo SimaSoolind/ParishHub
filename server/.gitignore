@@ -1,0 +1,10 @@
+# Beroenden (verktygsfiler) — laddas ner med npm install, ska inte i git
+node_modules
+
+# Byggd kod (skapas av npm run build)
+dist
+
+# Hemligheter (databas-lösenord, API-nycklar) — får ALDRIG i git
+.env
+
+/src/generated/prisma

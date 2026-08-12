@@ -133,18 +133,16 @@ Frontenden körs på http://localhost:5173
 ## 📖 Vidare läsning
 
 - [docs/BESLUT.md](./docs/BESLUT.md) — Beslut och motiveringar (varför bakom arkitektur- och designval)
-- [ROADMAP.md](./ROADMAP.md) — Alla funktioner, status per funktion + faser
+- [docs/BACKLOG.md](./docs/BACKLOG.md) — Alla uppgifter + vision & faser (single source of truth)
 - [docs/DESIGN.md](./docs/DESIGN.md) — Designsystem (färger, typografi, komponenter, skärmar)
-- [docs/FARG-OCH-DESIGN-ATT-GORA.md](./docs/FARG-OCH-DESIGN-ATT-GORA.md) — Färg & design — att-göra-lista (WCAG, mobilnav m.m.)
 - [docs/REDOVISNING.md](./docs/REDOVISNING.md) — Offentlig redovisning för lärare och LIA
-- [docs/SECURITY.md](./docs/SECURITY.md) — Säkerhetschecklista (backend + frontend)
+- [docs/SECURITY.md](./docs/SECURITY.md) — Säkerhet & GDPR (backend + frontend)
 - [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) — Systemarkitektur
-- [docs/AI-TOLKNING-RAPPORT.md](./docs/AI-TOLKNING-RAPPORT.md) — Rapport & handlingsplan för realtids-AI-tolkning (WebSocket, STT, DeepL)
-- [docs/API.md](./docs/API.md) — API-dokumentation
+- [docs/AI-TOLKNING.md](./docs/AI-TOLKNING.md) — Plan för realtids-AI-tolkning (STT, DeepL, WebSocket)
+- [docs/DATABAS-ATT-GORA.md](./docs/DATABAS-ATT-GORA.md) — Databas-plan (tabeller backend behöver)
+- [docs/BACKEND-ATT-GORA.md](./docs/BACKEND-ATT-GORA.md) — Backend-krav från frontend
 - [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) — Vanliga fel och lösningar
-- [docs/UX-A11Y-INSTRUKTION.md](./docs/UX-A11Y-INSTRUKTION.md) — 10-stegs plan för WCAG-tillgänglighet
-- [docs/KODSTRUKTUR-INSTRUKTION.md](./docs/KODSTRUKTUR-INSTRUKTION.md) — 10-stegs plan för prestanda, kodstruktur och CI-härdning
-- [docs/MALL-SETUP.md](./docs/MALL-SETUP.md) — Mall för nya projekt-tillägg
+- [docs/INDEX.md](./docs/INDEX.md) — Hitta rätt bland alla docs
 - [CHANGELOG.md](./CHANGELOG.md) — Ändringslogg
 
 ## 👤 Byggd av

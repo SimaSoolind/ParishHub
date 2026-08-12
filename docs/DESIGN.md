@@ -125,7 +125,7 @@ vad som är byggt i den riktiga appen.
 | 10 | **Kalender** | ✅ byggd | Koptiska högtider/fastor + kommande händelser |
 
 AI-tolkningen (skärm 5 och 9) beskrivs tekniskt i
-[AI-TOLKNING-RAPPORT.md](./AI-TOLKNING-RAPPORT.md).
+[AI-TOLKNING.md](./AI-TOLKNING.md).
 
 ---
 

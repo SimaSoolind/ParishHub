@@ -92,7 +92,7 @@ INTE 700 ms eller 480 ms som tidigare planer angav.
 ```
 
 Fullständig plan: `docs/AI-TOLKNING.md`.
-Vecka 1-startpunkt (frontend + mock): `docs/POC-VECKA-1.md`.
+Vecka 1-startpunkt (frontend + mock): `docs/AI-TOLKNING.md`.
 
 ## Viktiga tekniska beslut
 

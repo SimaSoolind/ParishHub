@@ -2,7 +2,7 @@
 
 > **Syfte:** Enda platsen med checkbox-tasks — vad som är klart och vad som är kvar.
 > **Använd när:** du vill veta nästa steg, bocka av klara uppgifter.
-> **Se även:** [`INDEX.md`](./INDEX.md) för hitta-rätt-guide, [`ROADMAP.md`](../ROADMAP.md) för högnivå-vision.
+> **Se även:** [`INDEX.md`](./INDEX.md) för hitta-rätt-guide.
 
 **Uppdaterad:** 2026-08-06
 **Bygg dagligen:** 8-10 timmar = realistisk tidsram nedan.
@@ -13,7 +13,7 @@ Alla andra docs beskriver ARKITEKTUR eller KRAV — inte checkbox-tasks.
 **Regel:** varje checkbox-task finns HÄR. Om du hittar en dubblett i
 annan fil → ta bort den och lägg referens till BACKLOG-sektionen.
 
-**Källor:** Sima's exakta lista (2026-08-05), ROADMAP.md, docs/AI-TOLKNING.md,
+**Källor:** Sima's exakta lista (2026-08-05), docs/AI-TOLKNING.md,
 Deep Research-spec, Dokument 2 (PARISHHUB-app) från Drive.
 
 ---
@@ -22,11 +22,29 @@ Deep Research-spec, Dokument 2 (PARISHHUB-app) från Drive.
 
 | Del | Status |
 |---|---|
-| Frontend | ~70 % (Dashboard, Members, Calendar, Services byggda mot mockdata) |
-| Backend | 0 % (v.7-14 enligt ROADMAP, 15-20 h/vecka) |
+| Frontend | I princip klar mot mockdata (alla moduler + AI-tolkning-mock + liturgi-manus) |
+| Backend | 0 % (v.7-14, 15-20 h/vecka) — se `DATABAS-ATT-GORA.md` för tabeller |
 | Deploy | 0 % (v.15+) |
-| Testning | ~11 tester (use-cases + utils + ErrorBoundary) |
-| Docs | Nästan komplett — CLAUDE, ROADMAP, AI-TOLKNING, SECURITY, DESIGN klara |
+| Testning | 100 tester (alla use-cases + 19 hooks) |
+| Docs | Komplett — ARCHITECTURE, AI-TOLKNING, SECURITY, DESIGN, BESLUT, DATABAS-ATT-GORA |
+
+---
+
+## 🗺 Vision & faser (sammanslaget från ROADMAP)
+
+**Vision:** Ett digitalt system som hjälper en präst att sköta sin församling —
+medlemsregister, gudstjänstplanering, närvaro, uppföljning och AI-tolkning live
+(arabiska ↔ svenska). Byggs frontend-först mot mock, sedan backend.
+
+**Fyra utvecklingsfaser:**
+- 🌱 **Fas 1 — Enkla tillägg** ✅ KLAR (mörkt läge, flerspråkighet + RTL, profilbild, kortnotering)
+- ⚙️ **Fas 2 — Smartare funktioner** — SMS-påminnelser, bönelista, dokument per medlem, uppföljningsdatum
+- 🔧 **Fas 3 — Avancerat** — flera admins/roller, multi-kyrka, statistik-diagram, Google Calendar, GDPR-rensning
+- 🤖 **Fas 4 — Framtid & AI** — AI-sammanfattning (vem behöver omsorg), chatt, videohälsning, donationer
+
+**Grov ordning (studieplan):** Frontend UI ✅ → Express + REST → PostgreSQL + Prisma →
+JWT + bcrypt → Speechmatics + koppla ihop. De konkreta uppgifterna per fas finns som
+checkboxar i sektionerna nedan.
 
 ---
 
@@ -38,7 +56,7 @@ Deep Research-spec, Dokument 2 (PARISHHUB-app) från Drive.
 - [ ] Återställ lösenord (`/reset-password/:token`)
 - [ ] 2FA-sida (`/2fa`) — SMS-kod
 - [ ] Skyddade routes (RequireAuth-komponent)
-- [ ] Olika menyer för präst/admin/volontär — se `docs/RBAC.md`
+- [ ] Olika menyer för präst/admin/volontär — se `docs/SECURITY.md`
 - [ ] Automatisk utloggning vid inaktivitet (30 min)
 - [ ] "Kom ihåg mig"-checkbox (längre refresh-token)
 - [ ] Aktivitetslogg (`/audit`) — vem loggade in när
@@ -48,7 +66,7 @@ Deep Research-spec, Dokument 2 (PARISHHUB-app) från Drive.
 - [ ] Skapa och redigera kyrka (`/churches`)
 - [ ] Kyrkans logotyp och inställningar (`parish_profile`)
 - [ ] Filtrera alla sidor efter vald kyrka (`churchId`-context)
-- [ ] Multi-kyrka-relation: en medlem = EN församling (se `docs/MULTI-KYRKA.md`)
+- [ ] Multi-kyrka-relation: en medlem = EN församling (se `docs/ARCHITECTURE.md`)
 - [ ] Prästen kan ha åtkomst till flera kyrkor via roll-tabell
 
 ### Medlemmar (85 % klart)
@@ -64,7 +82,7 @@ Deep Research-spec, Dokument 2 (PARISHHUB-app) från Drive.
 - [x] Grupputskick (bocka flera → WhatsApp)
 - [x] Profilbild via mobilkamera + Välj bild (base64, max 1 MB)
 - [ ] Fullständig familje-/hushållsvy (roller make/maka/barn/förälder/syskon)
-- [ ] Sakramentsflik per medlem (se `docs/SAKRAMENT.md`)
+- [ ] Sakramentsflik per medlem (se `docs/BACKLOG.md`)
 - [ ] Samtycke och kontaktpreferenser (per medlem)
 - [ ] Importera CSV (för migration)
 - [ ] Exportera CSV/PDF (för backup)
@@ -139,7 +157,7 @@ Deep Research-spec, Dokument 2 (PARISHHUB-app) från Drive.
 - [ ] Sök efter medlem via sakraments-metadata
 - [ ] Juliansk-datum för sakrament (13 dagars stöd)
 
-#### Arkitektur (från SAKRAMENT.md)
+#### Arkitektur
 
 Ortodoxa kyrkan har fyra centrala sakrament som ska följa en medlem
 genom hela livet. ParishHub lagrar dessa som förstklassiga entiteter
@@ -210,7 +228,7 @@ Se `docs/SECURITY.md` sektion 12 för kryptering-implementation.
 - [ ] Förberedelser inför samtal
 
 ### AI-tolkning (frontend)
-Fullständig teknisk plan: `docs/AI-TOLKNING.md`. Startpunkt: `docs/POC-VECKA-1.md`.
+Fullständig teknisk plan: `docs/AI-TOLKNING.md`. Startpunkt: `docs/AI-TOLKNING.md`.
 
 - [ ] Kontrollpanel (`/live-interpretation`)
 - [ ] Talarväxling präst/diakon (automatisk diarization + manuell override)
@@ -303,7 +321,7 @@ Fullständig teknisk plan: `docs/AI-TOLKNING.md`. Startpunkt: `docs/POC-VECKA-1.
 - [ ] JWT access-token (15 min)
 - [ ] Refresh-token i httpOnly-cookie
 - [ ] bcrypt saltRounds 12
-- [ ] Roller/behörighet (RBAC — se `docs/RBAC.md`)
+- [ ] Roller/behörighet (RBAC — se `docs/SECURITY.md`)
 - [ ] 2FA (TOTP eller SMS-kod)
 - [ ] Rate limiting på `/auth/*`
 - [ ] Kontroll av `churchId` per resurs (auktoriserings-middleware)
@@ -349,7 +367,7 @@ Fullständig teknisk plan: `docs/AI-TOLKNING.md`. Startpunkt: `docs/POC-VECKA-1.
 
 ### Övervakning + drift
 - [ ] Automatisk backup (Railway hanterar PostgreSQL)
-- [ ] Felövervakning (Sentry — se `docs/KODSTRUKTUR-INSTRUKTION.md` Steg 10)
+- [ ] Felövervakning (Sentry — planeras i backend-fasen)
 - [ ] Uptime-monitoring (t.ex. UptimeRobot)
 - [ ] Metrics för AI-tolkning (latens, kostnad, felfrekvens)
 - [ ] Alerts för kritiska fel (Slack eller e-post)
@@ -389,7 +407,7 @@ värda att ta ställning till. Bocka av eller stryk vid genomgång.
 - [ ] **Rum-bokning** (kyrko-sal för dop-firande, möten m.m.)
 - [ ] **Mall-system** för utskick (spara egna mallar per kyrka)
 - [ ] **Utskick-schemaläggning** (redan i Kommunikation ovan)
-- [ ] **Onboarding-tour** för nya användare (driver.js — se FARG-OCH-DESIGN Steg 12)
+- [ ] **Onboarding-tour** för nya användare (driver.js — se design-backloggen)
 - [ ] **Inbjudan-flöde** — admin bjuder in ny präst/volontär via e-postlänk
 - [ ] **Medlem-överföring** mellan kyrkor (för besökare som flyttar)
 - [ ] **Tidszon-hantering** per kyrka (för multi-tenant över landsgränser)
@@ -447,13 +465,13 @@ värda att ta ställning till. Bocka av eller stryk vid genomgång.
 
 ---
 
-## Kodstruktur + prestanda (från KODSTRUKTUR-INSTRUKTION.md)
+## Kodstruktur + prestanda
 
 Steg 1-10 klara. Kvar:
 
 - [ ] useDebounce-hook för sökning (aktiveras när backend + Prisma används v.7-14). Wrap `useMemberSearch` med 300 ms debounce så filter-anrop inte triggas per tangenttryck.
 
-## Färg + design (från FARG-OCH-DESIGN-ATT-GORA.md)
+## Färg + design
 
 Steg 1-11 klara. Kvar:
 
@@ -501,14 +519,9 @@ Steg 1-11 klara. Kvar:
 ## Referenser
 
 - Detaljerad AI-tolkning: `docs/AI-TOLKNING.md`
-- Systemarkitektur: `docs/ARCHITECTURE.md`
-- Säkerhet: `docs/SECURITY.md`
+- Systemarkitektur (inkl. multi-kyrka): `docs/ARCHITECTURE.md`
+- Säkerhet & GDPR (inkl. RBAC): `docs/SECURITY.md`
 - Design: `docs/DESIGN.md`
-- PoC vecka 1: `docs/POC-VECKA-1.md`
-- Ursprunglig ROADMAP: `ROADMAP.md`
-- Sakrament-detaljer: `docs/SAKRAMENT.md`
-- Multi-kyrka-arkitektur: `docs/MULTI-KYRKA.md`
-- RBAC-strategi: `docs/RBAC.md`
-- Kodstruktur-att-göra: `docs/KODSTRUKTUR-INSTRUKTION.md`
-- UX + a11y-att-göra: `docs/UX-A11Y-INSTRUKTION.md`
-- Färg + design-att-göra: `docs/FARG-OCH-DESIGN-ATT-GORA.md`
+- Beslut & motiveringar: `docs/BESLUT.md`
+- Databas-plan: `docs/DATABAS-ATT-GORA.md`
+- Backend-att-göra: `docs/BACKEND-ATT-GORA.md`

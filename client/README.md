@@ -133,5 +133,5 @@ utan att röra UI-koden.
 
 - [Projektets huvud-README](../README.md) — hela projektet
 - [CLAUDE.md](../CLAUDE.md) — kodregler och kommentarsstandard
-- [ROADMAP.md](../ROADMAP.md) — alla funktioner och deras status
+- [docs/BACKLOG.md](../docs/BACKLOG.md) — alla uppgifter + vision & faser
 - [docs/](../docs/) — teknisk dokumentation
