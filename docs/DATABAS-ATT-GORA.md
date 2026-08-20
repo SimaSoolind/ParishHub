@@ -12,9 +12,11 @@ Genomgående på varje tabell: `id`, `churchId` (FK), `createdAt`, `updatedAt`. 
 
 ## 1. Grund: multi-kyrka, auth & GDPR (bygg FÖRST)
 
-- [ ] **churches** — församlingar (multi-tenant-roten). Fält: name, slug, timezone, logo.
-- [ ] **users** — konton (präst/diakon/admin). Fält: email, passwordHash (bcrypt ≥10 rounds),
-      name, role, churchId. Lösenord ALDRIG i klartext.
+- [x] **churches** — församlingar (multi-tenant-roten). Fält: name, slug, timezone, logo.
+      (Byggd 2026-08-19 via Prisma, Steg D.)
+- [x] **users** — konton (präst/diakon/admin). Fält: email, passwordHash (bcrypt ≥10 rounds),
+      name, role, churchId. Lösenord ALDRIG i klartext. (Byggd 2026-08-19; passwordHash-fältet
+      finns, bcrypt-hashning kopplas när auth byggs.)
 - [ ] **roles / permissions** — RBAC. Roller: präst, diakon, admin. Styr vem som FÅR göra vad.
 - [ ] **refresh_tokens** — httpOnly/Secure-cookie, kort access-token. Rotering, revoke.
 - [ ] **consents** — GDPR-samtycken (art. 6/9): sakrament, predikan-lagring, AI-tolkning.

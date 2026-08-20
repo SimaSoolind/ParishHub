@@ -1,7 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// Prisma-schema för ParishHub.
+// Beskriver tabellerna. Kör "npx prisma migrate dev" för att bygga dem i databasen.
+// Bygger på docs/DATABAS-ATT-GORA.md och ER-diagrammet (docs/ER-DIAGRAM.dbml).
 
 generator client {
   provider = "prisma-client"
@@ -10,4 +9,35 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+// Kyrka — roten i multi-kyrka. Allt annat kopplas så småningom till en kyrka.
+model Church {
+  id       String  @id @default(uuid())
+  name     String
+  slug     String  @unique
+  timezone String  @default("Europe/Stockholm")
+  logo     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // En kyrka har många användare (1:N)
+  users User[]
+}
+
+// Användare — präst/diakon/admin. Tillhör en kyrka.
+model User {
+  id           String @id @default(uuid())
+  email        String @unique
+  passwordHash String
+  name         String
+  role         String @default("priest") // admin / priest / deacon / volunteer
+
+  // Koppling till kyrkan (främmande nyckel)
+  churchId String
+  church   Church @relation(fields: [churchId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

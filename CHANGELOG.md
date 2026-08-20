@@ -8,6 +8,19 @@ Alla större ändringar i ParishHub loggas här.
 
 Format inspirerat av [Keep a Changelog](https://keepachangelog.com/sv-SE/1.1.0/).
 
+## [0.6.0] - 2026-08-19
+
+### Tillagt (backend-start)
+- Backend-projekt i `server/` — Node + Express + TypeScript (tsx), körande server på localhost:3000
+- PostgreSQL 16 + DBeaver lokalt; databaserna `parishhub` (projekt) + `parishhub_ovning` (kurs-övning)
+- Prisma kopplat till databasen; första migration med tabellerna **Church** och **User** (relation 1:N)
+- ER-diagram över hela datamodellen: `docs/ER-DIAGRAM.dbml` (för dbdiagram.io)
+
+### Dokumentation
+- Ny `docs/BACKEND-GRUNDER.md` — pedagogisk backend-lärmanual (Del 2 dokumenterar Steg A–D)
+- `docs/parishhub-parallell-plan.md` — studieplan som bygger ParishHub parallellt med databaskursen
+- `DATABAS-ATT-GORA.md` + `BACKLOG.md` uppdaterade (churches + users avbockade, backend startad)
+
 ## [0.5.1] - 2026-08-07
 
 ### Ändrat (kodkvalitet — läsbarhet, DRY, hållbarhet)

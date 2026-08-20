@@ -822,6 +822,78 @@ Skönt att ha en manual att gå tillbaka till.
 
 ---
 
+### 🗓 Söndag 17 augusti 2026 — Dag 19 (SQL-praktik, CRUD)
+
+**⏱ Tid:** 6 h
+**🎯 Mål för dagen:** Lära mig SQL hands-on i övnings-databasen
+
+**✅ Vad jag gjorde:**
+Första gången jag skrev riktig SQL själv — och det funkade!
+
+- Skapade min första tabell (`kunder`) i övnings-databasen `parishhub_ovning` via DBeaver
+- Gick igenom hela CRUD-cykeln hands-on: CREATE TABLE, INSERT, SELECT, WHERE, UPDATE, DELETE
+- La in egna kunder (Anna, Johan, Sima) och testade filtrering, ändring och radering
+- Skrev egna anteckningar i `databaskurs/F1-grunder/mina-anteckningar-sql-praktik.md`
+
+**🎓 Lärdomar:**
+- Databasen vs vyn: trädet i DBeaver är ett "foto" som inte uppdateras själv — tryck F5
+- SELECT är säkraste sättet att se data (hämtar direkt från databasen)
+- Primärnyckeln skyddar mot dubbletter (fick "duplicate key" när jag körde samma insert igen)
+- Ha alltid WHERE med UPDATE och DELETE — annars ändras/raderas ALLA rader
+
+**💡 Fel jag löste:**
+- `TAEBLE` i stället för `TABLE` (stavfel) — SQL är petig med kommando-ord
+- `DELETE * FROM ...` — DELETE ska inte ha `*` (bara SELECT har det)
+
+**📝 Reflektion:**
+Kändes läskigt att skriva SQL själv, men steg för steg blev det roligt. Att lära av felen
+(TAEBLE, duplicate key, DELETE *) fastnade extra bra. Nöjd och stolt.
+
+**➡️ Nästa steg:**
+- F1 Uppgift 7 (SUM + UPDATE)
+
+---
+
+### 🗓 Tisdag 19 augusti 2026 — Dag 20 (F2-föreläsning)
+
+**⏱ Tid:** ca 3 h
+**🎯 Mål för dagen:** Förstå Föreläsning 2 (databasdesign)
+
+**✅ Vad jag gjorde:**
+- Var på F2-föreläsningen och upptäckte att mina anteckningar byggde på en annan PDF än lärarens
+- Gick igenom HELA F2 lugnt med Claude, bit för bit: databasmodeller (hierarkisk/nätverk/relations),
+  ER-modell + symboler, kardinalitet, svaga entiteter, generalisering/specialisering,
+  attribut-typer, design-processen, normalisering (1NF–3NF + BCNF)
+- Löste normaliserings-övningar själv (1NF, 2NF, 3NF) — och hade rätt!
+- Byggde om mina F2-anteckningar (`mina-anteckningar-design.md`) så de matchar riktiga föreläsningen
+- Markerade den gamla F2-filen som gammal så jag inte blandar ihop dem
+
+**Senare samma dag — ParishHub (tillämpning av F2):**
+- Ritade ett komplett ER-diagram över hela ParishHub-databasen (`docs/ER-DIAGRAM.dbml`) i dbdiagram.io
+- Byggde de första riktiga tabellerna med Prisma: Church + User (Steg D), via en migration
+- Såg bryggan tydligt: Prismas `migration.sql` innehöll exakt CREATE TABLE + PRIMARY KEY +
+  FOREIGN KEY — samma SQL jag lär mig för hand i kursen
+
+**🎓 Lärdomar:**
+- "Beror på" = "bestämmer" — nyckeln till HELA normaliseringen (funktionellt beroende)
+- Lärarens formella ord: relation = tabell, tuple = rad, attribut = kolumn; transitivt beroende = 3NF-problemet
+- Svag entitet = kan inte stå själv (kommentar → inlägg); specialisering ⬇️ / generalisering ⬆️
+- BCNF = starkare 3NF (uppkallad efter Codd, som uppfann relationsdatabasen)
+
+**⚠️ Utmaningar:**
+- Svårt att hänga med live på föreläsningen (högt tempo, många nya ord)
+- Löste det genom att gå igenom PDF:en lugnt efteråt, en sak i taget
+
+**📝 Reflektion:**
+Gick från "väldigt svårt att hänga med" till att förstå hela föreläsningen i egen takt.
+Skönt att materialet nu stämmer med läraren. Normaliseringen kändes svår men jag klarade övningarna.
+
+**➡️ Nästa steg:**
+- Steg E: fler tabeller (members, families) via nya migrationer
+- F1 Uppgift 7 + F2-uppgifterna
+
+---
+
 ## 📋 Mall för nya dagar
 
 Kopiera detta block och klistra in högst upp under "Dag-för-dag":
@@ -867,6 +939,7 @@ Kopiera detta block och klistra in högst upp under "Dag-för-dag":
 - [x] Fas 1 komplett (mörkt läge, flerspråkighet, profilbild, kortnotering) — **3 augusti 2026** ✅
 - [x] Clean Architecture på alla sidor (domän · repository · hook) — **3 augusti 2026** ✅
 - [x] Backend startad — server + Express + Prisma kopplad till PostgreSQL — **12 augusti 2026** ✅
+- [x] Första ParishHub-tabellerna byggda med Prisma (Church + User) + ER-diagram — **19 augusti 2026** ✅
 - [x] Maxad TypeScript-strict + hela WCAG/a11y-planen (9 steg) — **3 augusti 2026** ✅
 - [x] Kodstruktur + prestanda-optimering (aliases, memo, code-splitting) — **3 augusti 2026** ✅
 - [x] UX/design-pass (mobilnav, färgblind-badges, EmptyState, felhantering, radera-gudstjänst, rubrik-typsnitt) — **4 augusti 2026** ✅

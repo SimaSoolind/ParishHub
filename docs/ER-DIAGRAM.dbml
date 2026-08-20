@@ -1,0 +1,315 @@
+// ParishHub — komplett ER-diagram
+// Klistra in HELA denna fil på https://dbdiagram.io → diagrammet ritas automatiskt.
+// Bygger på docs/DATABAS-ATT-GORA.md. Detta är blueprinten för Prisma-schemat (Steg 4).
+//
+// Genomgående på ALLA tabeller (visas inte varje gång för att hålla diagrammet rent):
+//   id, createdAt, updatedAt, samt deletedAt (soft-delete) där personuppgifter finns.
+// Nästan allt scopas med churchId (multi-kyrka).
+//
+// F2-koncept markerade i kommentarer: [1:N], [N:M], [SVAG ENTITET], [GENERALISERING].
+
+// ══════════════════════════════════════════
+// 1. GRUND: multi-kyrka, auth & GDPR
+// ══════════════════════════════════════════
+
+// Roten i multi-tenant — allt hänger på denna.
+Table churches {
+  id uuid [pk]
+  name varchar
+  slug varchar [unique]
+  timezone varchar
+  logo varchar
+}
+
+// [GENERALISERING] role = admin/priest/deacon/volunteer (specialiseringar av User)
+Table users {
+  id uuid [pk]
+  churchId uuid [ref: > churches.id]   // [1:N] 1 kyrka → många users
+  email varchar [unique]
+  passwordHash varchar
+  name varchar
+  role varchar [note: 'admin / priest / deacon / volunteer']
+}
+
+// [SVAG ENTITET] hör till en user (kan inte finnas själv)
+Table refresh_tokens {
+  id uuid [pk]
+  userId uuid [ref: > users.id]
+  tokenHash varchar
+  expiresAt timestamp
+  revokedAt timestamp
+}
+
+// [SVAG ENTITET] GDPR-samtycke, hör till en medlem
+Table consents {
+  id uuid [pk]
+  memberId uuid [ref: > members.id]
+  type varchar [note: 'sakrament / predikan / ai-tolkning']
+  givenAt timestamp
+  givenBy uuid [ref: > users.id]
+}
+
+// [SVAG ENTITET] spårbarhet: vem gjorde vad
+Table audit_log {
+  id uuid [pk]
+  churchId uuid [ref: > churches.id]
+  userId uuid [ref: > users.id]
+  action varchar
+  ipAddress varchar
+  createdAt timestamp
+}
+
+// ══════════════════════════════════════════
+// 2. MEDLEMMAR
+// ══════════════════════════════════════════
+
+Table families {
+  id uuid [pk]
+  churchId uuid [ref: > churches.id]   // [1:N]
+  name varchar
+}
+
+Table members {
+  id uuid [pk]
+  churchId uuid [ref: > churches.id]   // [1:N]
+  familyId uuid [ref: > families.id]   // [1:N] 1 familj → många medlemmar
+  name varchar
+  phone varchar
+  email varchar
+  address varchar
+  birthday date
+  category varchar [note: 'adult / youth / leader / other']
+  status varchar [note: 'active / inactive']
+  preferredName varchar
+  language varchar [note: 'sv / ar / en / el / ru / syr']
+  familyRole varchar [note: 'spouse / child / parent / sibling']
+  photoUrl varchar
+}
+
+// ══════════════════════════════════════════
+// 3. GUDSTJÄNST & NÄRVARO
+// ══════════════════════════════════════════
+
+Table services {
+  id uuid [pk]
+  churchId uuid [ref: > churches.id]   // [1:N]
+  title varchar
+  date date
+  startTime time
+  endTime time
+  feast varchar
+  bibleText varchar
+  streamUrl varchar
+}
+
+// [SVAG ENTITET] + [N:M] löser medlem ↔ gudstjänst
+Table attendance {
+  id uuid [pk]
+  serviceId uuid [ref: > services.id]  // förälder 1
+  memberId uuid [ref: > members.id]    // förälder 2
+  markedBy uuid [ref: > users.id]
+  status varchar [note: 'present / absent']
+  markedAt timestamp
+  absenceReason varchar [note: 'sick / travel / unknown / other']
+  contactStatus varchar [note: 'not-contacted / attempted / answered']
+
+  indexes {
+    (serviceId, memberId) [unique]     // en rad per medlem och gudstjänst
+  }
+}
+
+// [SVAG ENTITET] noteringar hör till en gudstjänst
+Table service_notes {
+  id uuid [pk]
+  serviceId uuid [ref: > services.id]
+  type varchar [note: 'prayer / sermon / sacrament / reflection']
+  visibility varchar [note: 'private / public']
+  text varchar
+}
+
+// ══════════════════════════════════════════
+// 4. KONTAKT & UPPFÖLJNING
+// ══════════════════════════════════════════
+
+Table reminders {
+  id uuid [pk]
+  churchId uuid [ref: > churches.id]
+  name varchar
+  reason varchar
+  kind varchar [note: 'manual / grief / commitment']
+  dueDate date
+  phone varchar
+  email varchar
+  done boolean
+}
+
+// [SVAG ENTITET] kontakthistorik per medlem
+Table contact_log {
+  id uuid [pk]
+  memberId uuid [ref: > members.id]
+  contactedAt timestamp
+  contactedBy uuid [ref: > users.id]
+  channel varchar
+  note varchar
+}
+
+Table absence_rules {
+  id uuid [pk]
+  churchId uuid [ref: > churches.id]
+  weeks int [note: 'standard 4']
+}
+
+// ══════════════════════════════════════════
+// 5. SAKRAMENT
+// ══════════════════════════════════════════
+
+Table sacraments {
+  id uuid [pk]
+  churchId uuid [ref: > churches.id]
+  memberId uuid [ref: > members.id]    // [1:N] 1 medlem → många sakrament
+  type varchar [note: '9 typer: dop / bikt / äktenskap ...']
+  date date
+  officiant varchar
+  place varchar
+  witnesses varchar
+  partnerId uuid [ref: > members.id]   // äktenskap kopplar två medlemmar
+  certificateUrl varchar
+}
+
+// ══════════════════════════════════════════
+// 6. PREDIKNINGAR
+// ══════════════════════════════════════════
+
+Table sermons {
+  id uuid [pk]
+  churchId uuid [ref: > churches.id]
+  title varchar
+  date date
+  bibleText varchar
+  feast varchar
+  mediaUrl varchar
+  content varchar [note: 'krypterat i vila']
+}
+
+// ══════════════════════════════════════════
+// 7. KALENDER
+// ══════════════════════════════════════════
+
+Table events {
+  id uuid [pk]
+  churchId uuid [ref: > churches.id]
+  title varchar
+  start timestamp
+  end timestamp
+  category varchar
+  notes varchar
+}
+
+// ══════════════════════════════════════════
+// 8. LITURGI-MANUS
+// ══════════════════════════════════════════
+
+Table liturgy_scripts {
+  id uuid [pk]
+  churchId uuid [ref: > churches.id]
+  feast varchar
+  title varchar
+}
+
+// [SVAG ENTITET] en rad hör till ett liturgy_script
+Table liturgy_blocks {
+  id uuid [pk]
+  scriptId uuid [ref: > liturgy_scripts.id]
+  order int
+  kind varchar [note: 'heading / text / sermon']
+  ar varchar
+  sv varchar
+  bibleRef varchar
+}
+
+// [SVAG ENTITET] dokument per gudstjänst
+Table documents {
+  id uuid [pk]
+  serviceId uuid [ref: > services.id]
+  filename varchar
+  url varchar
+  mimeType varchar
+}
+
+// vald liturgi per gudstjänst (bibliotek / uppladdat / manuellt)
+Table service_liturgy {
+  id uuid [pk]
+  serviceId uuid [ref: > services.id]
+  source varchar [note: 'library / upload / manual']
+  scriptId uuid [ref: > liturgy_scripts.id]
+  documentId uuid [ref: > documents.id]
+}
+
+// ══════════════════════════════════════════
+// 9. AI-TOLKNING LIVE
+// ══════════════════════════════════════════
+
+Table interpretation_sessions {
+  id uuid [pk]
+  serviceId uuid [ref: > services.id]
+  startedAt timestamp
+  endedAt timestamp
+  direction varchar
+  status varchar
+}
+
+// [SVAG ENTITET] transkript hör till en session
+Table transcript_segments {
+  id uuid [pk]
+  sessionId uuid [ref: > interpretation_sessions.id]
+  speaker varchar [note: 'priest / deacon']
+  sourceLanguage varchar
+  targetLanguage varchar
+  sourceText varchar
+  translatedText varchar
+  status varchar [note: 'partial / final']
+  sequence int
+}
+
+Table hymn_library {
+  id uuid [pk]
+  language varchar
+  tradition varchar
+  title varchar
+  lyrics varchar
+  translation varchar
+}
+
+// ══════════════════════════════════════════
+// 10. MEDDELANDEN
+// ══════════════════════════════════════════
+
+Table message_templates {
+  id uuid [pk]
+  key varchar
+  language varchar
+  text varchar
+}
+
+// [SVAG ENTITET] utskickshistorik per medlem
+Table message_log {
+  id uuid [pk]
+  memberId uuid [ref: > members.id]
+  channel varchar [note: 'whatsapp / sms / email']
+  templateKey varchar
+  sentAt timestamp
+  sentBy uuid [ref: > users.id]
+}
+
+// ══════════════════════════════════════════
+// 11. INSTÄLLNINGAR PER KYRKA
+// ══════════════════════════════════════════
+
+Table church_settings {
+  id uuid [pk]
+  churchId uuid [ref: > churches.id]
+  calendarSystem varchar [note: 'gregoriansk / juliansk']
+  backgroundUrl varchar
+  retentionDays int
+  defaultLanguage varchar
+}

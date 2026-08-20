@@ -286,8 +286,66 @@ dotenv (se ordlistan).
 
 ---
 
-_(Nästa: Steg D — skriva första tabellerna (Church + User) och köra en migration, så de dyker
-upp i DBeaver.)_
+## Steg D — Första tabellerna via Prisma (migration) 🏗️   (2026-08-19)
+
+**Vad jag gjorde:** beskrev de två första tabellerna (Church + User) i Prisma-schemat och körde
+en migration som byggde dem på riktigt i databasen `parishhub`. Designen från ER-diagrammet blev
+verkliga tabeller.
+
+**Koden (prisma/schema.prisma) i korthet:**
+```prisma
+model Church {
+  id       String  @id @default(uuid())   // primärnyckel, auto-genererat id
+  name     String
+  slug     String  @unique                // får inte upprepas
+  users    User[]                          // en kyrka har många users (1:N)
+}
+
+model User {
+  id       String @id @default(uuid())
+  email    String @unique
+  churchId String
+  church   Church @relation(fields: [churchId], references: [id])  // främmande nyckel
+}
+```
+
+**Kommandot jag körde:**
+```bash
+npx prisma migrate dev --name init
+```
+
+**Vad det betyder:**
+- **model** = beskrivning av en tabell.
+- **@id / @default(uuid())** = primärnyckel som får ett unikt id automatiskt.
+- **@unique** = värdet får inte upprepas (t.ex. e-post).
+- **@relation + churchId** = främmande nyckel (kopplingen mellan User och Church).
+- **migrate dev** = skapar en SQL-fil (byggjournalen) OCH bygger tabellerna i databasen.
+
+**Bryggan (kurs ↔ projekt):** Prisma skapade filen `prisma/migrations/.../migration.sql` med
+exakt den SQL jag lär mig för hand:
+```sql
+CREATE TABLE "Church" ( ..., CONSTRAINT "Church_pkey" PRIMARY KEY ("id") );
+CREATE UNIQUE INDEX "Church_slug_key" ON "Church"("slug");
+ALTER TABLE "User" ADD CONSTRAINT "User_churchId_fkey"
+  FOREIGN KEY ("churchId") REFERENCES "Church"("id");
+```
+Jag skrev enkel Prisma-kod — Prisma skrev CREATE TABLE, PRIMARY KEY och FOREIGN KEY åt mig.
+
+**Varför vi gör så:** Prisma äger den riktiga databasens struktur. Jag beskriver tabellerna en
+gång i schemat, och migrationen bygger dem + sparar historiken. Att lägga till en tabell senare =
+en ny migration, utan att förstöra det som finns.
+
+**Så vet jag att det funkade:**
+- Terminalen sa "Your database is now in sync with your schema".
+- `psql -d parishhub -c "\dt"` visar tabellerna Church och User.
+- Migration-filen innehåller CREATE TABLE + FOREIGN KEY.
+
+**Nya ord:** model, migration (i praktiken), prisma migrate dev, relation/@relation (se ordlistan).
+
+---
+
+_(Nästa: Steg E — lägga till fler tabeller (members, families ...) via nya migrationer, och
+så småningom koppla API + auth.)_
 
 ---
 ---
@@ -327,4 +385,8 @@ upp i DBeaver.)_
 - **DATABASE_URL** — adressen + inloggningen till databasen.
 - **@prisma/client** — kod-biblioteket backend använder för att hämta/spara data.
 - **dotenv** — läser in värden från .env så koden kan använda dem.
-- _(kommer snart: model, prisma migrate, JWT, bcrypt, hashning, middleware …)_
+- **model** — Prisma-beskrivning av en tabell (i schema.prisma).
+- **@id / @default / @unique** — regler på ett fält (primärnyckel / standardvärde / unikt).
+- **@relation** — kopplar två modeller med en främmande nyckel.
+- **prisma migrate dev** — skapar en migration (SQL-fil) och bygger tabellerna i databasen.
+- _(kommer snart: seed, API-endpoint, JWT, bcrypt, hashning, middleware …)_

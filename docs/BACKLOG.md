@@ -4,7 +4,7 @@
 > **Använd när:** du vill veta nästa steg, bocka av klara uppgifter.
 > **Se även:** [`INDEX.md`](./INDEX.md) för hitta-rätt-guide.
 
-**Uppdaterad:** 2026-08-06
+**Uppdaterad:** 2026-08-19
 **Bygg dagligen:** 8-10 timmar = realistisk tidsram nedan.
 
 Denna fil är den **ENDA sanningskällan** för scope och tasks.
@@ -23,7 +23,7 @@ Deep Research-spec, Dokument 2 (PARISHHUB-app) från Drive.
 | Del | Status |
 |---|---|
 | Frontend | I princip klar mot mockdata (alla moduler + AI-tolkning-mock + liturgi-manus) |
-| Backend | 0 % (v.7-14, 15-20 h/vecka) — se `DATABAS-ATT-GORA.md` för tabeller |
+| Backend | Startad — server + Express + Prisma; tabellerna Church + User byggda (2026-08-19). Se `DATABAS-ATT-GORA.md` |
 | Deploy | 0 % (v.15+) |
 | Testning | 100 tester (alla use-cases + 19 hooks) |
 | Docs | Komplett — ARCHITECTURE, AI-TOLKNING, SECURITY, DESIGN, BESLUT, DATABAS-ATT-GORA |
